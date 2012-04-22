@@ -204,7 +204,7 @@ a3d_texfont_t* a3d_texfont_new(const char* fname)
 
 	glGenTextures(1, &self->tex->id);
 	glBindTexture(GL_TEXTURE_2D, self->tex->id);
-	#ifdef A3D_GLESv1_CM
+	#if defined(A3D_GLESv1_CM)
 		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	#else

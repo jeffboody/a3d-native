@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <zlib.h>
+#include <string.h>
 
 #define LOG_TAG "a3d"
 #include "a3d_log.h"

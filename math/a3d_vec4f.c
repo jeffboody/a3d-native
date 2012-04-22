@@ -95,7 +95,6 @@ void a3d_vec4f_addv_copy(const a3d_vec4f_t* self, const a3d_vec4f_t* v, a3d_vec4
 void a3d_vec4f_adds(a3d_vec4f_t* self, GLfloat s)
 {
 	assert(self);
-	assert(v);
 	LOGD("debug");
 
 	self->x += s;

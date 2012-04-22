@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #define LOG_TAG "a3d"
 #include "a3d_log.h"
@@ -40,7 +41,7 @@ static const int A3D_TEXSTRING_LEFT   = 0x01;
 static const int A3D_TEXSTRING_CENTER = 0x02;
 static const int A3D_TEXSTRING_RIGHT  = 0x04;
 
-#ifdef A3D_GLESv2
+#if defined(A3D_GLESv2) || defined(A3D_GL2)
 	#include "a3d_shader.h"
 
 	static const char* VSHADER =
@@ -56,8 +57,10 @@ static const int A3D_TEXSTRING_RIGHT  = 0x04;
 		"}\n";
 
 	static const char* FSHADER =
+		"#ifdef GL_ES\n"
 		"precision mediump float;\n"
 		"precision mediump int;\n"
+		"#endif\n"
 		"\n"
 		"uniform vec4      color;\n"
 		"uniform sampler2D sampler;\n"
@@ -151,7 +154,7 @@ a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
 		goto fail_coords;
 	}
 
-	#ifdef A3D_GLESv2
+	#if defined(A3D_GLESv2) || defined(A3D_GL2)
 		if(a3d_texstring_load_shaders(self) == 0)
 			goto fail_shader;
 
@@ -169,7 +172,7 @@ a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
 	return self;
 
 	// failure
-	#ifdef A3D_GLESv2
+	#if defined(A3D_GLESv2) || defined(A3D_GL2)
 		fail_shader:
 			free(self->coords);
 	#endif
@@ -192,7 +195,7 @@ void a3d_texstring_delete(a3d_texstring_t** _self)
 	{
 		LOGD("debug");
 
-		#ifdef A3D_GLESv2
+		#if defined(A3D_GLESv2) || defined(A3D_GL2)
 			glDeleteProgram(self->program);
 		#endif
 
@@ -287,7 +290,7 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 	if     (self->justify & A3D_TEXSTRING_BOTTOM) y_offset = -self->size;
 
 	// draw the string
-	#ifdef A3D_GLESv1_CM
+	#if defined(A3D_GLESv1_CM)
 		glEnable(GL_TEXTURE_2D);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnable(GL_BLEND);

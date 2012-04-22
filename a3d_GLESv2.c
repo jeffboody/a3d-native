@@ -187,7 +187,7 @@ typedef enum
 * function stats                                           *
 ***********************************************************/
 
-#include "a3d/a3d_time.h"
+#include "a3d_time.h"
 
 typedef struct
 {

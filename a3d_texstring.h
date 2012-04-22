@@ -50,7 +50,7 @@ typedef struct
 	GLfloat* vertex;
 	GLfloat* coords;
 
-	#ifdef A3D_GLESv2
+	#if defined(A3D_GLESv2) || defined(A3D_GL2)
 		a3d_mat4f_t pm;
 		a3d_mat4f_t mvm;
 

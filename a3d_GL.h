@@ -24,10 +24,13 @@
 #ifndef a3d_GL_H
 #define a3d_GL_H
 
-#ifdef A3D_GLESv1_CM
+#if defined(A3D_GLESv1_CM)
 	#include <GLES/gl.h>
-#else
+#elif defined(A3D_GLESv2)
 	#include <GLES2/gl2.h>
+#elif defined(A3D_GL2)
+	#include <GL/glew.h>
+	#include <GL/gl.h>
 #endif
 
 /***********************************************************
@@ -41,9 +44,11 @@ GLenum a3d_GL_geterror(const char* func, int line, const char* tag);
 * control functions                                        *
 ***********************************************************/
 
-int  a3d_GL_load(void);
-int  a3d_GL_unload(void);
-void a3d_GL_frame_begin(void);
-void a3d_GL_frame_end(void);
+#if defined(A3D_GLESv1_CM) || defined(A3D_GLESv2)
+	int  a3d_GL_load(void);
+	int  a3d_GL_unload(void);
+	void a3d_GL_frame_begin(void);
+	void a3d_GL_frame_end(void);
+#endif
 
 #endif

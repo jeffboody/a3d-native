@@ -22,6 +22,7 @@
  */
 
 #include <sys/time.h>
+#include <stdlib.h>
 #include "a3d_time.h"
 
 #define LOG_TAG "a3d"

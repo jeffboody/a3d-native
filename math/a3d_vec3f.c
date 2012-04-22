@@ -90,7 +90,6 @@ void a3d_vec3f_addv_copy(const a3d_vec3f_t* self, const a3d_vec3f_t* v, a3d_vec3
 void a3d_vec3f_adds(a3d_vec3f_t* self, GLfloat s)
 {
 	assert(self);
-	assert(v);
 	LOGD("debug");
 
 	self->x += s;

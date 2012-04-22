@@ -5,8 +5,8 @@ SOURCE   = $(A3D:%=%.c) $(A3D_MATH:%=math/%.c)
 OBJECTS  = $(SOURCE:.c=.o)
 HFILES   = $(A3D:%=%.h) $(A3D_MATH:%=math/%.h)
 OPT      = -O2 -Wall
-CFLAGS   = $(OPT) -I. -I/usr/include/SDL -I/usr/local/include/SDL -D_REENTRANT -DA3D_GL2
-LDFLAGS  = -lGLEW -lGL -lGLU -lm -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
+CFLAGS   = $(OPT) -I. -DA3D_GL2
+LDFLAGS  = -lGLEW -lGL -lm -L/usr/lib
 AR       = ar
 
 all: $(TARGET)

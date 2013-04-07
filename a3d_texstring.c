@@ -162,6 +162,9 @@ a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
 		a3d_mat4f_identity(&self->mvm);
 	#endif
 
+	glGenBuffers(1, &self->vertex_id);
+	glGenBuffers(1, &self->coords_id);
+
 	self->size     = size;
 	self->justify  = justify;
 	a3d_vec4f_load(&self->color, r, g, b, a);
@@ -198,6 +201,9 @@ void a3d_texstring_delete(a3d_texstring_t** _self)
 		#if defined(A3D_GLESv2) || defined(A3D_GL2)
 			glDeleteProgram(self->program);
 		#endif
+
+		glDeleteBuffers(1, &self->vertex_id);
+		glDeleteBuffers(1, &self->coords_id);
 
 		free(self->coords);
 		free(self->vertex);
@@ -269,6 +275,12 @@ void a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...)
 		// next character offset
 		offset += vertex.r;
 	}
+	int vertex_size = 18 * len;   // 2 * 3 * xyz
+	int coords_size = 12 * len;   // 2 * 3 * uv
+	glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
+	glBufferData(GL_ARRAY_BUFFER, vertex_size * sizeof(GLfloat), self->vertex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
+	glBufferData(GL_ARRAY_BUFFER, coords_size * sizeof(GLfloat), self->coords, GL_STATIC_DRAW);
 }
 
 void a3d_texstring_draw(a3d_texstring_t* self,
@@ -296,8 +308,10 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBindTexture(GL_TEXTURE_2D, self->font->tex->id);
-		glVertexPointer(3, GL_FLOAT, 0, self->vertex);
-		glTexCoordPointer(2, GL_FLOAT, 0, self->coords);
+		glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
+		glVertexPointer(3, GL_FLOAT, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
+		glTexCoordPointer(2, GL_FLOAT, 0, 0);
 		glPushMatrix();
 		glColor4f(self->color.x, self->color.y, self->color.z, 1.0f);
 		glMatrixMode(GL_PROJECTION);
@@ -320,8 +334,10 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glUseProgram(self->program);
 		glEnableVertexAttribArray(self->attribute_vertex);
 		glEnableVertexAttribArray(self->attribute_coords);
-		glVertexAttribPointer(self->attribute_vertex, 3, GL_FLOAT, GL_FALSE, 0, self->vertex);
-		glVertexAttribPointer(self->attribute_coords, 2, GL_FLOAT, GL_FALSE, 0, self->coords);
+		glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
+		glVertexAttribPointer(self->attribute_vertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
+		glVertexAttribPointer(self->attribute_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glUniform4fv(self->uniform_color, 1, (GLfloat*) &self->color);
 		glUniform1i(self->uniform_sampler, 0);
 		a3d_mat4f_ortho(&self->pm, 1, 0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);

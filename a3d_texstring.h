@@ -49,6 +49,8 @@ typedef struct
 	char*    string;
 	GLfloat* vertex;
 	GLfloat* coords;
+	GLuint   vertex_id;
+	GLuint   coords_id;
 
 	#if defined(A3D_GLESv2) || defined(A3D_GL2)
 		a3d_mat4f_t pm;

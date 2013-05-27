@@ -208,3 +208,136 @@ int a3d_list_size(a3d_list_t* self)
 	LOGD("debug");
 	return self->size;
 }
+
+int a3d_list_empty(a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->size == 0;
+}
+
+const void* a3d_list_peekhead(a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return (self->size == 0) ? NULL : self->head->data;
+}
+
+const void* a3d_list_peektail(a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return (self->size == 0) ? NULL : self->tail->data;
+}
+
+const void* a3d_list_peekitem(a3d_listitem_t* item)
+{
+	assert(item);
+	LOGD("debug");
+
+	return item->data;
+}
+
+a3d_listitem_t* a3d_list_head(a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->head;
+}
+
+a3d_listitem_t* a3d_list_tail(a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->tail;
+}
+
+a3d_listitem_t* a3d_list_next(a3d_listitem_t* item)
+{
+	assert(item);
+	LOGD("debug");
+
+	return item->next;
+}
+
+a3d_listitem_t* a3d_list_prev(a3d_listitem_t* item)
+{
+	assert(item);
+	LOGD("debug");
+
+	return item->prev;
+}
+
+a3d_listitem_t* a3d_list_find(a3d_list_t* self,
+                              const void* data,
+                              a3d_listcmp_fn compare)
+{
+	// data can be NULL
+	assert(self);
+	assert(compare);
+	LOGD("debug");
+
+	a3d_listitem_t* item = self->head;
+	while(item)
+	{
+		if((*compare)(item->data, data) == 0)
+		{
+			break;
+		}
+		item = item->next;
+	}
+	return item;
+}
+
+a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
+                                a3d_listitem_t* item,
+                                const void* data)
+{
+	// data can be null
+	assert(self);
+	assert(item);
+	LOGD("debug");
+
+	return a3d_listitem_new(self, item->prev, item, data);
+}
+
+a3d_listitem_t* a3d_list_append(a3d_list_t* self,
+                                a3d_listitem_t* item,
+                                const void* data)
+{
+	// data can be null
+	assert(self);
+	assert(item);
+	LOGD("debug");
+
+	return a3d_listitem_new(self, item, item->next, data);
+}
+
+const void* a3d_list_replace(a3d_list_t* self,
+                             a3d_listitem_t* item,
+                             const void* data)
+{
+	// data can be null
+	assert(self);
+	assert(item);
+	LOGD("debug");
+
+	const void* tmp = item->data;
+	item->data = data;
+	return tmp;
+}
+
+const void* a3d_list_remove(a3d_list_t* self,
+                            a3d_listitem_t** _item)
+{
+	// _item can be NULL
+	assert(self);
+	LOGD("debug");
+
+	return a3d_listitem_delete(_item, self);
+}

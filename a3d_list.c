@@ -32,9 +32,13 @@
 * private                                                  *
 ***********************************************************/
 
-a3d_listitem_t* a3d_listitem_new(a3d_listitem_t* prev, a3d_listitem_t* next, const void* data)
+static a3d_listitem_t* a3d_listitem_new(a3d_list_t* list,
+                                        a3d_listitem_t* prev,
+                                        a3d_listitem_t* next,
+                                        const void* data)
 {
 	// prev, next and data can be NULL
+	assert(list);
 	LOGD("debug");
 
 	a3d_listitem_t* self = (a3d_listitem_t*) malloc(sizeof(a3d_listitem_t));
@@ -48,34 +52,71 @@ a3d_listitem_t* a3d_listitem_new(a3d_listitem_t* prev, a3d_listitem_t* next, con
 	self->prev = prev;
 	self->data = data;
 
+	// update next/prev nodes
 	if(next)
+	{
 		next->prev = self;
+	}
 	if(prev)
+	{
 		prev->next = self;
+	}
+
+	// update the list
+	if(prev == NULL)
+	{
+		list->head = self;
+	}
+	if(next == NULL)
+	{
+		list->tail = self;
+	}
+	++list->size;
 
 	return self;
 }
 
-void a3d_listitem_delete(a3d_listitem_t** _self)
+static const void* a3d_listitem_delete(a3d_listitem_t** _self,
+                                       a3d_list_t* list)
 {
-	// *_self can be NULL
 	assert(_self);
+	assert(list);
 
 	a3d_listitem_t* self = *_self;
+	a3d_listitem_t* next = NULL;
+	const void*     data = NULL;
 	if(self)
 	{
 		LOGD("debug");
 
+		// update next/prev nodes
 		if(self->prev)
+		{
 			self->prev->next = self->next;
+		}
 		if(self->next)
+		{
 			self->next->prev = self->prev;
+		}
 
-		// data is managed by a3d_list_t
+		// update the list
+		if(self == list->head)
+		{
+			list->head = self->next;
+		}
+		if(self == list->tail)
+		{
+			list->tail = self->prev;
+		}
+		--list->size;
 
+		next = self->next;
+		data = self->data;
 		free(self);
-		*_self = NULL;
+		*_self = next;
 	}
+
+	return data;
 }
 
 /***********************************************************
@@ -111,10 +152,14 @@ void a3d_list_delete(a3d_list_t** _self)
 		LOGD("debug");
 
 		if(self->size > 0)
+		{
 			LOGE("memory leak detected: size=%i", self->size);
+		}
 
 		while(self->size > 0)
+		{
 			a3d_list_pop(self);
+		}
 
 		free(self);
 		*_self = NULL;
@@ -127,15 +172,8 @@ int a3d_list_push(a3d_list_t* self, const void* data)
 	assert(self);
 	LOGD("debug");
 
-	a3d_listitem_t* item = a3d_listitem_new(NULL, self->head, data);
-	if(item == NULL)
-		return 0;
-
-	self->head = item;
-	if(self->size == 0)
-		self->tail = item;
-	++self->size;
-	return 1;
+	a3d_listitem_t* item = a3d_listitem_new(self, NULL, self->head, data);
+	return (item == NULL) ? 0 : 1;
 }
 
 const void* a3d_list_pop(a3d_list_t* self)
@@ -143,18 +181,7 @@ const void* a3d_list_pop(a3d_list_t* self)
 	assert(self);
 	LOGD("debug");
 
-	if(self->size == 0)
-		return NULL;
-
-	a3d_listitem_t* item = self->head;
-	const void*     data = item->data;
-	self->head = self->head->next;
-	a3d_listitem_delete(&item);
-	--self->size;
-	if(self->size == 0)
-		self->tail = NULL;
-
-	return data;
+	return a3d_listitem_delete(&self->head, self);
 }
 
 int a3d_list_enqueue(a3d_list_t* self, const void* data)
@@ -163,21 +190,15 @@ int a3d_list_enqueue(a3d_list_t* self, const void* data)
 	assert(self);
 	LOGD("debug");
 
-	a3d_listitem_t* item = a3d_listitem_new(self->tail, NULL, data);
-	if(item == NULL)
-		return 0;
-
-	if(self->size == 0)
-		self->head = item;
-	self->tail = item;
-	++self->size;
-	return 1;
+	a3d_listitem_t* item = a3d_listitem_new(self, self->tail, NULL, data);
+	return (item == NULL) ? 0 : 1;
 }
 
 const void* a3d_list_dequeue(a3d_list_t* self)
 {
 	assert(self);
 	LOGD("debug");
+
 	return a3d_list_pop(self);
 }
 

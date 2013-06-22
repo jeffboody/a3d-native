@@ -318,6 +318,83 @@ void a3d_mat4f_muls_copy(const a3d_mat4f_t* self, GLfloat s, a3d_mat4f_t* copy)
 	copy->m33 = self->m33 * s;
 }
 
+void a3d_mat4f_lookat(a3d_mat4f_t* self, int load,
+                      GLfloat eyex, GLfloat eyey, GLfloat eyez,
+                      GLfloat centerx, GLfloat centery, GLfloat centerz,
+                      GLfloat upx, GLfloat upy, GLfloat upz)
+{
+	assert(self);
+	LOGD("debug load=%i, eye=(%f,%f,%f), center=(%f,%f,%f), up=(%f,%f,%f)",
+	     load, eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
+
+	a3d_vec3f_t eye =
+	{
+		eyex, eyey, eyez
+	};
+
+	a3d_vec3f_t center =
+	{
+		centerx, centery, centerz
+	};
+
+	a3d_vec3f_t up =
+	{
+		upx, upy, upz
+	};
+
+	a3d_vec3f_t n;
+	a3d_vec3f_subv_copy(&center, &eye, &n);
+	a3d_vec3f_normalize(&n);
+	a3d_vec3f_normalize(&up);
+
+	a3d_vec3f_t u;
+	a3d_vec3f_t v;
+	a3d_vec3f_cross_copy(&n, &up, &u);
+	a3d_vec3f_cross_copy(&u, &n, &v);
+
+	a3d_mat4f_t m =
+	{
+		 u.x,  v.x, -n.x, 0.0f,
+		 u.y,  v.y, -n.y, 0.0f,
+		 u.z,  v.z, -n.z, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+	};
+	a3d_mat4f_translate(&m, 0, -eye.x, -eye.y, -eye.z);
+
+	if(load)
+		a3d_mat4f_copy(&m, self);
+	else
+		a3d_mat4f_mulm(self, &m);
+}
+
+void a3d_mat4f_perspective(a3d_mat4f_t* self, int load,
+                           GLfloat fovy, GLfloat aspect,
+                           GLfloat znear, GLfloat zfar)
+{
+	assert(self);
+	LOGD("debug load=%i, fovy=%f, aspect=%f, znear=%f, zfar=%f",
+	     load, fovy, aspect, znear, zfar);
+
+	GLfloat f   = 1.0f/tanf(fovy*(M_PI/180.0f)/2.0f);
+	GLfloat m00 = f/aspect;
+	GLfloat m11 = f;
+	GLfloat m22 = (zfar + znear)/(znear - zfar);
+	GLfloat m23 = (2.0f*zfar*znear)/(znear - zfar);
+
+	a3d_mat4f_t m =
+	{
+		 m00, 0.0f, 0.0f,  0.0f,
+		0.0f,  m11, 0.0f,  0.0f,
+		0.0f, 0.0f,  m22, -1.0f,
+		0.0f, 0.0f,  m23,  0.0f,
+	};
+
+	if(load)
+		a3d_mat4f_copy(&m, self);
+	else
+		a3d_mat4f_mulm(self, &m);
+}
+
 void a3d_mat4f_rotate(a3d_mat4f_t* self, int load,
                       GLfloat a,
                       GLfloat x, GLfloat y, GLfloat z)

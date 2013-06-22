@@ -66,6 +66,13 @@ void a3d_mat4f_muls(a3d_mat4f_t* self, GLfloat s);
 void a3d_mat4f_muls_copy(const a3d_mat4f_t* self, GLfloat s, a3d_mat4f_t* copy);
 
 // GL matrix operations
+void a3d_mat4f_lookat(a3d_mat4f_t* self, int load,
+                      GLfloat eyex, GLfloat eyey, GLfloat eyez,
+                      GLfloat centerx, GLfloat centery, GLfloat centerz,
+                      GLfloat upx, GLfloat upy, GLfloat upz);
+void a3d_mat4f_perspective(a3d_mat4f_t* self, int load,
+                           GLfloat fovy, GLfloat aspect,
+                           GLfloat znear, GLfloat zfar);
 void a3d_mat4f_rotate(a3d_mat4f_t* self, int load,
                       GLfloat a,
                       GLfloat x, GLfloat y, GLfloat z);

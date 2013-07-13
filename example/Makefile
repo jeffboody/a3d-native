@@ -1,5 +1,5 @@
 TARGET   = example
-CLASSES  = 
+CLASSES  = test_list
 SOURCE   = $(TARGET).c $(CLASSES:%=%.c)
 OBJECTS  = $(TARGET).o $(CLASSES:%=%.o)
 HFILES   = $(CLASSES:%=%.h)

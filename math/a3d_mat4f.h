@@ -28,6 +28,7 @@
 
 #include "a3d_vec4f.h"
 #include "a3d_mat3f.h"
+#include "a3d_quaternion.h"
 
 // note: can cast a3d_mat4f_t* to GLfloat* (column-major)
 
@@ -64,6 +65,10 @@ void a3d_mat4f_mulv(const a3d_mat4f_t* self, a3d_vec4f_t* v);
 void a3d_mat4f_mulv_copy(const a3d_mat4f_t* self, const a3d_vec4f_t* v, a3d_vec4f_t* copy);
 void a3d_mat4f_muls(a3d_mat4f_t* self, GLfloat s);
 void a3d_mat4f_muls_copy(const a3d_mat4f_t* self, GLfloat s, a3d_mat4f_t* copy);
+
+// quaternion operations
+void a3d_mat4f_rotateq(a3d_mat4f_t* self, int load,
+                       const a3d_quaternion_t* q);
 
 // GL matrix operations
 void a3d_mat4f_lookat(a3d_mat4f_t* self, int load,

@@ -318,6 +318,46 @@ void a3d_mat4f_muls_copy(const a3d_mat4f_t* self, GLfloat s, a3d_mat4f_t* copy)
 	copy->m33 = self->m33 * s;
 }
 
+/*
+ * quaternion operations
+ */
+
+void a3d_mat4f_rotateq(a3d_mat4f_t* self, int load,
+                       const a3d_quaternion_t* q)
+{
+	assert(self);
+	assert(q);
+	LOGD("debug load=%i", load);
+
+	float x2 = q->v.x*q->v.x;
+	float y2 = q->v.y*q->v.y;
+	float z2 = q->v.z*q->v.z;
+	float xy = q->v.x*q->v.y;
+	float xz = q->v.x*q->v.z;
+	float yz = q->v.y*q->v.z;
+	float xw = q->v.x*q->s;
+	float yw = q->v.y*q->s;
+	float zw = q->v.z*q->s;
+
+	// requires normalized quaternions
+	a3d_mat4f_t m =
+	{
+		1.0f - 2.0f*(y2 + z2), 2.0f*(xy - zw), 2.0f*(xz + yw), 0.0f,
+		2.0f*(xy + zw), 1.0f - 2.0f*(x2 + z2), 2.0f*(yz - xw), 0.0f,
+		2.0f*(xz - yw), 2.0f*(yz + xw), 1.0f - 2.0f*(x2 + y2), 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f,
+	};
+
+	if(load)
+		a3d_mat4f_copy(&m, self);
+	else
+		a3d_mat4f_mulm(self, &m);
+}
+
+/*
+ * GL matrix operations
+ */
+
 void a3d_mat4f_lookat(a3d_mat4f_t* self, int load,
                       GLfloat eyex, GLfloat eyey, GLfloat eyez,
                       GLfloat centerx, GLfloat centery, GLfloat centerz,

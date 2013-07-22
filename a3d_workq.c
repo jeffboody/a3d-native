@@ -266,12 +266,11 @@ void a3d_workq_purge(a3d_workq_t* self)
 		}
 	}
 
-	// if the active node needs to be purged we will wait for the
-	// workq thread to complete and then purge in the next section
+	// purge the active node (non-blocking)
 	if(self->active_node &&
 	   (self->active_node->purge_id != self->purge_id))
 	{
-		pthread_cond_wait(&self->queue_cond, &self->queue_mutex);
+		self->active_node->status = A3D_WORKQ_FINISHED;
 	}
 
 	// purge the complete queue

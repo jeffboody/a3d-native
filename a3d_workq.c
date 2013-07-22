@@ -112,26 +112,14 @@ static void* a3d_workq_thread(void* arg)
 
 		// run the task
 		a3d_workqnode_t* node = self->active_node;
-		if((*self->workq_fn)(node->task) == A3D_WORKQ_COMPLETE)
-		{
-			node->status = A3D_WORKQ_COMPLETE;
-		}
-		else if((*self->workq_fn)(node->task) == A3D_WORKQ_FINISHED)
-		{
-			node->status = A3D_WORKQ_FINISHED;
-		}
-		else
-		{
-			// no other states allowed
-			node->status = A3D_WORKQ_ERROR;
-		}
+		int status = (*self->workq_fn)(node->task);
 
 		pthread_mutex_lock(&self->queue_mutex);
 
-		// put the task on the complete queue
 		if(node->status != A3D_WORKQ_FINISHED)
 		{
-			// on failure the task is dropped
+			// put the task on the complete queue
+			node->status = status;
 			a3d_list_enqueue(self->queue_complete, (const void*) node);
 		}
 		self->active_node = NULL;

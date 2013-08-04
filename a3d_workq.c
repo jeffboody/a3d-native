@@ -116,7 +116,12 @@ static void* a3d_workq_thread(void* arg)
 
 		pthread_mutex_lock(&self->queue_mutex);
 
-		if(node->status != A3D_WORKQ_FINISHED)
+		if((status == A3D_WORKQ_FINISHED) ||
+		   (node->status == A3D_WORKQ_FINISHED))
+		{
+			a3d_workqnode_delete(&node);
+		}
+		else
 		{
 			// put the task on the complete queue
 			node->status = status;

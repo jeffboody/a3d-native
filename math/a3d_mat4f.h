@@ -65,6 +65,10 @@ void a3d_mat4f_mulv(const a3d_mat4f_t* self, a3d_vec4f_t* v);
 void a3d_mat4f_mulv_copy(const a3d_mat4f_t* self, const a3d_vec4f_t* v, a3d_vec4f_t* copy);
 void a3d_mat4f_muls(a3d_mat4f_t* self, GLfloat s);
 void a3d_mat4f_muls_copy(const a3d_mat4f_t* self, GLfloat s, a3d_mat4f_t* copy);
+void a3d_mat4f_addm(a3d_mat4f_t* self, const a3d_mat4f_t* m);
+void a3d_mat4f_addm_copy(const a3d_mat4f_t* self, const a3d_mat4f_t* m, a3d_mat4f_t* copy);
+void a3d_mat4f_orthonormal(a3d_mat4f_t* self);
+void a3d_mat4f_orthonormal_copy(const a3d_mat4f_t* self, a3d_mat4f_t* copy);
 
 // quaternion operations
 void a3d_mat4f_rotateq(a3d_mat4f_t* self, int load,

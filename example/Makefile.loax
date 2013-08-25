@@ -4,7 +4,7 @@ SOURCE   = $(TARGET).c $(CLASSES:%=%.c)
 OBJECTS  = $(TARGET).o $(CLASSES:%=%.o)
 HFILES   = $(CLASSES:%=%.h)
 OPT      = -O2 -Wall
-CFLAGS   = $(OPT) -I.
+CFLAGS   = $(OPT) -I. -DA3D_GLESv2_LOAX
 LDFLAGS  = -L/usr/lib -La3d -la3d -Lloax -lloax -Lnet -lnet -lpthread -lm
 CCC      = gcc
 

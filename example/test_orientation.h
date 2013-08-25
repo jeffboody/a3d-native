@@ -21,19 +21,9 @@
  *
  */
 
-#include <stdlib.h>
-#include "test_list.h"
-#include "test_workq.h"
-#include "test_orientation.h"
+#ifndef test_orientation_H
+#define test_orientation_H
 
-#define LOG_TAG "example"
-#include "a3d/a3d_log.h"
+void test_orientation(void);
 
-int main(int argc, char** argv)
-{
-	test_list();
-	test_workq();
-	test_orientation();
-
-	return EXIT_SUCCESS;
-}
+#endif

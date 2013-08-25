@@ -29,6 +29,26 @@
 #define LOG_TAG "a3d"
 #include "../a3d_log.h"
 
+/***********************************************************
+* private                                                  *
+***********************************************************/
+
+static void a3d_mat4f_projuv(a3d_vec4f_t* u, a3d_vec4f_t* v, a3d_vec4f_t* projuv)
+{
+	assert(u);
+	assert(v);
+	assert(projuv);
+	LOGD("debug");
+
+	GLfloat dotvu = a3d_vec4f_dot(v, u);
+	GLfloat dotuu = a3d_vec4f_dot(u, u);
+	a3d_vec4f_muls_copy(u, dotvu/dotuu, projuv);
+}
+
+/***********************************************************
+* public                                                   *
+***********************************************************/
+
 // TODO - optimize special cases instead of using a3d_mat4f_mulm
 
 void a3d_mat4f_identity(a3d_mat4f_t* self)
@@ -316,6 +336,134 @@ void a3d_mat4f_muls_copy(const a3d_mat4f_t* self, GLfloat s, a3d_mat4f_t* copy)
 	copy->m31 = self->m31 * s;
 	copy->m32 = self->m32 * s;
 	copy->m33 = self->m33 * s;
+}
+
+void a3d_mat4f_addm(a3d_mat4f_t* self, const a3d_mat4f_t* m)
+{
+	assert(self);
+	assert(m);
+	LOGD("debug");
+
+	self->m00 += m->m00;
+	self->m01 += m->m01;
+	self->m02 += m->m02;
+	self->m03 += m->m03;
+	self->m10 += m->m10;
+	self->m11 += m->m11;
+	self->m12 += m->m12;
+	self->m13 += m->m13;
+	self->m20 += m->m20;
+	self->m21 += m->m21;
+	self->m22 += m->m22;
+	self->m23 += m->m23;
+	self->m30 += m->m30;
+	self->m31 += m->m31;
+	self->m32 += m->m32;
+	self->m33 += m->m33;
+}
+
+void a3d_mat4f_addm_copy(const a3d_mat4f_t* self, const a3d_mat4f_t* m, a3d_mat4f_t* copy)
+{
+	assert(self);
+	assert(m);
+	assert(copy);
+	LOGD("debug");
+
+	copy->m00 = self->m00 + m->m00;
+	copy->m01 = self->m01 + m->m01;
+	copy->m02 = self->m02 + m->m02;
+	copy->m03 = self->m03 + m->m03;
+	copy->m10 = self->m10 + m->m10;
+	copy->m11 = self->m11 + m->m11;
+	copy->m12 = self->m12 + m->m12;
+	copy->m13 = self->m13 + m->m13;
+	copy->m20 = self->m20 + m->m20;
+	copy->m21 = self->m21 + m->m21;
+	copy->m22 = self->m22 + m->m22;
+	copy->m23 = self->m23 + m->m23;
+	copy->m30 = self->m30 + m->m30;
+	copy->m31 = self->m31 + m->m31;
+	copy->m32 = self->m32 + m->m32;
+	copy->m33 = self->m33 + m->m33;
+}
+
+void a3d_mat4f_orthonormal(a3d_mat4f_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	a3d_mat4f_t copy;
+	a3d_mat4f_orthonormal_copy(self, &copy);
+	*self = copy;
+}
+
+void a3d_mat4f_orthonormal_copy(const a3d_mat4f_t* self, a3d_mat4f_t* copy)
+{
+	assert(self);
+	assert(copy);
+	LOGD("debug");
+
+	/*
+	 * perform modified Gram-Schmitt ortho-normalization
+	 */
+
+	a3d_vec4f_t v0 = { self->m00, self->m01, self->m02, self->m03 };
+	a3d_vec4f_t v1 = { self->m10, self->m11, self->m12, self->m13 };
+	a3d_vec4f_t v2 = { self->m20, self->m21, self->m22, self->m23 };
+	a3d_vec4f_t v3 = { self->m30, self->m31, self->m32, self->m33 };
+
+	// normalize u0
+	a3d_vec4f_t u0;
+	a3d_vec4f_normalize_copy(&v0, &u0);
+
+	// subtract the component of v1 in the direction of u0
+	// normalize u1
+	a3d_vec4f_t u1;
+	a3d_vec4f_t projuv;
+	a3d_mat4f_projuv(&u0, &v1, &projuv);
+	a3d_vec4f_subv_copy(&v1, &projuv, &u1);
+	a3d_vec4f_normalize(&u1);
+
+	// subtract the component of v2 in the direction of u1
+	// subtract the component of u2 in the direction of u0
+	// normalize u2
+	a3d_vec4f_t u2;
+	a3d_mat4f_projuv(&u1, &v2, &projuv);
+	a3d_vec4f_subv_copy(&v2, &projuv, &u2);
+	a3d_mat4f_projuv(&u0, &u2, &projuv);
+	a3d_vec4f_subv(&u2, &projuv);
+	a3d_vec4f_normalize(&u2);
+
+	// subtract the component of v3 in the direction of u2
+	// subtract the component of u3 in the direction of u1
+	// subtract the component of u3 in the direction of u0
+	// normalize u3
+	a3d_vec4f_t u3;
+	a3d_mat4f_projuv(&u2, &v3, &projuv);
+	a3d_vec4f_subv_copy(&v3, &projuv, &u3);
+	a3d_mat4f_projuv(&u1, &u3, &projuv);
+	a3d_vec4f_subv(&u3, &projuv);
+	a3d_mat4f_projuv(&u0, &u3, &projuv);
+	a3d_vec4f_subv(&u3, &projuv);
+	a3d_vec4f_normalize(&u3);
+
+	// copy the orthonormal vectors
+	copy->m00 = u0.x;
+	copy->m01 = u0.y;
+	copy->m02 = u0.z;
+	copy->m03 = u0.w;
+	copy->m10 = u1.x;
+	copy->m11 = u1.y;
+	copy->m12 = u1.z;
+	copy->m13 = u1.w;
+	copy->m20 = u2.x;
+	copy->m21 = u2.y;
+	copy->m22 = u2.z;
+	copy->m23 = u2.w;
+	copy->m30 = u3.x;
+	copy->m31 = u3.y;
+	copy->m32 = u3.z;
+	copy->m33 = u3.w;
 }
 
 /*

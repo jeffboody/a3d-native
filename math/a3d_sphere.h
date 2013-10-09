@@ -21,21 +21,20 @@
  *
  */
 
-#include <stdlib.h>
-#include "test_list.h"
-#include "test_workq.h"
-#include "test_orientation.h"
-#include "test_plane.h"
+#ifndef a3d_sphere_H
+#define a3d_sphere_H
 
-#define LOG_TAG "example"
-#include "a3d/a3d_log.h"
+#include "a3d_vec3f.h"
 
-int main(int argc, char** argv)
+typedef struct
 {
-	test_list();
-	test_workq();
-	test_orientation();
-	test_plane();
+	a3d_vec3f_t c;
+	GLfloat     r;
+} a3d_sphere_t;
 
-	return EXIT_SUCCESS;
-}
+void a3d_sphere_load(a3d_sphere_t* self,
+                     GLfloat cx, GLfloat cy, GLfloat cz,
+                     GLfloat r);
+void a3d_sphere_copy(const a3d_sphere_t* self, a3d_sphere_t* copy);
+
+#endif

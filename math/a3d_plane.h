@@ -21,21 +21,24 @@
  *
  */
 
-#include <stdlib.h>
-#include "test_list.h"
-#include "test_workq.h"
-#include "test_orientation.h"
-#include "test_plane.h"
+#ifndef a3d_plane_H
+#define a3d_plane_H
 
-#define LOG_TAG "example"
-#include "a3d/a3d_log.h"
+#include "a3d_vec3f.h"
+#include "a3d_sphere.h"
 
-int main(int argc, char** argv)
+typedef struct
 {
-	test_list();
-	test_workq();
-	test_orientation();
-	test_plane();
+	// unit normal
+	a3d_vec3f_t n;
+	GLfloat     d;
+} a3d_plane_t;
 
-	return EXIT_SUCCESS;
-}
+void    a3d_plane_load(a3d_plane_t* self,
+                       GLfloat nx, GLfloat ny, GLfloat nz,
+                       GLfloat d);
+void    a3d_plane_copy(const a3d_plane_t* self, a3d_plane_t* copy);
+GLfloat a3d_plane_distance(const a3d_plane_t* self, const a3d_vec3f_t* p);
+int     a3d_plane_clipsphere(const a3d_plane_t* self, const a3d_sphere_t* s);
+
+#endif

@@ -21,21 +21,35 @@
  *
  */
 
+#include "a3d_sphere.h"
+#include <math.h>
 #include <stdlib.h>
-#include "test_list.h"
-#include "test_workq.h"
-#include "test_orientation.h"
-#include "test_plane.h"
+#include <assert.h>
 
-#define LOG_TAG "example"
-#include "a3d/a3d_log.h"
+#define LOG_TAG "a3d"
+#include "../a3d_log.h"
 
-int main(int argc, char** argv)
+/***********************************************************
+* public                                                   *
+***********************************************************/
+
+void a3d_sphere_load(a3d_sphere_t* self,
+                     GLfloat cx, GLfloat cy, GLfloat cz,
+                     GLfloat r)
 {
-	test_list();
-	test_workq();
-	test_orientation();
-	test_plane();
+	assert(self);
+	LOGD("debug cx=%f, cy=%f, cz=%f, r=%f", cx, cy, cz, r);
 
-	return EXIT_SUCCESS;
+	a3d_vec3f_load(&self->c, cx, cy, cz);
+	self->r = r;
+}
+
+void a3d_sphere_copy(const a3d_sphere_t* self, a3d_sphere_t* copy)
+{
+	assert(self);
+	assert(copy);
+	LOGD("debug");
+
+	a3d_vec3f_copy(&self->c, &copy->c);
+	copy->r = self->r;
 }

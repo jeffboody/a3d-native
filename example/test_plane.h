@@ -21,21 +21,9 @@
  *
  */
 
-#include <stdlib.h>
-#include "test_list.h"
-#include "test_workq.h"
-#include "test_orientation.h"
-#include "test_plane.h"
+#ifndef test_plane_H
+#define test_plane_H
 
-#define LOG_TAG "example"
-#include "a3d/a3d_log.h"
+void test_plane(void);
 
-int main(int argc, char** argv)
-{
-	test_list();
-	test_workq();
-	test_orientation();
-	test_plane();
-
-	return EXIT_SUCCESS;
-}
+#endif

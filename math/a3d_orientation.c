@@ -59,6 +59,7 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 	a3d_vec3f_cross_copy(&at, &v, &u);
 	a3d_vec3f_normalize(&u);
 	a3d_vec3f_cross_copy(&v, &u, &n);
+	a3d_vec3f_normalize(&n);
 
 	// load the matrix
 	a3d_mat4f_t* m = &self->ring[self->ring_index];

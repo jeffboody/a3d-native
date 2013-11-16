@@ -539,6 +539,8 @@ void a3d_mat4f_lookat(a3d_mat4f_t* self, int load,
 	a3d_vec3f_t v;
 	a3d_vec3f_cross_copy(&n, &up, &u);
 	a3d_vec3f_cross_copy(&u, &n, &v);
+	a3d_vec3f_normalize(&u);
+	a3d_vec3f_normalize(&v);
 
 	a3d_mat4f_t m =
 	{

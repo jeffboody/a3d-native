@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <math.h>
 
 #define LOG_TAG "a3d"
 #include "../a3d_log.h"
@@ -229,4 +230,31 @@ void a3d_orientation_mat4f(a3d_orientation_t* self,
 
 	// enforce orthonormal constraint for rotation matrix
 	a3d_mat4f_orthonormal(m);
+}
+
+void a3d_orientation_euler(a3d_orientation_t* self,
+                           float* yaw,
+                           float* pitch,
+                           float* roll)
+{
+	assert(self);
+	assert(yaw);
+	assert(pitch);
+	assert(roll);
+
+	a3d_mat4f_t m;
+	a3d_orientation_mat4f(self, &m);
+
+	a3d_vec3f_t u;
+	a3d_vec3f_t v;
+	a3d_vec3f_t n;
+	a3d_vec3f_load(&u, m.m00, m.m01, m.m02);
+	a3d_vec3f_load(&v, m.m10, m.m11, m.m12);
+	a3d_vec3f_load(&n, m.m20, m.m21, m.m22);
+
+	// TODO - euler corner cases
+	// convert to euler angles
+	*yaw   = (180.0f/M_PI)*(atan2f(-n.x, n.y));
+	*pitch = (180.0f/M_PI)*(acosf(n.z));
+	*roll  = (180.0f/M_PI)*(-atan2f(u.z, v.z));
 }

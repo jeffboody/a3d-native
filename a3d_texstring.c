@@ -63,12 +63,16 @@ static const int A3D_TEXSTRING_RIGHT  = 0x04;
 		"#endif\n"
 		"\n"
 		"uniform vec4      color;\n"
+		"uniform vec4      fill;\n"
 		"uniform sampler2D sampler;\n"
 		"varying vec2      varying_coords;\n"
 		"\n"
 		"void main()\n"
 		"{\n"
-		"	gl_FragColor = color * texture2D(sampler, varying_coords);\n"
+		"	vec4 c = color*texture2D(sampler, varying_coords);\n"
+		"	c.rgb = mix(fill.rgb, c.rgb, c.a);\n"
+		"	c.a = max(c.a, fill.a);\n"
+		"	gl_FragColor = c;\n"
 		"}\n";
 
 	static int a3d_texstring_load_shaders(a3d_texstring_t* self)
@@ -83,6 +87,7 @@ static const int A3D_TEXSTRING_RIGHT  = 0x04;
 		self->attribute_vertex = glGetAttribLocation(self->program, "vertex");
 		self->attribute_coords = glGetAttribLocation(self->program, "coords");
 		self->uniform_color    = glGetUniformLocation(self->program, "color");
+		self->uniform_fill     = glGetUniformLocation(self->program, "fill");
 		self->uniform_mvp      = glGetUniformLocation(self->program, "mvp");
 		self->uniform_sampler  = glGetUniformLocation(self->program, "sampler");
 
@@ -160,6 +165,7 @@ a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
 
 		a3d_mat4f_identity(&self->pm);
 		a3d_mat4f_identity(&self->mvm);
+		a3d_vec4f_load(&self->fill, 0.0f, 0.0f, 0.0f, 0.0f);
 	#endif
 
 	glGenBuffers(1, &self->vertex_id);
@@ -283,6 +289,26 @@ void a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...)
 	glBufferData(GL_ARRAY_BUFFER, coords_size * sizeof(GLfloat), self->coords, GL_STATIC_DRAW);
 }
 
+void a3d_texstring_color(a3d_texstring_t* self,
+                         float r, float g, float b, float a)
+{
+	assert(self);
+	LOGD("debug r=%f, g=%f, b=%f, a=%f", r, g, b, a);
+
+	a3d_vec4f_load(&self->color, r, g, b, a);
+}
+
+#if defined(A3D_GLESv2) || defined(A3D_GL2)
+void a3d_texstring_fill(a3d_texstring_t* self,
+                        float r, float g, float b, float a)
+{
+	assert(self);
+	LOGD("debug r=%f, g=%f, b=%f, a=%f", r, g, b, a);
+
+	a3d_vec4f_load(&self->fill, r, g, b, a);
+}
+#endif
+
 void a3d_texstring_draw(a3d_texstring_t* self,
                         float x, float y,
                         float screen_w, float screen_h)
@@ -339,6 +365,7 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
 		glVertexAttribPointer(self->attribute_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glUniform4fv(self->uniform_color, 1, (GLfloat*) &self->color);
+		glUniform4fv(self->uniform_fill, 1, (GLfloat*) &self->fill);
 		glUniform1i(self->uniform_sampler, 0);
 		a3d_mat4f_ortho(&self->pm, 1, 0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);
 		a3d_mat4f_translate(&self->mvm, 1, x + x_offset, y + y_offset, -1.0f);

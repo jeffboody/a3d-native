@@ -53,6 +53,7 @@ typedef struct
 	GLuint   coords_id;
 
 	#if defined(A3D_GLESv2) || defined(A3D_GL2)
+		a3d_vec4f_t fill;
 		a3d_mat4f_t pm;
 		a3d_mat4f_t mvm;
 
@@ -61,6 +62,7 @@ typedef struct
 		GLint  attribute_vertex;
 		GLint  attribute_coords;
 		GLint  uniform_color;
+		GLint  uniform_fill;
 		GLint  uniform_mvp;
 		GLint  uniform_sampler;
 	#endif
@@ -71,6 +73,12 @@ a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
                                    float r, float g, float b, float a);
 void             a3d_texstring_delete(a3d_texstring_t** _self);
 void             a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...);
+void             a3d_texstring_color(a3d_texstring_t* self,
+                                     float r, float g, float b, float a);
+#if defined(A3D_GLESv2) || defined(A3D_GL2)
+void             a3d_texstring_fill(a3d_texstring_t* self,
+                                    float r, float g, float b, float a);
+#endif
 void             a3d_texstring_draw(a3d_texstring_t* self,
                                     float x, float y,
                                     float screen_w, float screen_h);

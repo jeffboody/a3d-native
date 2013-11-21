@@ -37,6 +37,9 @@
 const int A3D_WORKQ_RUNNING = 0;
 const int A3D_WORKQ_STOP    = 1;
 
+// force purge a task or workq
+const int A3D_WORKQ_PURGE = -1;
+
 static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id)
 {
 	assert(task);
@@ -112,21 +115,13 @@ static void* a3d_workq_thread(void* arg)
 
 		// run the task
 		a3d_workqnode_t* node = self->active_node;
-		int status = (*self->workq_fn)(node->task);
+		int status = (*self->run_fn)(node->task);
 
 		pthread_mutex_lock(&self->queue_mutex);
 
-		if((status == A3D_WORKQ_FINISHED) ||
-		   (node->status == A3D_WORKQ_FINISHED))
-		{
-			a3d_workqnode_delete(&node);
-		}
-		else
-		{
-			// put the task on the complete queue
-			node->status = status;
-			a3d_list_enqueue(self->queue_complete, (const void*) node);
-		}
+		// put the task on the complete queue
+		node->status = status;
+		a3d_list_enqueue(self->queue_complete, (const void*) node);
 		self->active_node = NULL;
 
 		// signal anybody pending for the workq to become idle
@@ -139,8 +134,11 @@ static void* a3d_workq_thread(void* arg)
 * public                                                   *
 ***********************************************************/
 
-a3d_workq_t* a3d_workq_new(a3d_workq_fn workq_fn)
+a3d_workq_t* a3d_workq_new(a3d_workqrun_fn   run_fn,
+                           a3d_workqpurge_fn purge_fn)
 {
+	assert(run_fn);
+	assert(purge_fn);
 	LOGD("debug");
 
 	a3d_workq_t* self = (a3d_workq_t*) malloc(sizeof(a3d_workq_t));
@@ -153,7 +151,8 @@ a3d_workq_t* a3d_workq_new(a3d_workq_fn workq_fn)
 	self->state       = A3D_WORKQ_RUNNING;
 	self->purge_id    = 0;
 	self->active_node = NULL;
-	self->workq_fn   = workq_fn;
+	self->run_fn      = run_fn;
+	self->purge_fn    = purge_fn;
 
 	// PTHREAD_MUTEX_DEFAULT is not re-entrant
 	if(pthread_mutex_init(&self->queue_mutex, NULL) != 0)
@@ -233,7 +232,7 @@ void a3d_workq_delete(a3d_workq_t** _self)
 
 		// destroy the queues
 		// active_node will be null since workq thread stopped
-		self->purge_id = -1;
+		self->purge_id = A3D_WORKQ_PURGE;
 		a3d_workq_purge(self);
 		a3d_list_delete(&self->queue_complete);
 		a3d_list_delete(&self->queue_pending);
@@ -263,6 +262,7 @@ void a3d_workq_purge(a3d_workq_t* self)
 		if(node->purge_id != self->purge_id)
 		{
 			a3d_list_remove(self->queue_pending, &iter);
+			(*self->purge_fn)(node->task, node->status);
 			a3d_workqnode_delete(&node);
 		}
 		else
@@ -275,7 +275,7 @@ void a3d_workq_purge(a3d_workq_t* self)
 	if(self->active_node &&
 	   (self->active_node->purge_id != self->purge_id))
 	{
-		self->active_node->status = A3D_WORKQ_FINISHED;
+		self->active_node->purge_id = A3D_WORKQ_PURGE;
 	}
 
 	// purge the complete queue
@@ -284,9 +284,11 @@ void a3d_workq_purge(a3d_workq_t* self)
 	{
 		a3d_workqnode_t* node;
 		node = (a3d_workqnode_t*) a3d_list_peekitem(iter);
-		if(node->purge_id != self->purge_id)
+		if((node->purge_id != self->purge_id) ||
+		   (node->purge_id == A3D_WORKQ_PURGE))
 		{
 			a3d_list_remove(self->queue_complete, &iter);
+			(*self->purge_fn)(node->task, node->status);
 			a3d_workqnode_delete(&node);
 		}
 		else
@@ -296,7 +298,7 @@ void a3d_workq_purge(a3d_workq_t* self)
 	}
 
 	// swap the purge id
-	if(self->purge_id != -1)
+	if(self->purge_id != A3D_WORKQ_PURGE)
 	{
 		self->purge_id = 1 - self->purge_id;
 	}
@@ -374,12 +376,13 @@ int a3d_workq_run(a3d_workq_t* self, void* task)
 	return A3D_WORKQ_ERROR;;
 }
 
-void a3d_workq_cancel(a3d_workq_t* self, void* task)
+int a3d_workq_cancel(a3d_workq_t* self, void* task)
 {
 	assert(self);
 	assert(task);
 	LOGD("debug task=%p");
 
+	int status = A3D_WORKQ_ERROR;
 	pthread_mutex_lock(&self->queue_mutex);
 
 	a3d_listitem_t* iter;
@@ -390,6 +393,7 @@ void a3d_workq_cancel(a3d_workq_t* self, void* task)
 		a3d_workqnode_t* node;
 		node = (a3d_workqnode_t*) a3d_list_remove(self->queue_pending,
 		                                          &iter);
+		status = node->status;
 		a3d_workqnode_delete(&node);
 	}
 	else
@@ -408,11 +412,13 @@ void a3d_workq_cancel(a3d_workq_t* self, void* task)
 			a3d_workqnode_t* node;
 			node = (a3d_workqnode_t*) a3d_list_remove(self->queue_complete,
 			                                          &iter);
+			status = node->status;
 			a3d_workqnode_delete(&node);
 		}
 	}
 
 	pthread_mutex_unlock(&self->queue_mutex);
+	return status;
 }
 
 int a3d_workq_pending(a3d_workq_t* self)

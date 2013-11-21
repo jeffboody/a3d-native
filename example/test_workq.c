@@ -66,7 +66,7 @@ static void test_task_delete(test_task_t** _self)
 	}
 }
 
-static int test_task_fn(void* _task)
+static int test_run_fn(void* _task)
 {
 	test_task_t* task = (test_task_t*) _task;
 	LOGI("START: task=%p, name=%c", task, task->name);
@@ -76,7 +76,13 @@ static int test_task_fn(void* _task)
 	}
 	usleep(100000);
 	LOGI("STOP:  task=%p, name=%c", task, task->name);
-	return A3D_WORKQ_COMPLETE;
+	return 1;
+}
+
+static void test_purge_fn(void* _task, int status)
+{
+	test_task_t* task = (test_task_t*) _task;
+	LOGI("PURGE: task=%p, name=%c, status=%i", task, task->name, status);
 }
 
 static void testeq(int a, int b)
@@ -97,7 +103,7 @@ void test_workq(void)
 	{
 		LOGI("ABX");
 
-		a3d_workq_t* workq = a3d_workq_new(test_task_fn);
+		a3d_workq_t* workq = a3d_workq_new(test_run_fn, test_purge_fn);
 		if(workq == NULL)
 		{
 			return;

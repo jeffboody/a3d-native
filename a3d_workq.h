@@ -27,17 +27,16 @@
 #include "a3d_list.h"
 #include <pthread.h>
 
-// task state
-// COMPLETE : returned by fn/run when task is complete
-// PENDING  : returned by run when task is incomplete
-// FINISHED : returned by fn if task is finished
-//            (don't place on complete queue)
+// task status
 #define A3D_WORKQ_ERROR    0
 #define A3D_WORKQ_COMPLETE 1
 #define A3D_WORKQ_PENDING  2
-#define A3D_WORKQ_FINISHED 3
 
-typedef int (*a3d_workq_fn)(void* task);
+/* called from the workq thread */
+typedef int  (*a3d_workqrun_fn)(void* task);
+
+/* called from main thread by purge or delete */
+typedef void (*a3d_workqpurge_fn)(void* task, int status);
 
 typedef struct
 {
@@ -46,18 +45,15 @@ typedef struct
 	void* task;
 } a3d_workqnode_t;
 
-// note that the workq is not a container due to
-// the fact that tasks may be purged or deleted
-// without notification
-
 typedef struct
 {
-	int              state;
-	int              purge_id;
-	a3d_list_t*      queue_pending;
-	a3d_list_t*      queue_complete;
-	a3d_workqnode_t* active_node;
-	a3d_workq_fn     workq_fn;
+	int               state;
+	int               purge_id;
+	a3d_list_t*       queue_pending;
+	a3d_list_t*       queue_complete;
+	a3d_workqnode_t*  active_node;
+	a3d_workqrun_fn   run_fn;
+	a3d_workqpurge_fn purge_fn;
 
 	// workq thread
 	pthread_t       thread;
@@ -65,11 +61,12 @@ typedef struct
 	pthread_cond_t  queue_cond;
 } a3d_workq_t;
 
-a3d_workq_t* a3d_workq_new(a3d_workq_fn workq_fn);
+a3d_workq_t* a3d_workq_new(a3d_workqrun_fn   run_fn,
+                           a3d_workqpurge_fn purge_fn);
 void         a3d_workq_delete(a3d_workq_t** _self);
 void         a3d_workq_purge(a3d_workq_t* self);
 int          a3d_workq_run(a3d_workq_t* self, void* task);
-void         a3d_workq_cancel(a3d_workq_t* self, void* task);
+int          a3d_workq_cancel(a3d_workq_t* self, void* task);
 int          a3d_workq_pending(a3d_workq_t* self);
 
 #endif

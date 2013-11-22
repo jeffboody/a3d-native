@@ -21,23 +21,9 @@
  *
  */
 
-#include <stdlib.h>
-#include "test_list.h"
-#include "test_workq.h"
-#include "test_cache.h"
-#include "test_orientation.h"
-#include "test_plane.h"
+#ifndef test_cache_H
+#define test_cache_H
 
-#define LOG_TAG "example"
-#include "a3d/a3d_log.h"
+void test_cache(void);
 
-int main(int argc, char** argv)
-{
-	test_list();
-	test_workq();
-	test_cache();
-	test_orientation();
-	test_plane();
-
-	return EXIT_SUCCESS;
-}
+#endif

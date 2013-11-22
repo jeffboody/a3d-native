@@ -358,3 +358,103 @@ const void* a3d_list_remove(a3d_list_t* self,
 
 	return a3d_listitem_delete(_item, self);
 }
+
+void a3d_list_move(a3d_list_t* self,
+                   a3d_listitem_t* from,
+                   a3d_listitem_t* to)
+{
+	assert(self);
+	assert(from);
+	assert(to);
+	LOGD("debug");
+
+	if(from == to)
+	{
+		return;
+	}
+
+	a3d_listitem_t* from_next = from->next;
+	a3d_listitem_t* from_prev = from->prev;
+	a3d_listitem_t* to_prev   = to->prev;
+
+	from->next = to;
+	from->prev = to_prev;
+	to->prev   = from;
+
+	if(to_prev)
+	{
+		to_prev->next = from;
+	}
+	else
+	{
+		self->head = from;
+	}
+
+	if(from_next)
+	{
+		from_next->prev = from_prev;
+	}
+	else
+	{
+		self->tail = from_prev;
+	}
+
+	if(from_prev)
+	{
+		from_prev->next = from_next;
+	}
+	else
+	{
+		self->head = from_next;
+	}
+}
+
+void a3d_list_moven(a3d_list_t* self,
+                    a3d_listitem_t* from,
+                    a3d_listitem_t* to)
+{
+	assert(self);
+	assert(from);
+	assert(to);
+	LOGD("debug");
+
+	if(from == to)
+	{
+		return;
+	}
+
+	a3d_listitem_t* from_next = from->next;
+	a3d_listitem_t* from_prev = from->prev;
+	a3d_listitem_t* to_next   = to->next;
+
+	from->next = to_next;
+	from->prev = to;
+	to->next   = from;
+
+	if(to_next)
+	{
+		to_next->prev = from;
+	}
+	else
+	{
+		self->tail = from;
+	}
+
+	if(from_next)
+	{
+		from_next->prev = from_prev;
+	}
+	else
+	{
+		self->tail = from_prev;
+	}
+
+	if(from_prev)
+	{
+		from_prev->next = from_next;
+	}
+	else
+	{
+		self->head = from_next;
+	}
+}

@@ -71,5 +71,11 @@ const void*     a3d_list_replace(a3d_list_t* self,
                                 const void* data);
 const void*     a3d_list_remove(a3d_list_t* self,
                                 a3d_listitem_t** _item);
+void            a3d_list_move(a3d_list_t* self,
+                              a3d_listitem_t* from,
+                              a3d_listitem_t* to);
+void            a3d_list_moven(a3d_list_t* self,
+                               a3d_listitem_t* from,
+                               a3d_listitem_t* to);
 
 #endif

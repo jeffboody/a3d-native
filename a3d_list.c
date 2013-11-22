@@ -143,7 +143,6 @@ a3d_list_t* a3d_list_new(void)
 
 void a3d_list_delete(a3d_list_t** _self)
 {
-	// *_self can be NULL
 	assert(_self);
 
 	a3d_list_t* self = *_self;
@@ -299,11 +298,20 @@ a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
                                 const void* data)
 {
 	// data can be null
+	// item may be null for empty list or to insert at head
+	// a3d_list_insert(list, NULL, data) may be preferred over
+	// a3d_list_push(list, data) when a listitem is needed
 	assert(self);
-	assert(item);
 	LOGD("debug");
 
-	return a3d_listitem_new(self, item->prev, item, data);
+	if(item)
+	{
+		return a3d_listitem_new(self, item->prev, item, data);
+	}
+	else
+	{
+		return a3d_listitem_new(self, NULL, self->head, data);
+	}
 }
 
 a3d_listitem_t* a3d_list_append(a3d_list_t* self,
@@ -311,11 +319,20 @@ a3d_listitem_t* a3d_list_append(a3d_list_t* self,
                                 const void* data)
 {
 	// data can be null
+	// item may be null for empty list or to append at tail
+	// a3d_list_append(list, NULL, data) may be preferred over
+	// a3d_list_enqueue(list, data) when a listitem is needed
 	assert(self);
-	assert(item);
 	LOGD("debug");
 
-	return a3d_listitem_new(self, item, item->next, data);
+	if(item)
+	{
+		return a3d_listitem_new(self, item, item->next, data);
+	}
+	else
+	{
+		return a3d_listitem_new(self, self->tail, NULL, data);
+	}
 }
 
 const void* a3d_list_replace(a3d_list_t* self,

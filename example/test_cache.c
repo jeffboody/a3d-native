@@ -190,8 +190,8 @@ void test_cache(void)
 		testeq(a3d_cache_request(cache, c->key), A3D_CACHE_ERROR);
 
 		// evict b, c
-		a3d_cache_unregister(cache, &b->key);
-		a3d_cache_unregister(cache, &c->key);
+		a3d_cache_unregister(cache, b->key);
+		a3d_cache_unregister(cache, c->key);
 
 		// load d and e
 		d->key = a3d_cache_register(cache, d);

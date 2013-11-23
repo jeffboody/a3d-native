@@ -240,20 +240,15 @@ a3d_listitem_t* a3d_cache_register(a3d_cache_t* self, void* data)
 }
 
 void a3d_cache_unregister(a3d_cache_t* self,
-                          a3d_listitem_t** _key)
+                          a3d_listitem_t* key)
 {
 	assert(self);
-	assert(_key);
+	assert(key);
 	LOGD("debug");
 
-	a3d_listitem_t* key = *_key;
-	if(key)
-	{
-		a3d_cachenode_t* n = (a3d_cachenode_t*) a3d_list_remove(self->lru, _key);
-		(*self->evict_fn)(n->data);
-		a3d_cachenode_delete(&n);
-		*_key = NULL;
-	}
+	a3d_cachenode_t* n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &key);
+	(*self->evict_fn)(n->data);
+	a3d_cachenode_delete(&n);
 }
 
 int a3d_cache_request(a3d_cache_t* self,

@@ -64,7 +64,7 @@ void            a3d_cache_delete(a3d_cache_t** _self);
 void            a3d_cache_purge(a3d_cache_t* self);
 a3d_listitem_t* a3d_cache_register(a3d_cache_t* self, void* data);
 void            a3d_cache_unregister(a3d_cache_t* self,
-                                     a3d_listitem_t** _key);
+                                     a3d_listitem_t* key);
 int             a3d_cache_request(a3d_cache_t* self,
                                   a3d_listitem_t* key);
 

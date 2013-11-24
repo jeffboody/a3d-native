@@ -161,6 +161,7 @@ a3d_cache_t* a3d_cache_new(int max_size,
 		goto fail_loader;
 	}
 
+	self->size     = 0;
 	self->max_size = max_size;
 	self->load_fn  = load_fn;
 	self->store_fn = store_fn;

@@ -121,6 +121,7 @@ static void a3d_cache_trim(a3d_cache_t* self, a3d_listitem_t* key)
 		}
 
 		a3d_cachenode_t* n;
+		a3d_workq_cancel(self->loader, (void*) iter);
 		n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &iter);
 		(*self->evict_fn)(n->data);
 		a3d_cachenode_delete(&n);
@@ -194,7 +195,8 @@ void a3d_cache_delete(a3d_cache_t** _self)
 		a3d_listitem_t* item = a3d_list_head(self->lru);
 		while(item)
 		{
-			a3d_cachenode_t* n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &item);
+			a3d_cachenode_t* n;
+			n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &item);
 			(*self->evict_fn)(n->data);
 			a3d_cachenode_delete(&n);
 		}
@@ -247,6 +249,7 @@ void a3d_cache_unregister(a3d_cache_t* self,
 	assert(key);
 	LOGD("debug");
 
+	a3d_workq_cancel(self->loader, (void*) key);
 	a3d_cachenode_t* n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &key);
 	(*self->evict_fn)(n->data);
 	a3d_cachenode_delete(&n);

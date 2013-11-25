@@ -258,4 +258,16 @@ void a3d_orientation_euler(a3d_orientation_t* self,
 	*yaw   = (180.0f/M_PI)*(atan2f(-n.x, n.y));
 	*pitch = (180.0f/M_PI)*(acosf(n.z));
 	*roll  = (180.0f/M_PI)*(-atan2f(u.z, v.z));
+
+	// TODO - handle rotation
+	// workaround screen rotations for yaw
+	*yaw += (float) self->a_rotation;
+	while(*yaw < 0.0f)
+	{
+		*yaw += 360.0f;
+	}
+	while(*yaw > 360.0f)
+	{
+		*yaw -= 360.0f;
+	}
 }

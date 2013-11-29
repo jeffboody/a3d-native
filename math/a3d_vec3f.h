@@ -52,6 +52,7 @@ void    a3d_vec3f_muls_copy(const a3d_vec3f_t* self, GLfloat s, a3d_vec3f_t* cop
 void    a3d_vec3f_normalize(a3d_vec3f_t* self);
 void    a3d_vec3f_normalize_copy(const a3d_vec3f_t* self, a3d_vec3f_t* copy);
 GLfloat a3d_vec3f_dot(const a3d_vec3f_t* a, const a3d_vec3f_t* b);
+GLfloat a3d_vec3f_distance(const a3d_vec3f_t* a, const a3d_vec3f_t* b);
 void    a3d_vec3f_cross(a3d_vec3f_t* self, const a3d_vec3f_t* v);
 void    a3d_vec3f_cross_copy(const a3d_vec3f_t* self, const a3d_vec3f_t* v, a3d_vec3f_t* copy);
 

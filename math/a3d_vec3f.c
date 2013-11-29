@@ -203,6 +203,17 @@ GLfloat a3d_vec3f_dot(const a3d_vec3f_t* a, const a3d_vec3f_t* b)
 	return a->x*b->x + a->y*b->y + a->z*b->z;
 }
 
+GLfloat a3d_vec3f_distance(const a3d_vec3f_t* a, const a3d_vec3f_t* b)
+{
+	assert(a);
+	assert(b);
+	LOGD("debug");
+
+	a3d_vec3f_t v;
+	a3d_vec3f_subv_copy(a, b, &v);
+	return a3d_vec3f_mag(&v);
+}
+
 void a3d_vec3f_cross(a3d_vec3f_t* self, const a3d_vec3f_t* v)
 {
 	assert(self);

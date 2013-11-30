@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2013 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,9 +21,9 @@
  *
  */
 
-#include <sys/time.h>
 #include <stdlib.h>
-#include "a3d_time.h"
+#include <math.h>
+#include "a3d_unit.h"
 
 #define LOG_TAG "a3d"
 #include "a3d_log.h"
@@ -32,16 +32,54 @@
 * public                                                   *
 ***********************************************************/
 
-const double A3D_USEC = 1000000.0;
-
-double a3d_utime(void)
+float a3d_ft2mi(float x)
 {
-	struct timeval t;
-	gettimeofday(&t, NULL);
-	return (t.tv_sec * A3D_USEC + t.tv_usec);
+	return x/5280.0f;
 }
 
-double a3d_us2s(double x)
+float a3d_mi2ft(float x)
 {
-	return x/A3D_USEC;
+	return 5280.0f*x;
+}
+
+float a3d_ft2m(float x)
+{
+	return x*1200.0f/3937.0f;
+}
+
+float a3d_m2ft(float x)
+{
+	return x*3937.0f/1200.0f;
+}
+
+float a3d_mi2m(float x)
+{
+	return x*5280.0f*1200.0f/3937.0f;
+}
+
+float a3d_m2mi(float x)
+{
+	return x*3937.0f/(5280.0f*1200.0f);
+}
+
+float a3d_mVs2mph(float x)
+{
+	// mVs is m/s
+	return a3d_m2mi(x)*3600.0f;
+}
+
+float a3d_mph2mVs(float x)
+{
+	// mVs is m/s
+	return a3d_mi2m(x)/3600.0f;
+}
+
+float a3d_deg2rad(float x)
+{
+	return x*M_PI/180.0f;
+}
+
+float a3d_rad2deg(float x)
+{
+	return x*180.0f/M_PI;
 }

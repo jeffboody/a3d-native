@@ -27,5 +27,6 @@
 extern const double A3D_USEC;
 
 double a3d_utime(void);
+double a3d_us2s(double x);
 
 #endif

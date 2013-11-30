@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2013 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,27 +21,18 @@
  *
  */
 
-#include <sys/time.h>
-#include <stdlib.h>
-#include "a3d_time.h"
+#ifndef a3d_unit_H
+#define a3d_unit_H
 
-#define LOG_TAG "a3d"
-#include "a3d_log.h"
+float a3d_ft2mi(float x);
+float a3d_mi2ft(float x);
+float a3d_ft2m(float x);
+float a3d_m2ft(float x);
+float a3d_mi2m(float x);
+float a3d_m2mi(float x);
+float a3d_mVs2mph(float x);
+float a3d_mph2mVs(float x);
+float a3d_deg2rad(float x);
+float a3d_rad2deg(float x);
 
-/***********************************************************
-* public                                                   *
-***********************************************************/
-
-const double A3D_USEC = 1000000.0;
-
-double a3d_utime(void)
-{
-	struct timeval t;
-	gettimeofday(&t, NULL);
-	return (t.tv_sec * A3D_USEC + t.tv_usec);
-}
-
-double a3d_us2s(double x)
-{
-	return x/A3D_USEC;
-}
+#endif

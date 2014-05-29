@@ -379,6 +379,4 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glUseProgram(0);
 		glDisable(GL_BLEND);
 	#endif
-
-	A3D_GL_GETERROR();
 }

@@ -163,7 +163,7 @@ void a3d_glsm_vertex3f(a3d_glsm_t* self, float x, float y, float z)
 
 	if(self->status != A3D_GLSM_INCOMPLETE) return;
 
-	a3d_vec3f_t* v = (a3d_vec3f_t*) malloc(sizeof(a3d_vec3f_t*));
+	a3d_vec3f_t* v = (a3d_vec3f_t*) malloc(sizeof(a3d_vec3f_t));
 	if(v == NULL)
 	{
 		LOGE("malloc failed");
@@ -176,7 +176,7 @@ void a3d_glsm_vertex3f(a3d_glsm_t* self, float x, float y, float z)
 	if(a3d_list_enqueue(self->cache_vb, (const void*) v) == 0)
 		goto fail_append_vb;
 
-	a3d_vec3f_t* n = (a3d_vec3f_t*) malloc(sizeof(a3d_vec3f_t*));
+	a3d_vec3f_t* n = (a3d_vec3f_t*) malloc(sizeof(a3d_vec3f_t));
 	if(n == NULL)
 	{
 		LOGE("malloc failed");

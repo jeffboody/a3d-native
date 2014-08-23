@@ -293,6 +293,27 @@ a3d_listitem_t* a3d_list_find(a3d_list_t* self,
 	return item;
 }
 
+a3d_listitem_t* a3d_list_findn(a3d_list_t* self,
+                               const void* data,
+                               a3d_listcmp_fn compare)
+{
+	// data can be NULL
+	assert(self);
+	assert(compare);
+	LOGD("debug");
+
+	a3d_listitem_t* item = self->tail;
+	while(item)
+	{
+		if((*compare)(item->data, data) == 0)
+		{
+			break;
+		}
+		item = item->prev;
+	}
+	return item;
+}
+
 a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
                                 a3d_listitem_t* item,
                                 const void* data)

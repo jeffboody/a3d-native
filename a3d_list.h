@@ -60,6 +60,9 @@ a3d_listitem_t* a3d_list_prev(a3d_listitem_t* item);
 a3d_listitem_t* a3d_list_find(a3d_list_t* self,
                               const void* data,
                               a3d_listcmp_fn compare);
+a3d_listitem_t* a3d_list_findn(a3d_list_t* self,
+                               const void* data,
+                               a3d_listcmp_fn compare);
 a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
                                 a3d_listitem_t* item,
                                 const void* data);

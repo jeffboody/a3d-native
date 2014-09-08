@@ -106,8 +106,8 @@ static void a3d_cache_purgefn(void* task, int status)
 
 static void a3d_cache_trim(a3d_cache_t* self, a3d_listitem_t* key)
 {
+	// key may be NULL
 	assert(self);
-	assert(key);
 	LOGD("debug");
 
 	a3d_listitem_t* iter = a3d_list_head(self->lru);
@@ -213,6 +213,15 @@ void a3d_cache_purge(a3d_cache_t* self)
 	LOGD("debug");
 
 	a3d_workq_purge(self->loader);
+}
+
+void a3d_cache_resize(a3d_cache_t* self, int max_size)
+{
+	assert(self);
+	LOGD("debug max_size=%i");
+
+	self->max_size = max_size;
+	a3d_cache_trim(self, NULL);
 }
 
 a3d_listitem_t* a3d_cache_register(a3d_cache_t* self, void* data)

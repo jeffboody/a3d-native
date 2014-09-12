@@ -51,9 +51,16 @@ typedef struct
 	a3d_list_t*  lru;
 	a3d_workq_t* loader;
 
+	// callbacks
 	a3d_cacheload_fn  load_fn;
 	a3d_cachestore_fn store_fn;
 	a3d_cacheevict_fn evict_fn;
+
+	// stats
+	int count_hit;
+	int count_miss;
+	int count_error;
+	int count_evict;
 } a3d_cache_t;
 
 a3d_cache_t*    a3d_cache_new(int max_size,
@@ -68,5 +75,8 @@ void            a3d_cache_unregister(a3d_cache_t* self,
                                      a3d_listitem_t* key);
 int             a3d_cache_request(a3d_cache_t* self,
                                   a3d_listitem_t* key);
+void            a3d_cache_stats(a3d_cache_t* self,
+                                int* hit, int* miss,
+                                int* error, int* evict);
 
 #endif

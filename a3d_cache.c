@@ -125,6 +125,7 @@ static void a3d_cache_trim(a3d_cache_t* self, a3d_listitem_t* key)
 		n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &iter);
 		(*self->evict_fn)(n->data);
 		a3d_cachenode_delete(&n);
+		++self->count_evict;
 	}
 }
 
@@ -168,6 +169,11 @@ a3d_cache_t* a3d_cache_new(int max_size,
 	self->store_fn = store_fn;
 	self->evict_fn = evict_fn;
 
+	self->count_hit   = 0;
+	self->count_miss  = 0;
+	self->count_error = 0;
+	self->count_evict = 0;
+
 	// success
 	return self;
 
@@ -199,6 +205,7 @@ void a3d_cache_delete(a3d_cache_t** _self)
 			n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &item);
 			(*self->evict_fn)(n->data);
 			a3d_cachenode_delete(&n);
+			++self->count_evict;
 		}
 
 		a3d_list_delete(&self->lru);
@@ -262,6 +269,7 @@ void a3d_cache_unregister(a3d_cache_t* self,
 	a3d_cachenode_t* n = (a3d_cachenode_t*) a3d_list_remove(self->lru, &key);
 	(*self->evict_fn)(n->data);
 	a3d_cachenode_delete(&n);
+	++self->count_evict;
 }
 
 int a3d_cache_request(a3d_cache_t* self,
@@ -274,6 +282,7 @@ int a3d_cache_request(a3d_cache_t* self,
 	a3d_cachenode_t* n = (a3d_cachenode_t*) a3d_list_peekitem(key);
 	if(n->status == A3D_CACHE_HIT)
 	{
+		++self->count_hit;
 		a3d_list_moven(self->lru, key, a3d_list_tail(self->lru));
 	}
 	else if(n->status == A3D_CACHE_MISS)
@@ -286,21 +295,54 @@ int a3d_cache_request(a3d_cache_t* self,
 			int s = (*self->store_fn)(n->data, &n->size);
 			if(s)
 			{
+				++self->count_hit;
 				n->status = A3D_CACHE_HIT;
 				self->size += n->size;
 				a3d_cache_trim(self, key);
 			}
 			else
 			{
+				++self->count_error;
 				n->size   = 0;
 				n->status = A3D_CACHE_ERROR;
 			}
 		}
 		else if(r == A3D_WORKQ_ERROR)
 		{
+			++self->count_error;
 			n->status = A3D_CACHE_ERROR;
 		}
+		else
+		{
+			++self->count_miss;
+		}
+	}
+	else
+	{
+		++self->count_error;
 	}
 
 	return n->status;
+}
+
+void a3d_cache_stats(a3d_cache_t* self,
+                     int* hit, int* miss,
+                     int* error, int* evict)
+{
+	assert(self);
+	assert(hit);
+	assert(miss);
+	assert(error);
+	assert(evict);
+	LOGD("debug");
+
+	*hit   = self->count_hit;
+	*miss  = self->count_miss;
+	*error = self->count_error;
+	*evict = self->count_evict;
+
+	self->count_hit   = 0;
+	self->count_miss  = 0;
+	self->count_error = 0;
+	self->count_evict = 0;
 }

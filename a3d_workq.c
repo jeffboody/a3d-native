@@ -95,7 +95,7 @@ static void* a3d_workq_thread(void* arg)
 		pthread_mutex_lock(&self->queue_mutex);
 
 		// pending for an event
-		if((a3d_list_size(self->queue_pending) == 0) &&
+		while((a3d_list_size(self->queue_pending) == 0) &&
 		   (self->state == A3D_WORKQ_RUNNING))
 		{
 			pthread_cond_wait(&self->queue_cond, &self->queue_mutex);

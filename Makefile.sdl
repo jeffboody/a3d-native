@@ -6,8 +6,8 @@ SOURCE   = $(A3D:%=%.c) $(A3D_MATH:%=math/%.c) $(A3D_WGT:%=widget/%.c)
 OBJECTS  = $(SOURCE:.c=.o)
 HFILES   = $(A3D:%=%.h) $(A3D_MATH:%=math/%.h) $(A3D_WGT:%=widget/%.h)
 OPT      = -O2 -Wall
-CFLAGS   = $(OPT) -I. -I.. -DA3D_GLESv2_LOAX
-LDFLAGS  = -lm -lz
+CFLAGS   = $(OPT) -I. -I.. -DA3D_GL2
+LDFLAGS  = -lGLEW -lGL -lm -L/usr/lib
 AR       = ar
 
 all: $(TARGET)

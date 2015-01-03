@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2015 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,17 +21,34 @@
  *
  */
 
-#ifndef a3d_regionf_H
-#define a3d_regionf_H
+#ifndef a3d_listbox_H
+#define a3d_listbox_H
 
-#include "../a3d_GL.h"
+#include "a3d_widget.h"
+#include "a3d_screen.h"
+#include "../a3d_list.h"
+#include "../math/a3d_vec4f.h"
+
+// orientation
+#define A3D_LISTBOX_ORIENTATION_VERTICAL   0
+#define A3D_LISTBOX_ORIENTATION_HORIZONTAL 1
 
 typedef struct
 {
-	GLfloat t;
-	GLfloat l;
-	GLfloat b;
-	GLfloat r;
-} a3d_regionf_t;
+	a3d_widget_t widget;
+	a3d_list_t*  list;
+	int          orientation;
+} a3d_listbox_t;
+
+a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
+                               int wsize,
+                               int orientation,
+                               int anchor,
+                               int wraph, int wrapv,
+                               int style_border,
+                               int style_line,
+                               a3d_vec4f_t* color_fill,
+                               a3d_vec4f_t* color_line);
+void            a3d_listbox_delete(a3d_listbox_t** _self);
 
 #endif

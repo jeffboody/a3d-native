@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2015 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,17 +21,28 @@
  *
  */
 
-#ifndef a3d_regionf_H
-#define a3d_regionf_H
+#ifndef a3d_layer_H
+#define a3d_layer_H
 
-#include "../a3d_GL.h"
+#include "a3d_widget.h"
+#include "a3d_screen.h"
+#include "../a3d_list.h"
+#include "../math/a3d_vec4f.h"
 
 typedef struct
 {
-	GLfloat t;
-	GLfloat l;
-	GLfloat b;
-	GLfloat r;
-} a3d_regionf_t;
+	a3d_widget_t widget;
+	a3d_list_t*  list;
+} a3d_layer_t;
+
+a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
+                           int wsize,
+                           int anchor,
+                           int wraph, int wrapv,
+                           int style_border,
+                           int style_line,
+                           a3d_vec4f_t* color_fill,
+                           a3d_vec4f_t* color_line);
+void         a3d_layer_delete(a3d_layer_t** _self);
 
 #endif

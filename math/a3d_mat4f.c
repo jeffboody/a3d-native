@@ -407,10 +407,10 @@ void a3d_mat4f_orthonormal_copy(const a3d_mat4f_t* self, a3d_mat4f_t* copy)
 	 * perform modified Gram-Schmitt ortho-normalization
 	 */
 
-	a3d_vec4f_t v0 = { self->m00, self->m01, self->m02, self->m03 };
-	a3d_vec4f_t v1 = { self->m10, self->m11, self->m12, self->m13 };
-	a3d_vec4f_t v2 = { self->m20, self->m21, self->m22, self->m23 };
-	a3d_vec4f_t v3 = { self->m30, self->m31, self->m32, self->m33 };
+	a3d_vec4f_t v0 = { .x = self->m00, .y = self->m01, .z = self->m02, .w = self->m03 };
+	a3d_vec4f_t v1 = { .x = self->m10, .y = self->m11, .z = self->m12, .w = self->m13 };
+	a3d_vec4f_t v2 = { .x = self->m20, .y = self->m21, .z = self->m22, .w = self->m23 };
+	a3d_vec4f_t v3 = { .x = self->m30, .y = self->m31, .z = self->m32, .w = self->m33 };
 
 	// normalize u0
 	a3d_vec4f_t u0;

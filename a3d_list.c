@@ -73,6 +73,12 @@ static a3d_listitem_t* a3d_listitem_new(a3d_list_t* list,
 	}
 	++list->size;
 
+	a3d_listnotify_fn add_fn = list->add_fn;
+	if(add_fn)
+	{
+		(*add_fn)(list->owner, self);
+	}
+
 	return self;
 }
 
@@ -88,6 +94,12 @@ static const void* a3d_listitem_delete(a3d_listitem_t** _self,
 	if(self)
 	{
 		LOGD("debug");
+
+		a3d_listnotify_fn del_fn = list->del_fn;
+		if(del_fn)
+		{
+			(*del_fn)(list->owner, self);
+		}
 
 		// update next/prev nodes
 		if(self->prev)
@@ -134,9 +146,13 @@ a3d_list_t* a3d_list_new(void)
 		return NULL;
 	}
 
-	self->size = 0;
-	self->head = NULL;
-	self->tail = NULL;
+	self->size   = 0;
+	self->head   = NULL;
+	self->tail   = NULL;
+	self->owner  = NULL;
+	self->add_fn = NULL;
+	self->del_fn = NULL;
+	self->mov_fn = NULL;
 
 	return self;
 }
@@ -365,8 +381,15 @@ const void* a3d_list_replace(a3d_list_t* self,
 	assert(item);
 	LOGD("debug");
 
+	a3d_listnotify_fn mov_fn = self->mov_fn;
+	if(mov_fn)
+	{
+		(*mov_fn)(self->owner, item);
+	}
+
 	const void* tmp = item->data;
 	item->data = data;
+
 	return tmp;
 }
 
@@ -392,6 +415,13 @@ void a3d_list_move(a3d_list_t* self,
 	if(from == to)
 	{
 		return;
+	}
+
+	a3d_listnotify_fn mov_fn = self->mov_fn;
+	if(mov_fn)
+	{
+		(*mov_fn)(self->owner, from);
+		(*mov_fn)(self->owner, to);
 	}
 
 	a3d_listitem_t* from_next = from->next;
@@ -444,6 +474,13 @@ void a3d_list_moven(a3d_list_t* self,
 		return;
 	}
 
+	a3d_listnotify_fn mov_fn = self->mov_fn;
+	if(mov_fn)
+	{
+		(*mov_fn)(self->owner, from);
+		(*mov_fn)(self->owner, to);
+	}
+
 	a3d_listitem_t* from_next = from->next;
 	a3d_listitem_t* from_prev = from->prev;
 	a3d_listitem_t* to_next   = to->next;
@@ -478,4 +515,24 @@ void a3d_list_moven(a3d_list_t* self,
 	{
 		self->head = from_next;
 	}
+}
+
+void a3d_list_notify(a3d_list_t* self,
+                     void* owner,
+                     a3d_listnotify_fn add_fn,
+                     a3d_listnotify_fn del_fn,
+                     a3d_listnotify_fn mov_fn)
+{
+	// owner, add_fn, del_fn, mov_fn may be NULL
+	assert(self);
+	LOGD("debug");
+
+	// optionally notify the owner when a list item is added,
+	// deleted or moved. For example, a listbox widget may want
+	// to know if a new widget has been added in order to mark
+	// the draw state dirty.
+	self->owner  = owner;
+	self->add_fn = add_fn;
+	self->del_fn = del_fn;
+	self->mov_fn = mov_fn;
 }

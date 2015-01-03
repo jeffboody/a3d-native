@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2015 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,17 +21,36 @@
  *
  */
 
-#ifndef a3d_regionf_H
-#define a3d_regionf_H
+#ifndef a3d_font_H
+#define a3d_font_H
 
 #include "../a3d_GL.h"
+#include "../math/a3d_regionf.h"
 
 typedef struct
 {
-	GLfloat t;
-	GLfloat l;
-	GLfloat b;
-	GLfloat r;
-} a3d_regionf_t;
+	// font attributes
+	int char_w;
+	int char_h;
+	int width;
+	int height;
+
+	// GL state
+	GLuint prog;
+	GLint  attr_vertex;
+	GLint  attr_coords;
+	GLint  unif_color;
+	GLint  unif_mvp;
+	GLint  unif_sampler;
+	GLuint id_tex;
+} a3d_font_t;
+
+a3d_font_t* a3d_font_new(const char* fname);
+void        a3d_font_delete(a3d_font_t** _self);
+void        a3d_font_request(a3d_font_t* self,
+                             char c,
+                             a3d_regionf_t* tc,
+                             a3d_regionf_t* vc);
+float       a3d_font_aspectRatio(a3d_font_t* self);
 
 #endif

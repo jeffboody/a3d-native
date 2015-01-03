@@ -30,10 +30,26 @@
 
 typedef struct
 {
-	GLfloat x;
-	GLfloat y;
-	GLfloat z;
-	GLfloat w;
+	union
+	{
+		// point or vector
+		struct
+		{
+			GLfloat x;
+			GLfloat y;
+			GLfloat z;
+			GLfloat w;
+		};
+
+		// color
+		struct
+		{
+			GLfloat r;
+			GLfloat g;
+			GLfloat b;
+			GLfloat a;
+		};
+	};
 } a3d_vec4f_t;
 
 // standard vector operations

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2015 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,8 +21,8 @@
  *
  */
 
-#ifndef a3d_regionf_H
-#define a3d_regionf_H
+#ifndef a3d_rect4f_H
+#define a3d_rect4f_H
 
 #include "../a3d_GL.h"
 
@@ -30,8 +30,19 @@ typedef struct
 {
 	GLfloat t;
 	GLfloat l;
-	GLfloat b;
-	GLfloat r;
-} a3d_regionf_t;
+	GLfloat w;
+	GLfloat h;
+} a3d_rect4f_t;
+
+void a3d_rect4f_init(a3d_rect4f_t* self,
+                     float t, float l,
+                     float w, float h);
+void a3d_rect4f_copy(const a3d_rect4f_t* self,
+                     a3d_rect4f_t* copy);
+int  a3d_rect4f_contains(const a3d_rect4f_t* self,
+                         float x, float y);
+int a3d_rect4f_intersect(const a3d_rect4f_t* ra,
+                         const a3d_rect4f_t* rb,
+                         a3d_rect4f_t* rc);
 
 #endif

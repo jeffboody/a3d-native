@@ -33,6 +33,8 @@
 #define A3D_TEXT_STYLE_MEDIUM 1
 #define A3D_TEXT_STYLE_LARGE  2
 
+#define A3D_TEXT_PREFIX_LEN 8
+
 typedef struct
 {
 	a3d_widget_t widget;
@@ -40,7 +42,9 @@ typedef struct
 	// text properties
 	// max_len includes null terminator
 	int         max_len;
+	int         indent;
 	char*       string;
+	char        prefix[A3D_TEXT_PREFIX_LEN];
 	int         style;
 	a3d_vec4f_t color;
 
@@ -61,11 +65,12 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_line,
                          a3d_vec4f_t* color_text,
                          int max_len,
+                         int indent,
                          a3d_widget_click_fn click_fn);
 void        a3d_text_delete(a3d_text_t** _self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
-void        a3d_text_color(a3d_text_t* self,
-                           a3d_vec4f_t* color);
+void        a3d_text_prefix(a3d_text_t* self,
+                            const char* fmt, ...);
 
 #endif

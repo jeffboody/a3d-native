@@ -38,6 +38,24 @@
 * private                                                  *
 ***********************************************************/
 
+static int a3d_text_strlen(a3d_text_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	int len0 = self->indent;
+	int len1 = strlen(self->prefix);
+	int len2 = strlen(self->string);
+
+	int len = len0 + len1 + len2;
+	if(len >= self->max_len)
+	{
+		len = self->max_len - 1;
+	}
+
+	return len;
+}
+
 static void a3d_text_size(a3d_widget_t* widget,
                           float* w, float* h)
 {
@@ -48,7 +66,7 @@ static void a3d_text_size(a3d_widget_t* widget,
 
 	a3d_text_t* self = (a3d_text_t*) widget;
 	a3d_font_t* font = a3d_screen_font(widget->screen);
-	int         len  = strlen(self->string);
+	int         len  = a3d_text_strlen(self);
 	float       size = a3d_screen_layoutText(widget->screen, self->style);
 	float       r    = a3d_font_aspectRatio(font);
 	*w = r*size*len;
@@ -62,7 +80,7 @@ static void a3d_text_draw(a3d_widget_t* widget)
 
 	a3d_text_t* self = (a3d_text_t*) widget;
 
-	int len = strlen(self->string);
+	int len = a3d_text_strlen(self);
 	if(len <= 0)
 	{
 		return;
@@ -100,6 +118,114 @@ static void a3d_text_draw(a3d_widget_t* widget)
 	glDisable(GL_BLEND);
 }
 
+static void a3d_text_addc(a3d_text_t* self, char c,
+                          int* _i, float* _offset)
+{
+	assert(self);
+
+	int i        = *_i;
+	float offset = *_offset;
+
+	if(i >= self->max_len)
+	{
+		return;
+	}
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_font_t*   font   = a3d_screen_font(widget->screen);
+
+	a3d_regionf_t coords;
+	a3d_regionf_t vertex;
+	a3d_font_request(font, c,
+	                 &coords, &vertex);
+
+	// compute vertex/coords for glDrawArrays
+	// quad vertex/coords order
+	// bl.xyz/uv, tl.xyz/uv, br.xyz/uv, tr.xyz/uv
+	self->vertex[18*i +  0] = vertex.l + offset;   // tl.xyz
+	self->vertex[18*i +  1] = vertex.t;
+	self->vertex[18*i +  2] = 0.0f;
+	self->vertex[18*i +  3] = vertex.l + offset;   // bl.xyz
+	self->vertex[18*i +  4] = vertex.b;
+	self->vertex[18*i +  5] = 0.0f;
+	self->vertex[18*i +  6] = vertex.r + offset;   // br.xyz
+	self->vertex[18*i +  7] = vertex.b;
+	self->vertex[18*i +  8] = 0.0f;
+
+	self->vertex[18*i +  9] = vertex.l + offset;   // tl.xyz
+	self->vertex[18*i + 10] = vertex.t;
+	self->vertex[18*i + 11] = 0.0f;
+	self->vertex[18*i + 12] = vertex.r + offset;   // br.xyz
+	self->vertex[18*i + 13] = vertex.b;
+	self->vertex[18*i + 14] = 0.0f;
+	self->vertex[18*i + 15] = vertex.r + offset;   // tr.xyz
+	self->vertex[18*i + 16] = vertex.t;
+	self->vertex[18*i + 17] = 0.0f;
+
+	self->coords[12*i + 0] = coords.l;   // tl.uv
+	self->coords[12*i + 1] = coords.t;
+	self->coords[12*i + 2] = coords.l;   // bl.uv
+	self->coords[12*i + 3] = coords.b;
+	self->coords[12*i + 4] = coords.r;   // br.uv
+	self->coords[12*i + 5] = coords.b;
+
+	self->coords[12*i +  6] = coords.l;   // tl.uv
+	self->coords[12*i +  7] = coords.t;
+	self->coords[12*i +  8] = coords.r;   // br.uv
+	self->coords[12*i +  9] = coords.b;
+	self->coords[12*i + 10] = coords.r;   // tr.uv
+	self->coords[12*i + 11] = coords.t;
+
+	// next character offset
+	*_offset += vertex.r;
+	*_i      += 1;
+}
+
+static void a3d_text_refresh(a3d_text_t* self)
+{
+	assert(self);
+
+	int   i;
+	int   pos    = 0;
+	float offset = 0.0f;
+
+	int len0 = self->indent;
+	for(i = 0; i < len0; ++i)
+	{
+		a3d_text_addc(self, ' ', &pos, &offset);
+	}
+
+	int len1 = strlen(self->prefix);
+	for(i = 0; i < len1; ++i)
+	{
+		a3d_text_addc(self, self->prefix[i], &pos, &offset);
+	}
+
+	int len2 = strlen(self->string);
+	for(i = 0; i < len2; ++i)
+	{
+		a3d_text_addc(self, self->string[i], &pos, &offset);
+	}
+
+	int len = len0 + len1 + len2;
+	if(len >= self->max_len)
+	{
+		len = self->max_len - 1;
+	}
+
+	int vertex_size = 18*len;   // 2 * 3 * xyz
+	int coords_size = 12*len;   // 2 * 3 * uv
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
+	             self->vertex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
+	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
+	             self->coords, GL_STATIC_DRAW);
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_screen_dirty(widget->screen);
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -114,6 +240,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_line,
                          a3d_vec4f_t* color_text,
                          int max_len,
+                         int indent,
                          a3d_widget_click_fn click_fn)
 {
 	// click_fn may be NULL
@@ -129,7 +256,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i", max_len);
+	LOGD("debug max_len=%i, indent=%i", max_len, indent);
 
 	if(wsize == 0)
 	{
@@ -162,6 +289,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_string;
 	}
 
+	self->prefix[0] = '\0';
+
 	int vertex_size = 18 * (max_len - 1);   // 2 * 3 * xyz
 	self->vertex = (GLfloat*) malloc(sizeof(GLfloat) * vertex_size);
 	if(self->vertex == NULL)
@@ -179,6 +308,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	}
 
 	self->max_len = max_len;
+	self->indent  = indent;
 	self->style   = style_text;
 	a3d_vec4f_copy(color_text, &self->color);
 	glGenBuffers(1, &self->id_vertex);
@@ -231,76 +361,22 @@ void a3d_text_printf(a3d_text_t* self,
 
 	LOGD("debug %s", self->string);
 
-	// compute vertex/coords for glDrawArrays
-	// quad vertex/coords order
-	// bl.xyz/uv, tl.xyz/uv, br.xyz/uv, tr.xyz/uv
-	int i;
-	a3d_regionf_t coords;
-	a3d_regionf_t vertex;
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen);
-	int len = strlen(self->string);
-	float offset = 0.0f;
-	for(i = 0; i < len; ++i)
-	{
-		a3d_font_request(font,
-		                 self->string[i],
-		                 &coords, &vertex);
-
-		self->vertex[18*i +  0] = vertex.l + offset;   // tl.xyz
-		self->vertex[18*i +  1] = vertex.t;
-		self->vertex[18*i +  2] = 0.0f;
-		self->vertex[18*i +  3] = vertex.l + offset;   // bl.xyz
-		self->vertex[18*i +  4] = vertex.b;
-		self->vertex[18*i +  5] = 0.0f;
-		self->vertex[18*i +  6] = vertex.r + offset;   // br.xyz
-		self->vertex[18*i +  7] = vertex.b;
-		self->vertex[18*i +  8] = 0.0f;
-
-		self->vertex[18*i +  9] = vertex.l + offset;   // tl.xyz
-		self->vertex[18*i + 10] = vertex.t;
-		self->vertex[18*i + 11] = 0.0f;
-		self->vertex[18*i + 12] = vertex.r + offset;   // br.xyz
-		self->vertex[18*i + 13] = vertex.b;
-		self->vertex[18*i + 14] = 0.0f;
-		self->vertex[18*i + 15] = vertex.r + offset;   // tr.xyz
-		self->vertex[18*i + 16] = vertex.t;
-		self->vertex[18*i + 17] = 0.0f;
-
-		self->coords[12*i + 0] = coords.l;   // tl.uv
-		self->coords[12*i + 1] = coords.t;
-		self->coords[12*i + 2] = coords.l;   // bl.uv
-		self->coords[12*i + 3] = coords.b;
-		self->coords[12*i + 4] = coords.r;   // br.uv
-		self->coords[12*i + 5] = coords.b;
-
-		self->coords[12*i +  6] = coords.l;   // tl.uv
-		self->coords[12*i +  7] = coords.t;
-		self->coords[12*i +  8] = coords.r;   // br.uv
-		self->coords[12*i +  9] = coords.b;
-		self->coords[12*i + 10] = coords.r;   // tr.uv
-		self->coords[12*i + 11] = coords.t;
-
-		// next character offset
-		offset += vertex.r;
-	}
-	int vertex_size = 18*len;   // 2 * 3 * xyz
-	int coords_size = 12*len;   // 2 * 3 * uv
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
-	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
-	             self->vertex, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
-	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
-	             self->coords, GL_STATIC_DRAW);
+	a3d_text_refresh(self);
 }
 
-void a3d_text_color(a3d_text_t* self,
-                    a3d_vec4f_t* color)
+void a3d_text_prefix(a3d_text_t* self,
+                     const char* fmt, ...)
 {
 	assert(self);
-	assert(color);
-	LOGD("debug r=%f, g=%f, b=%f, a=%f",
-	     color->r, color->g, color->b, color->a);
+	assert(fmt);
 
-	a3d_vec4f_copy(color, &self->color);
+	// decode string
+	va_list argptr;
+	va_start(argptr, fmt);
+	vsnprintf(self->prefix, A3D_TEXT_PREFIX_LEN, fmt, argptr);
+	va_end(argptr);
+
+	LOGD("debug %s", self->prefix);
+
+	a3d_text_refresh(self);
 }

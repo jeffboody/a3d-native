@@ -234,12 +234,11 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	LOGD("debug w=%f, h=%f", *w, *h);
 
 	// initialize size
-	float ws = *w;
-	float hs = *h;
 	float bo = a3d_screen_layoutBorder(self->screen, self->style_border);
 	if(self->wraph == A3D_WIDGET_WRAP_SHRINK)
 	{
-		ws = 0.0f;
+		self->rect_draw.w   = 0.0f;
+		self->rect_border.w = 2.0f*bo;
 	}
 	else
 	{
@@ -249,7 +248,8 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 
 	if(self->wrapv == A3D_WIDGET_WRAP_SHRINK)
 	{
-		hs = 0.0f;
+		self->rect_draw.h   = 0.0f;
+		self->rect_border.h = 2.0f*bo;
 	}
 	else
 	{
@@ -257,26 +257,31 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		self->rect_border.h = *h;
 	}
 
-	// compute derived size
+	// compute draw size for shrink wrapped widgets and
+	// recursively compute size of any children
+	// the draw size of the widget also becomes the border
+	// size of any children
+	float draw_w = self->rect_draw.w;
+	float draw_h = self->rect_draw.h;
 	a3d_widget_size_fn size_fn = self->size_fn;
 	if(size_fn)
 	{
-		(*size_fn)(self, &ws, &hs);
+		(*size_fn)(self, &draw_w, &draw_h);
 	}
 
 	// wrap width
 	if(self->wraph == A3D_WIDGET_WRAP_SHRINK)
 	{
-		*w = ws + 2.0f*bo;
-		self->rect_draw.w   = ws;
+		*w = draw_w + 2.0f*bo;
+		self->rect_draw.w   = draw_w;
 		self->rect_border.w = *w;
 	}
 
 	// wrap height
 	if(self->wrapv == A3D_WIDGET_WRAP_SHRINK)
 	{
-		*h = hs + 2.0f*bo;
-		self->rect_draw.h   = hs;
+		*h = draw_h + 2.0f*bo;
+		self->rect_draw.h   = draw_h;
 		self->rect_border.h = *h;
 	}
 }
@@ -403,7 +408,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 
 	// draw the border
 	c = &self->color_line;
-	if(c->a > 0.0f)
+	if((c->a > 0.0f) && (self->style_line != A3D_WIDGET_LINE_NONE))
 	{
 		glDisable(GL_SCISSOR_TEST);
 		if(c->a < 1.0f)

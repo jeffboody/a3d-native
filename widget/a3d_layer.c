@@ -43,25 +43,26 @@ static void a3d_layer_size(a3d_widget_t* widget,
 
 	a3d_layer_t*    self  = (a3d_layer_t*) widget;
 	a3d_listitem_t* iter  = a3d_list_head(self->list);
-	float           wmax  = 0.0f;
-	float           hmax  = 0.0f;
-	float           witer = 0.0f;
-	float           hiter = 0.0f;
+
+	float wmax  = 0.0f;
+	float hmax  = 0.0f;
+	float tmp_w = 0.0f;
+	float tmp_h = 0.0f;
 	while(iter)
 	{
-		witer  = widget->rect_draw.w;
-		hiter  = widget->rect_draw.h;
+		tmp_w  = *w;
+		tmp_h  = *h;
 		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		a3d_widget_layoutSize(widget, &witer, &hiter);
+		a3d_widget_layoutSize(widget, &tmp_w, &tmp_h);
 
-		if(witer > wmax)
+		if(tmp_w > wmax)
 		{
-			wmax = witer;
+			wmax = tmp_w;
 		}
 
-		if(hiter > hmax)
+		if(tmp_h > hmax)
 		{
-			hmax = hiter;
+			hmax = tmp_h;
 		}
 
 		iter = a3d_list_next(iter);

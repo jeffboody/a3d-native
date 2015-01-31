@@ -170,6 +170,16 @@ static void a3d_dropbox_draw(a3d_widget_t* widget)
 	}
 }
 
+static void a3d_dropbox_refresh(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug");
+
+	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
+	a3d_widget_refresh((a3d_widget_t*) self->drop_text);
+	a3d_widget_refresh(self->drop_widget);
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -234,7 +244,8 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	                                                      a3d_dropbox_click,
 	                                                      a3d_dropbox_layout,
 	                                                      a3d_dropbox_drag,
-	                                                      a3d_dropbox_draw);
+	                                                      a3d_dropbox_draw,
+	                                                      a3d_dropbox_refresh);
 	if(self == NULL)
 	{
 		return NULL;

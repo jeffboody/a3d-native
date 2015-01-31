@@ -93,7 +93,8 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	                                                      color_text,
 	                                                      max_len,
 	                                                      indent,
-	                                                      a3d_radiobox_click);
+	                                                      a3d_radiobox_click,
+	                                                      NULL);
 	if(self == NULL)
 	{
 		return NULL;
@@ -103,7 +104,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	self->parent = parent;
 
 	a3d_text_prefix((a3d_text_t*) self, "(%s) ",
-	                (self->value == *(parent->value)) ? "*" : " ");
+	                (self->value == *(parent->pvalue)) ? "*" : " ");
 
 	return self;
 }
@@ -129,5 +130,5 @@ void a3d_radiobox_refresh(a3d_radiobox_t* self)
 
 	a3d_radiolist_t* parent = self->parent;
 	a3d_text_prefix((a3d_text_t*) self, "(%s) ",
-	                (self->value == *(parent->value)) ? "*" : " ");
+	                (self->value == *(parent->pvalue)) ? "*" : " ");
 }

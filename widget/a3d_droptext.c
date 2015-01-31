@@ -39,11 +39,22 @@ static int a3d_droptext_click(a3d_widget_t* widget,
 	LOGD("debug x=%f, y=%f", x, y);
 
 	a3d_droptext_t* self = (a3d_droptext_t*) widget;
-	*(self->value) = 1 - *(self->value);
-	a3d_text_prefix((a3d_text_t*) self, "%s ",
-	                *(self->value) ? "-" : "+");
-
+	*(self->pvalue) = 1 - *(self->pvalue);
 	return 1;
+}
+
+static void a3d_droptext_refresh(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug x=%f, y=%f", x, y);
+
+	a3d_droptext_t* self = (a3d_droptext_t*) widget;
+	if(self->value != *(self->pvalue))
+	{
+		self->value = *(self->pvalue);
+		a3d_text_prefix((a3d_text_t*) self, "%s ",
+		                self->value ? "-" : "+");
+	}
 }
 
 /***********************************************************
@@ -61,13 +72,13 @@ a3d_droptext_t* a3d_droptext_new(a3d_screen_t* screen,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
                                  int indent,
-                                 int* value)
+                                 int* pvalue)
 {
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
 	assert(color_text);
-	assert(value);
+	assert(pvalue);
 	LOGD("debug wsize=%i, anchor=%i, style_border=%i, style_line=%i, style_text=%i",
 	     wsize, anchor, style_border, style_line, style_text);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -94,14 +105,16 @@ a3d_droptext_t* a3d_droptext_new(a3d_screen_t* screen,
 	                                                      color_text,
 	                                                      max_len,
 	                                                      indent,
-	                                                      a3d_droptext_click);
+	                                                      a3d_droptext_click,
+	                                                      a3d_droptext_refresh);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
-	self->value = value;
-	a3d_text_prefix((a3d_text_t*) self, "%s ", *value ? "-" : "+");
+	self->pvalue = pvalue;
+	self->value  = *pvalue;
+	a3d_text_prefix((a3d_text_t*) self, "%s ", self->value ? "-" : "+");
 
 	return self;
 }

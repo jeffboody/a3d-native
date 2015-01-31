@@ -158,6 +158,21 @@ static void a3d_layer_draw(a3d_widget_t* widget)
 	}
 }
 
+static void a3d_layer_refresh(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug");
+
+	a3d_layer_t*    self = (a3d_layer_t*) widget;
+	a3d_listitem_t* iter = a3d_list_head(self->list);
+	while(iter)
+	{
+		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+		a3d_widget_refresh(widget);
+		iter = a3d_list_next(iter);
+	}
+}
+
 static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 {
 	assert(owner);
@@ -209,7 +224,8 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	                                                  a3d_layer_click,
 	                                                  a3d_layer_layout,
 	                                                  a3d_layer_drag,
-	                                                  a3d_layer_draw);
+	                                                  a3d_layer_draw,
+	                                                  a3d_layer_refresh);
 	if(self == NULL)
 	{
 		return NULL;

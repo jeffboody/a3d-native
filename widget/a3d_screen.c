@@ -410,6 +410,7 @@ void a3d_screen_draw(a3d_screen_t* self)
 		return;
 	}
 
+	a3d_widget_refresh(top);
 	if(self->dirty)
 	{
 		float        w    = (float) self->w;

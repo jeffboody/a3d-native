@@ -66,7 +66,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_text,
                          int max_len,
                          int indent,
-                         a3d_widget_click_fn click_fn);
+                         a3d_widget_click_fn click_fn,
+                         a3d_widget_refresh_fn refresh_fn);
 void        a3d_text_delete(a3d_text_t** _self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);

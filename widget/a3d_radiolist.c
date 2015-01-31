@@ -38,6 +38,27 @@
 * private                                                  *
 ***********************************************************/
 
+static void a3d_radiolist_refresh(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug");
+
+	a3d_radiolist_t* self = (a3d_radiolist_t*) widget;
+	if(self->value != *(self->pvalue))
+	{
+		self->value = *(self->pvalue);
+
+		a3d_list_t*     list = self->listbox.list;
+		a3d_listitem_t* iter = a3d_list_head(list);
+		while(iter)
+		{
+			a3d_radiobox_t* rb = (a3d_radiobox_t*) a3d_list_peekitem(iter);
+			a3d_radiobox_refresh(rb);
+			iter = a3d_list_next(iter);
+		}
+	}
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -60,7 +81,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    a3d_vec4f_t* text_color_text,
                                    int text_max_len,
                                    int text_indent,
-                                   int* value)
+                                   int* pvalue)
 {
 	assert(screen);
 	assert(color_fill);
@@ -68,7 +89,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	assert(text_color_fill);
 	assert(text_color_line);
 	assert(text_color_text);
-	assert(value);
+	assert(pvalue);
 	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wraph=%i, wrapv=%i, style_border=%i, style_line=%i",
 	     wsize, orientation, anchor, wraph, wrapv, style_border, style_line);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -98,7 +119,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	                                                           style_border,
 	                                                           style_line,
 	                                                           color_fill,
-	                                                           color_line);
+	                                                           color_line,
+	                                                           a3d_radiolist_refresh);
 	if(self == NULL)
 	{
 		return NULL;
@@ -110,7 +132,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	self->style_text   = text_style_text;
 	self->max_len      = text_max_len;
 	self->indent       = text_indent;
-	self->value        = value;
+	self->pvalue       = pvalue;
+	self->value        = *pvalue;
 
 	a3d_vec4f_copy(text_color_fill, &self->color_fill);
 	a3d_vec4f_copy(text_color_line, &self->color_line);
@@ -138,16 +161,7 @@ void a3d_radiolist_value(a3d_radiolist_t* self, int value)
 	assert(self);
 	LOGD("debug value=%i", value);
 
-	*(self->value) = value;
-
-	a3d_list_t*     list = self->listbox.list;
-	a3d_listitem_t* iter = a3d_list_head(list);
-	while(iter)
-	{
-		a3d_radiobox_t* rb = (a3d_radiobox_t*) a3d_list_peekitem(iter);
-		a3d_radiobox_refresh(rb);
-		iter = a3d_list_next(iter);
-	}
+	*(self->pvalue) = value;
 }
 
 void a3d_radiolist_printf(a3d_radiolist_t* self,

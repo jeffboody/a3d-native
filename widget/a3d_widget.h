@@ -64,6 +64,7 @@ typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
                                    float dx, float dy,
                                    double dt);
 typedef void (*a3d_widget_draw_fn)(struct a3d_widget_s* widget);
+typedef void (*a3d_widget_refresh_fn)(struct a3d_widget_s* widget);
 
 typedef struct a3d_widget_s
 {
@@ -107,25 +108,29 @@ typedef struct a3d_widget_s
 
 	// size_fn allows a derived widget to define
 	// it's internal size (e.g. ignoring borders)
-	// called internally by a3d_widget_size()
+	// called internally by a3d_widget_layoutSize()
 	a3d_widget_size_fn size_fn;
 
 	// click_fn allows a derived widget to define it's click behavior
 	// called internally by a3d_widget_click()
 	a3d_widget_click_fn click_fn;
 
-	// layout_fn alows a derived widget to layout it's children
+	// layout_fn allows a derived widget to layout it's children
 	// called internally by a3d_widget_layoutXYClip
 	a3d_widget_layout_fn layout_fn;
 
-	// drag_fn alows a derived widget to drag it's children
+	// drag_fn allows a derived widget to drag it's children
 	// called internally by a3d_widget_drag
 	a3d_widget_drag_fn drag_fn;
 
-	// draw_fn alows a derived widget to define
+	// draw_fn allows a derived widget to define
 	// it's draw behavior
 	// called internally by a3d_widget_draw
 	a3d_widget_draw_fn draw_fn;
+
+	// refresh_fn allows a widget to refresh it's external state
+	// called internally by a3d_widget_refresh
+	a3d_widget_refresh_fn refresh_fn;
 } a3d_widget_t;
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
@@ -140,7 +145,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_layout_fn layout_fn,
                              a3d_widget_drag_fn drag_fn,
-                             a3d_widget_draw_fn draw_fn);
+                             a3d_widget_draw_fn draw_fn,
+                             a3d_widget_refresh_fn refresh_fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,
                                       float x, float y,
@@ -157,5 +163,6 @@ void          a3d_widget_draw(a3d_widget_t* self);
 void          a3d_widget_anchorPt(a3d_rect4f_t* rect,
                                   int anchor,
                                   float* x, float * y);
+void          a3d_widget_refresh(a3d_widget_t* self);
 
 #endif

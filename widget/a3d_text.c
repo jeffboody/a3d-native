@@ -181,7 +181,7 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 	*_i      += 1;
 }
 
-static void a3d_text_refresh(a3d_text_t* self)
+static void a3d_text_update(a3d_text_t* self)
 {
 	assert(self);
 
@@ -241,9 +241,10 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_text,
                          int max_len,
                          int indent,
-                         a3d_widget_click_fn click_fn)
+                         a3d_widget_click_fn click_fn,
+                         a3d_widget_refresh_fn refresh_fn)
 {
-	// click_fn may be NULL
+	// click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
@@ -276,7 +277,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	                                                click_fn,
 	                                                NULL,
 	                                                NULL,
-	                                                a3d_text_draw);
+	                                                a3d_text_draw,
+	                                                refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -361,7 +363,7 @@ void a3d_text_printf(a3d_text_t* self,
 
 	LOGD("debug %s", self->string);
 
-	a3d_text_refresh(self);
+	a3d_text_update(self);
 }
 
 void a3d_text_prefix(a3d_text_t* self,
@@ -378,5 +380,5 @@ void a3d_text_prefix(a3d_text_t* self,
 
 	LOGD("debug %s", self->prefix);
 
-	a3d_text_refresh(self);
+	a3d_text_update(self);
 }

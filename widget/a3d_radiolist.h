@@ -32,7 +32,8 @@
 typedef struct
 {
 	a3d_listbox_t listbox;
-	int*          value;
+	int*          pvalue;
+	int           value;
 
 	// text properties
 	int         anchor;
@@ -64,7 +65,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    a3d_vec4f_t* text_color_text,
                                    int text_max_len,
                                    int text_indent,
-                                   int* value);
+                                   int* pvalue);
 void            a3d_radiolist_delete(a3d_radiolist_t** _self);
 void            a3d_radiolist_value(a3d_radiolist_t* self, int value);
 void            a3d_radiolist_printf(a3d_radiolist_t* self,

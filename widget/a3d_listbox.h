@@ -48,7 +48,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int style_border,
                                int style_line,
                                a3d_vec4f_t* color_fill,
-                               a3d_vec4f_t* color_line);
+                               a3d_vec4f_t* color_line,
+                               a3d_widget_refresh_fn refresh_fn);
 void            a3d_listbox_delete(a3d_listbox_t** _self);
 
 #endif

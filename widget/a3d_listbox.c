@@ -334,6 +334,21 @@ static void a3d_listbox_draw(a3d_widget_t* widget)
 	}
 }
 
+static void a3d_listbox_refresh(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug");
+
+	a3d_listbox_t*  self = (a3d_listbox_t*) widget;
+	a3d_listitem_t* iter = a3d_list_head(self->list);
+	while(iter)
+	{
+		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+		a3d_widget_refresh(widget);
+		iter = a3d_list_next(iter);
+	}
+}
+
 static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 {
 	assert(owner);
@@ -356,8 +371,10 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int style_border,
                                int style_line,
                                a3d_vec4f_t* color_fill,
-                               a3d_vec4f_t* color_line)
+                               a3d_vec4f_t* color_line,
+                               a3d_widget_refresh_fn refresh_fn)
 {
+	// refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
@@ -373,6 +390,12 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_listbox_t);
 	}
 
+	// optionally overide refresh_fn
+	if(refresh_fn == NULL)
+	{
+		refresh_fn = a3d_listbox_refresh;
+	}
+
 	a3d_listbox_t* self = (a3d_listbox_t*) a3d_widget_new(screen,
 	                                                      wsize,
 	                                                      anchor,
@@ -386,7 +409,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	                                                      a3d_listbox_click,
 	                                                      a3d_listbox_layout,
 	                                                      a3d_listbox_drag,
-	                                                      a3d_listbox_draw);
+	                                                      a3d_listbox_draw,
+	                                                      refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;

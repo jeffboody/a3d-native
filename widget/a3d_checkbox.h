@@ -31,7 +31,8 @@
 typedef struct
 {
 	a3d_text_t text;
-	int*       value;
+	int*       pvalue;
+	int        value;
 } a3d_checkbox_t;
 
 a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
@@ -45,7 +46,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
                                  int indent,
-                                 int* value);
+                                 int* pvalue);
 void        a3d_checkbox_delete(a3d_checkbox_t** _self);
 
 #endif

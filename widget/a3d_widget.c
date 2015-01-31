@@ -49,9 +49,10 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_layout_fn layout_fn,
                              a3d_widget_drag_fn drag_fn,
-                             a3d_widget_draw_fn draw_fn)
+                             a3d_widget_draw_fn draw_fn,
+                             a3d_widget_refresh_fn refresh_fn)
 {
-	// size_fn, click_fn, layout_fn and draw_fn may be NULL
+	// size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
 	assert(screen);
 	assert(color_line);
 	assert(color_fill);
@@ -86,6 +87,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->click_fn     = click_fn;
 	self->layout_fn    = layout_fn;
 	self->drag_fn      = drag_fn;
+	self->refresh_fn   = refresh_fn;
 	self->draw_fn      = draw_fn;
 
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -497,5 +499,17 @@ void a3d_widget_anchorPt(a3d_rect4f_t* rect,
 	{
 		*x += w;
 		*y += h;
+	}
+}
+
+void a3d_widget_refresh(a3d_widget_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	a3d_widget_refresh_fn refresh_fn = self->refresh_fn;
+	if(refresh_fn)
+	{
+		(*refresh_fn)(self);
 	}
 }

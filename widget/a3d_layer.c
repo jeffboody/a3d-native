@@ -91,6 +91,8 @@ static int a3d_layer_click(a3d_widget_t* widget,
 
 		iter = a3d_list_next(iter);
 	}
+
+	// layers are only clicked if a child is clicked
 	return 0;
 }
 

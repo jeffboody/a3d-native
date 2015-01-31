@@ -114,7 +114,9 @@ static int a3d_listbox_click(a3d_widget_t* widget,
 
 		iter = a3d_list_next(iter);
 	}
-	return 0;
+
+	// listboxes are always clicked
+	return 1;
 }
 
 static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self)

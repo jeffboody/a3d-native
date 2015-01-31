@@ -83,18 +83,14 @@ static int a3d_dropbox_click(a3d_widget_t* widget,
 	LOGD("debug x=%f, y=%f", x, y);
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	if(a3d_widget_click((a3d_widget_t*) self->drop_text, x, y))
-	{
-		return 1;
-	}
+	a3d_widget_click((a3d_widget_t*) self->drop_text, x, y);
 	if(self->drop)
 	{
-		if(a3d_widget_click(self->drop_widget, x, y))
-		{
-			return 1;
-		}
+		a3d_widget_click(self->drop_widget, x, y);
 	}
-	return 0;
+
+	// dropboxes are always clicked
+	return 1;
 }
 
 static void a3d_dropbox_layout(a3d_widget_t* widget)
@@ -292,4 +288,12 @@ void a3d_dropbox_delete(a3d_dropbox_t** _self)
 		a3d_droptext_delete(&self->drop_text);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
+}
+
+void a3d_dropbox_raise(a3d_dropbox_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	self->drop = 0;
 }

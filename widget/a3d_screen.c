@@ -324,8 +324,8 @@ void a3d_screen_pointerDown(a3d_screen_t* self,
 	self->pointer_t0    = t0;
 }
 
-void a3d_screen_pointerUp(a3d_screen_t* self,
-                          float x, float y, double t0)
+int a3d_screen_pointerUp(a3d_screen_t* self,
+                         float x, float y, double t0)
 {
 	assert(self);
 	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
@@ -333,13 +333,15 @@ void a3d_screen_pointerUp(a3d_screen_t* self,
 	if(self->pointer_state == A3D_SCREEN_POINTER_MOVE)
 	{
 		// ignore
-		return;
+		return 0;
 	}
 
 	if(self->top_widget)
 	{
-		a3d_widget_click(self->top_widget, x, y);
+		return a3d_widget_click(self->top_widget, x, y);
 	}
+
+	return 0;
 }
 
 void a3d_screen_pointerMove(a3d_screen_t* self,

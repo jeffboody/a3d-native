@@ -56,6 +56,7 @@ typedef struct a3d_screen_s
 
 	// pointer generates click and drag events
 	int    pointer_state;
+	int    pointer_drag;
 	float  pointer_x0;
 	float  pointer_y0;
 	double pointer_t0;

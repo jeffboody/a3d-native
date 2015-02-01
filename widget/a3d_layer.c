@@ -125,23 +125,27 @@ static void a3d_layer_layout(a3d_widget_t* widget)
 	}
 }
 
-static void a3d_layer_drag(a3d_widget_t* widget,
-                           float x, float y,
-                           float dx, float dy,
-                           double dt)
+static int a3d_layer_drag(a3d_widget_t* widget,
+                          float x, float y,
+                          float dx, float dy,
+                          double dt)
 {
 	assert(widget);
 	LOGD("debug");
 
+	int             drag = 0;
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
 	while(iter)
 	{
 		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		a3d_widget_drag(widget, x, y, dx, dy, dt);
+		drag |= a3d_widget_drag(widget, x, y, dx, dy, dt);
 
 		iter = a3d_list_next(iter);
 	}
+
+	// only drag a layer if a widget is dragged
+	return drag;
 }
 
 static void a3d_layer_draw(a3d_widget_t* widget)

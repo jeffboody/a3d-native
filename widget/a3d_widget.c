@@ -310,10 +310,10 @@ int a3d_widget_click(a3d_widget_t* self,
 	return (*click_fn)(self, x, y);
 }
 
-void a3d_widget_drag(a3d_widget_t* self,
-                     float x, float y,
-                     float dx, float dy,
-                     double dt)
+int a3d_widget_drag(a3d_widget_t* self,
+                    float x, float y,
+                    float dx, float dy,
+                    double dt)
 {
 	assert(self);
 	LOGD("debug dx=%f, dy=%f, dt=%lf", dx, dy, dt);
@@ -322,7 +322,7 @@ void a3d_widget_drag(a3d_widget_t* self,
 	   (a3d_rect4f_contains(&self->rect_border, x, y) == 0))
 	{
 		// don't drag if the pointer is outside the rect
-		return;
+		return 0;
 	}
 
 	if(self->wraph == A3D_WIDGET_WRAP_SHRINK)
@@ -344,8 +344,12 @@ void a3d_widget_drag(a3d_widget_t* self,
 	   ((self->wraph == A3D_WIDGET_WRAP_STRETCH) ||
 	    (self->wrapv == A3D_WIDGET_WRAP_STRETCH)))
 	{
-		(*drag_fn)(self, x, y, dx, dy, dt);
+		return (*drag_fn)(self, x, y, dx, dy, dt);
 	}
+
+	// a stretched layer is only dragged if a child
+	// is dragged but a shrunk layer is always dragged
+	return 1;
 }
 
 void a3d_widget_draw(a3d_widget_t* self)

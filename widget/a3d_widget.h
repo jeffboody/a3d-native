@@ -59,7 +59,7 @@ typedef void (*a3d_widget_size_fn)(struct a3d_widget_s* widget,
 typedef int  (*a3d_widget_click_fn)(struct a3d_widget_s* widget,
                                     float x, float y);
 typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget);
-typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
+typedef int  (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
                                    float x, float y,
                                    float dx, float dy,
                                    double dt);
@@ -155,7 +155,7 @@ void          a3d_widget_layoutSize(a3d_widget_t* self,
                                     float* w, float* h);
 int           a3d_widget_click(a3d_widget_t* self,
                                float x, float y);
-void          a3d_widget_drag(a3d_widget_t* self,
+int           a3d_widget_drag(a3d_widget_t* self,
                               float x, float y,
                               float dx, float dy,
                               double dt);

@@ -120,6 +120,7 @@ a3d_screen_t* a3d_screen_new(a3d_font_t* font)
 	self->top_widget    = NULL;
 	self->dirty         = 1;
 	self->pointer_state = A3D_SCREEN_POINTER_UP;
+	self->pointer_drag  = 0;
 	self->pointer_x0    = 0.0f;
 	self->pointer_y0    = 0.0f;
 	self->pointer_t0    = 0.0;
@@ -333,7 +334,7 @@ int a3d_screen_pointerUp(a3d_screen_t* self,
 	if(self->pointer_state == A3D_SCREEN_POINTER_MOVE)
 	{
 		// ignore
-		return 0;
+		return self->pointer_drag;
 	}
 
 	if(self->top_widget)
@@ -372,19 +373,19 @@ void a3d_screen_pointerMove(a3d_screen_t* self,
 
 		// avoid sharp acceleration
 		self->pointer_t0    = t0;
+		self->pointer_drag  = 0;
 		self->pointer_state = A3D_SCREEN_POINTER_MOVE;
 		return;
 	}
 
-	self->pointer_state = A3D_SCREEN_POINTER_MOVE;
-	self->pointer_x0    = x;
-	self->pointer_y0    = y;
-	self->pointer_t0    = t0;
+	self->pointer_x0 = x;
+	self->pointer_y0 = y;
+	self->pointer_t0 = t0;
 
 	if(self->top_widget)
 	{
-		a3d_widget_drag(self->top_widget,
-		                x, y, dx, dy, dt);
+		self->pointer_drag |= a3d_widget_drag(self->top_widget,
+		                                      x, y, dx, dy, dt);
 	}
 }
 

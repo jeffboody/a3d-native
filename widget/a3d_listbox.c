@@ -302,10 +302,10 @@ static void a3d_listbox_layout(a3d_widget_t* widget)
 	}
 }
 
-static void a3d_listbox_drag(a3d_widget_t* widget,
-                             float x, float y,
-                             float dx, float dy,
-                             double dt)
+static int a3d_listbox_drag(a3d_widget_t* widget,
+                            float x, float y,
+                            float dx, float dy,
+                            double dt)
 {
 	assert(widget);
 	LOGD("debug");
@@ -319,6 +319,10 @@ static void a3d_listbox_drag(a3d_widget_t* widget,
 
 		iter = a3d_list_next(iter);
 	}
+
+	// always drag a listbox since its elements
+	// may not always cover the entire box
+	return 1;
 }
 
 static void a3d_listbox_draw(a3d_widget_t* widget)

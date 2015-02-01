@@ -70,6 +70,9 @@ typedef struct a3d_widget_s
 {
 	struct a3d_screen_s* screen;
 
+	// optional priv data
+	void* priv;
+
 	// anchor to the widget parent
 	int anchor;
 
@@ -148,6 +151,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_draw_fn draw_fn,
                              a3d_widget_refresh_fn refresh_fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
+void          a3d_widget_priv(a3d_widget_t* self, void* priv);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,
                                       float x, float y,
                                       a3d_rect4f_t* clip);

@@ -76,6 +76,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	}
 
 	self->screen       = screen;
+	self->priv         = NULL;
 	self->drag_dx      = 0.0f;
 	self->drag_dy      = 0.0f;
 	self->anchor       = anchor;
@@ -111,6 +112,15 @@ void a3d_widget_delete(a3d_widget_t** _self)
 		free(self);
 		*_self = NULL;
 	}
+}
+
+void a3d_widget_priv(a3d_widget_t* self, void* priv)
+{
+	assert(self);
+	assert(priv);
+	LOGD("debug");
+
+	self->priv = priv;
 }
 
 void a3d_widget_layoutXYClip(a3d_widget_t* self,

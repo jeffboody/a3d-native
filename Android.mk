@@ -21,5 +21,6 @@ endif
 
 LOCAL_LDLIBS    := -Llibs/armeabi \
                    -llog -lz -ldl
+LOCAL_SHARED_LIBRARIES := libtexgz
 
 include $(BUILD_SHARED_LIBRARY)

@@ -32,7 +32,7 @@
 #include <string.h>
 
 #define LOG_TAG "a3d"
-#include "a3d_log.h"
+#include "../a3d_log.h"
 
 /***********************************************************
 * private                                                  *

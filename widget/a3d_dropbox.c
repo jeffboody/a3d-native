@@ -83,13 +83,15 @@ static int a3d_dropbox_click(a3d_widget_t* widget,
 	LOGD("debug x=%f, y=%f", x, y);
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	a3d_widget_click((a3d_widget_t*) self->drop_text, x, y);
-	if(self->drop)
+	if(a3d_widget_click((a3d_widget_t*) self->drop_text, x, y) == 0)
 	{
-		a3d_widget_click(self->drop_widget, x, y);
+		if(self->drop)
+		{
+			return a3d_widget_click(self->drop_widget, x, y);
+		}
+		return 0;
 	}
 
-	// dropboxes are always clicked
 	return 1;
 }
 

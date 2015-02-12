@@ -37,8 +37,14 @@
 #define A3D_WIDGET_ANCHOR_BC 7
 #define A3D_WIDGET_ANCHOR_BR 8
 
-#define A3D_WIDGET_WRAP_SHRINK  0
-#define A3D_WIDGET_WRAP_STRETCH 1
+#define A3D_WIDGET_WRAP_SHRINK         0
+#define A3D_WIDGET_WRAP_STRETCH_PARENT 1
+#define A3D_WIDGET_WRAP_STRETCH_SCREEN 2
+#define A3D_WIDGET_WRAP_STRETCH_TEXT   3
+
+#define A3D_WIDGET_STRETCH_NA     0
+#define A3D_WIDGET_STRETCH_SQUARE 1
+#define A3D_WIDGET_STRETCH_ASPECT 2
 
 #define A3D_WIDGET_BORDER_NONE   0
 #define A3D_WIDGET_BORDER_SMALL  1
@@ -100,8 +106,10 @@ typedef struct a3d_widget_s
 	//       inset border
 	//       children may be stretch or shrink
 	//       top level widget must be stretch
-	int wraph;
-	int wrapv;
+	int   wraph;
+	int   wrapv;
+	int   stretch_mode;
+	float stretch_factor;
 
 	// decorations
 	int         style_border;
@@ -140,6 +148,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              int anchor,
                              int wraph, int wrapv,
+                             int stretch_mode,
+                             float stretch_factor,
                              int style_border,
                              int style_line,
                              a3d_vec4f_t* color_line,

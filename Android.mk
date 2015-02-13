@@ -9,7 +9,7 @@ LOCAL_SRC_FILES := a3d/a3d_log.c a3d/a3d_glsm.c a3d/a3d_unit.c a3d/a3d_time.c a3
                    a3d/math/a3d_quaternion.c a3d/math/a3d_orientation.c a3d/math/a3d_sphere.c a3d/math/a3d_plane.c a3d/math/a3d_fplane.c a3d/a3d_GL.c \
                    a3d/math/a3d_ray.c a3d/math/a3d_rect4f.c \
                    a3d/widget/a3d_screen.c a3d/widget/a3d_layer.c a3d/widget/a3d_listbox.c a3d/widget/a3d_text.c a3d/widget/a3d_widget.c a3d/widget/a3d_font.c a3d/widget/a3d_radiolist.c \
-                   a3d/widget/a3d_radiobox.c a3d/widget/a3d_checkbox.c a3d/widget/a3d_dropbox.c a3d/widget/a3d_droptext.c
+                   a3d/widget/a3d_radiobox.c a3d/widget/a3d_checkbox.c a3d/widget/a3d_dropbox.c a3d/widget/a3d_droptext.c a3d/widget/a3d_sprite.c
 
 ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM)
 	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv1_CM.c

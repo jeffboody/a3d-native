@@ -258,12 +258,17 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 
 	a3d_font_t* font = a3d_screen_font(self->screen);
 	float ar = a3d_font_aspectRatio(font);
-	float th = a3d_screen_layoutText(self->screen,
-	                                 A3D_TEXT_STYLE_MEDIUM);
+	float th = 0.0f;
+	if((self->wrapv >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
+	   (self->wrapv <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
+	{
+		int style = self->wrapv - A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
+		th = a3d_screen_layoutText(self->screen, style);
+	}
 	float tw = ar*th;
 
 	float ssq = (sw > sh) ? sh : sw;
-	float tsq = (tw > th) ? th : tw;
+	float tsq = th;   // always use the height for square
 	float psq = (*w > *h) ? *h : *w;
 	int   sq  = (self->stretch_mode == A3D_WIDGET_STRETCH_SQUARE);
 
@@ -281,7 +286,8 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		{
 			rw = sq ? ssq : sw;
 		}
-		else if(self->wraph == A3D_WIDGET_WRAP_STRETCH_TEXT)
+		else if((self->wraph >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
+		        (self->wraph <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rw = sq ? tsq : tw;
 		}
@@ -303,7 +309,8 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		{
 			rh = sq ? ssq : sh;
 		}
-		else if(self->wrapv == A3D_WIDGET_WRAP_STRETCH_TEXT)
+		else if((self->wrapv >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
+		        (self->wrapv <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rh = sq ? tsq : th;
 		}

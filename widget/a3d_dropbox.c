@@ -77,17 +77,20 @@ static void a3d_dropbox_size(a3d_widget_t* widget,
 }
 
 static int a3d_dropbox_click(a3d_widget_t* widget,
+                             int state,
                              float x, float y)
 {
 	assert(widget);
-	LOGD("debug x=%f, y=%f", x, y);
+	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	if(a3d_widget_click((a3d_widget_t*) self->drop_text, x, y) == 0)
+	if(a3d_widget_click((a3d_widget_t*) self->drop_text,
+	                    state, x, y) == 0)
 	{
 		if(self->drop)
 		{
-			return a3d_widget_click(self->drop_widget, x, y);
+			return a3d_widget_click(self->drop_widget,
+			                        state, x, y);
 		}
 		return 0;
 	}
@@ -142,10 +145,10 @@ static void a3d_dropbox_layout(a3d_widget_t* widget,
 	}
 }
 
-static int a3d_dropbox_drag(a3d_widget_t* widget,
-                            float x, float y,
-                            float dx, float dy,
-                            double dt)
+static void a3d_dropbox_drag(a3d_widget_t* widget,
+                             float x, float y,
+                             float dx, float dy,
+                             double dt)
 {
 	assert(widget);
 	LOGD("debug");
@@ -158,10 +161,6 @@ static int a3d_dropbox_drag(a3d_widget_t* widget,
 		a3d_widget_drag(self->drop_widget,
 		                x, y, dx, dy, dt);
 	}
-
-	// always drag a dropbox since its elements
-	// may not always cover the entire box
-	return 1;
 }
 
 static void a3d_dropbox_draw(a3d_widget_t* widget)

@@ -97,17 +97,18 @@ static void a3d_listbox_size(a3d_widget_t* widget,
 }
 
 static int a3d_listbox_click(a3d_widget_t* widget,
+                             int state,
                              float x, float y)
 {
 	assert(widget);
-	LOGD("debug x=%f, y=%f", x, y);
+	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_listbox_t*  self = (a3d_listbox_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
 	while(iter)
 	{
 		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		if(a3d_widget_click(widget, x, y))
+		if(a3d_widget_click(widget, state, x, y))
 		{
 			return 1;
 		}
@@ -311,10 +312,10 @@ static void a3d_listbox_layout(a3d_widget_t* widget,
 	}
 }
 
-static int a3d_listbox_drag(a3d_widget_t* widget,
-                            float x, float y,
-                            float dx, float dy,
-                            double dt)
+static void a3d_listbox_drag(a3d_widget_t* widget,
+                             float x, float y,
+                             float dx, float dy,
+                             double dt)
 {
 	assert(widget);
 	LOGD("debug");
@@ -325,13 +326,8 @@ static int a3d_listbox_drag(a3d_widget_t* widget,
 	{
 		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
 		a3d_widget_drag(widget, x, y, dx, dy, dt);
-
 		iter = a3d_list_next(iter);
 	}
-
-	// always drag a listbox since its elements
-	// may not always cover the entire box
-	return 1;
 }
 
 static void a3d_listbox_draw(a3d_widget_t* widget)

@@ -33,13 +33,17 @@
 ***********************************************************/
 
 static int a3d_radiobox_click(a3d_widget_t* widget,
+                              int state,
                               float x, float y)
 {
 	assert(widget);
-	LOGD("debug x=%f, y=%f", x, y);
+	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_radiobox_t* self = (a3d_radiobox_t*) widget;
-	a3d_radiolist_value(self->parent, self->value);
+	if(state == A3D_WIDGET_POINTER_UP)
+	{
+		a3d_radiolist_value(self->parent, self->value);
+	}
 
 	return 1;
 }

@@ -73,10 +73,11 @@ static void a3d_layer_size(a3d_widget_t* widget,
 }
 
 static int a3d_layer_click(a3d_widget_t* widget,
+                           int state,
                            float x, float y)
 {
 	assert(widget);
-	LOGD("debug x=%f, y=%f", x, y);
+	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	// send events front-to-back
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
@@ -84,7 +85,7 @@ static int a3d_layer_click(a3d_widget_t* widget,
 	while(iter)
 	{
 		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		if(a3d_widget_click(widget, x, y))
+		if(a3d_widget_click(widget, state, x, y))
 		{
 			return 1;
 		}
@@ -127,27 +128,22 @@ static void a3d_layer_layout(a3d_widget_t* widget,
 	}
 }
 
-static int a3d_layer_drag(a3d_widget_t* widget,
-                          float x, float y,
-                          float dx, float dy,
-                          double dt)
+static void a3d_layer_drag(a3d_widget_t* widget,
+                           float x, float y,
+                           float dx, float dy,
+                           double dt)
 {
 	assert(widget);
 	LOGD("debug");
 
-	int             drag = 0;
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
 	while(iter)
 	{
 		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		drag |= a3d_widget_drag(widget, x, y, dx, dy, dt);
-
+		a3d_widget_drag(widget, x, y, dx, dy, dt);
 		iter = a3d_list_next(iter);
 	}
-
-	// only drag a layer if a widget is dragged
-	return drag;
 }
 
 static void a3d_layer_draw(a3d_widget_t* widget)

@@ -119,8 +119,7 @@ a3d_screen_t* a3d_screen_new(a3d_font_t* font)
 	self->scale         = A3D_SCREEN_SCALE_MEDIUM;
 	self->top_widget    = NULL;
 	self->dirty         = 1;
-	self->pointer_state = A3D_SCREEN_POINTER_UP;
-	self->pointer_drag  = 0;
+	self->pointer_state = A3D_WIDGET_POINTER_UP;
 	self->pointer_x0    = 0.0f;
 	self->pointer_y0    = 0.0f;
 	self->pointer_t0    = 0.0;
@@ -313,16 +312,30 @@ float a3d_screen_layoutText(a3d_screen_t* self, int style)
 	return size;
 }
 
-void a3d_screen_pointerDown(a3d_screen_t* self,
-                            float x, float y, double t0)
+int a3d_screen_pointerDown(a3d_screen_t* self,
+                           float x, float y, double t0)
 {
 	assert(self);
 	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
 
-	self->pointer_state = A3D_SCREEN_POINTER_DOWN;
-	self->pointer_x0    = x;
-	self->pointer_y0    = y;
-	self->pointer_t0    = t0;
+	if((self->top_widget == NULL) ||
+	   (self->pointer_state != A3D_WIDGET_POINTER_UP))
+	{
+		// ignore
+		return 0;
+	}
+
+	if(a3d_widget_click(self->top_widget,
+	                    A3D_WIDGET_POINTER_DOWN, x, y))
+	{
+		self->pointer_state = A3D_WIDGET_POINTER_DOWN;
+		self->pointer_x0    = x;
+		self->pointer_y0    = y;
+		self->pointer_t0    = t0;
+		return 1;
+	}
+
+	return 0;
 }
 
 int a3d_screen_pointerUp(a3d_screen_t* self,
@@ -331,62 +344,59 @@ int a3d_screen_pointerUp(a3d_screen_t* self,
 	assert(self);
 	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
 
-	if(self->pointer_state == A3D_SCREEN_POINTER_MOVE)
+	int touch = self->pointer_state != A3D_WIDGET_POINTER_UP;
+	if(self->top_widget &&
+	   (self->pointer_state == A3D_WIDGET_POINTER_DOWN))
 	{
-		// ignore
-		return self->pointer_drag;
+		a3d_widget_click(self->top_widget,
+		                 A3D_WIDGET_POINTER_UP, x, y);
 	}
+	self->pointer_state = A3D_WIDGET_POINTER_UP;
 
-	if(self->top_widget)
-	{
-		return a3d_widget_click(self->top_widget, x, y);
-	}
-
-	return 0;
+	return touch;
 }
 
-void a3d_screen_pointerMove(a3d_screen_t* self,
-                            float x, float y, double t0)
+int a3d_screen_pointerMove(a3d_screen_t* self,
+                           float x, float y, double t0)
 {
 	assert(self);
 	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
 
-	if(self->pointer_state == A3D_SCREEN_POINTER_UP)
+	if((self->top_widget == NULL) ||
+	   (self->pointer_state == A3D_WIDGET_POINTER_UP))
 	{
 		// ignore
-		return;
+		return 0;
 	}
 
 	// reject small motions (~1% of min screen dim)
 	float  dx = x - self->pointer_x0;
 	float  dy = y - self->pointer_y0;
 	double dt = t0 - self->pointer_t0;
-	if(self->pointer_state == A3D_SCREEN_POINTER_DOWN)
+	if(self->pointer_state == A3D_WIDGET_POINTER_DOWN)
 	{
 		float d = sqrtf(dx*dx + dy*dy);
 		float s = 0.2f*a3d_screen_layoutText(self, A3D_TEXT_STYLE_MEDIUM);
 		if(d < s)
 		{
 			// ignore
-			return;
+			return 1;
 		}
 
 		// avoid sharp acceleration
 		self->pointer_t0    = t0;
-		self->pointer_drag  = 0;
-		self->pointer_state = A3D_SCREEN_POINTER_MOVE;
-		return;
+		self->pointer_state = A3D_WIDGET_POINTER_MOVE;
+		return 1;
 	}
 
 	self->pointer_x0 = x;
 	self->pointer_y0 = y;
 	self->pointer_t0 = t0;
 
-	if(self->top_widget)
-	{
-		self->pointer_drag |= a3d_widget_drag(self->top_widget,
-		                                      x, y, dx, dy, dt);
-	}
+	a3d_widget_drag(self->top_widget,
+	                x, y, dx, dy, dt);
+
+	return 1;
 }
 
 void a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect)

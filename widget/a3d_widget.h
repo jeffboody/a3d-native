@@ -58,6 +58,10 @@
 #define A3D_WIDGET_LINE_MEDIUM 2
 #define A3D_WIDGET_LINE_LARGE  3
 
+#define A3D_WIDGET_POINTER_UP   0
+#define A3D_WIDGET_POINTER_DOWN 1
+#define A3D_WIDGET_POINTER_MOVE 2
+
 struct a3d_screen_s;
 
 // derived class functions
@@ -65,10 +69,11 @@ struct a3d_widget_s;
 typedef void (*a3d_widget_size_fn)(struct a3d_widget_s* widget,
                                    float* w, float* h);
 typedef int  (*a3d_widget_click_fn)(struct a3d_widget_s* widget,
+                                    int state,
                                     float x, float y);
 typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget,
                                      int dragx, int dragy);
-typedef int  (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
+typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
                                    float x, float y,
                                    float dx, float dy,
                                    double dt);
@@ -172,8 +177,9 @@ void          a3d_widget_layoutXYClip(a3d_widget_t* self,
 void          a3d_widget_layoutSize(a3d_widget_t* self,
                                     float* w, float* h);
 int           a3d_widget_click(a3d_widget_t* self,
+                               int state,
                                float x, float y);
-int           a3d_widget_drag(a3d_widget_t* self,
+void          a3d_widget_drag(a3d_widget_t* self,
                               float x, float y,
                               float dx, float dy,
                               double dt);

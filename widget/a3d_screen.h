@@ -35,10 +35,6 @@
 #define A3D_SCREEN_SCALE_LARGE  4
 #define A3D_SCREEN_SCALE_XLARGE 5
 
-#define A3D_SCREEN_POINTER_UP   0
-#define A3D_SCREEN_POINTER_DOWN 1
-#define A3D_SCREEN_POINTER_MOVE 2
-
 typedef struct a3d_screen_s
 {
 	// screen size
@@ -56,7 +52,6 @@ typedef struct a3d_screen_s
 
 	// pointer generates click and drag events
 	int    pointer_state;
-	int    pointer_drag;
 	float  pointer_x0;
 	float  pointer_y0;
 	double pointer_t0;
@@ -87,9 +82,9 @@ void          a3d_screen_dirty(a3d_screen_t* self);
 float         a3d_screen_layoutBorder(a3d_screen_t* self, int style);
 float         a3d_screen_layoutLine(a3d_screen_t* self, int style);
 float         a3d_screen_layoutText(a3d_screen_t* self, int style);
-void          a3d_screen_pointerDown(a3d_screen_t* self, float x, float y, double t0);
+int           a3d_screen_pointerDown(a3d_screen_t* self, float x, float y, double t0);
 int           a3d_screen_pointerUp(a3d_screen_t* self, float x, float y, double t0);
-void          a3d_screen_pointerMove(a3d_screen_t* self, float x, float y, double t0);
+int           a3d_screen_pointerMove(a3d_screen_t* self, float x, float y, double t0);
 void          a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect);
 void          a3d_screen_draw(a3d_screen_t* self);
 

@@ -33,13 +33,17 @@
 ***********************************************************/
 
 static int a3d_checkbox_click(a3d_widget_t* widget,
+                              int state,
                               float x, float y)
 {
 	assert(widget);
-	LOGD("debug x=%f, y=%f", x, y);
+	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_checkbox_t* self = (a3d_checkbox_t*) widget;
-	*(self->pvalue) = 1 - *(self->pvalue);
+	if(state == A3D_WIDGET_POINTER_UP)
+	{
+		*(self->pvalue) = 1 - *(self->pvalue);
+	}
 	return 1;
 }
 

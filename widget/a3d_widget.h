@@ -108,8 +108,8 @@ typedef struct a3d_widget_s
 	//       inset border
 	//       children may be stretch or shrink
 	//       top level widget must be stretch
-	int   wraph;
-	int   wrapv;
+	int   wrapx;
+	int   wrapy;
 	int   stretch_mode;
 	float stretch_factor;
 
@@ -149,7 +149,7 @@ typedef struct a3d_widget_s
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              int anchor,
-                             int wraph, int wrapv,
+                             int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
                              int style_border,

@@ -184,7 +184,7 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
                              int anchor,
-                             int wraph, int wrapv,
+                             int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
                              int style_border,
@@ -199,8 +199,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
-	LOGD("debug wsize=%i, anchor=%i, wraph=%i, wrapv=%i",
-	     wsize, anchor, wraph, wrapv);
+	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
+	     wsize, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
 	     stretch_mode, stretch_factor, style_border, style_line);
 	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
@@ -209,10 +209,10 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
 	LOGD("debug fname=%s", fname);
 
-	if((wraph == A3D_WIDGET_WRAP_SHRINK) ||
-	   (wrapv == A3D_WIDGET_WRAP_SHRINK))
+	if((wrapx == A3D_WIDGET_WRAP_SHRINK) ||
+	   (wrapy == A3D_WIDGET_WRAP_SHRINK))
 	{
-		LOGE("invalid wraph=%i, wrapv=%i", wraph, wrapv);
+		LOGE("invalid wrapx=%i, wrapy=%i", wrapx, wrapy);
 		return NULL;
 	}
 
@@ -224,8 +224,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	a3d_sprite_t* self = (a3d_sprite_t*) a3d_widget_new(screen,
 	                                                    wsize,
 	                                                    anchor,
-	                                                    wraph,
-	                                                    wrapv,
+	                                                    wrapx,
+	                                                    wrapy,
 	                                                    stretch_mode,
 	                                                    stretch_factor,
 	                                                    style_border,

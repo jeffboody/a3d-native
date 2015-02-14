@@ -49,7 +49,7 @@ typedef struct
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
                              int anchor,
-                             int wraph, int wrapv,
+                             int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
                              int style_border,

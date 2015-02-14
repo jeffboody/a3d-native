@@ -280,7 +280,7 @@ static void a3d_listbox_layout(a3d_widget_t* widget)
 
 	if(self->orientation == A3D_LISTBOX_ORIENTATION_VERTICAL)
 	{
-		if(widget->wrapv == A3D_WIDGET_WRAP_SHRINK)
+		if(widget->wrapy == A3D_WIDGET_WRAP_SHRINK)
 		{
 			a3d_listbox_layoutVerticalShrink(self);
 		}
@@ -291,7 +291,7 @@ static void a3d_listbox_layout(a3d_widget_t* widget)
 	}
 	else
 	{
-		if(widget->wraph == A3D_WIDGET_WRAP_SHRINK)
+		if(widget->wrapx == A3D_WIDGET_WRAP_SHRINK)
 		{
 			a3d_listbox_layoutHorizontalShrink(self);
 		}
@@ -373,7 +373,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
                                int orientation,
                                int anchor,
-                               int wraph, int wrapv,
+                               int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
                                int style_border,
@@ -386,8 +386,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
-	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wraph=%i, wrapv=%i",
-	     wsize, orientation, anchor, wraph, wrapv);
+	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wrapx=%i, wrapy=%i",
+	     wsize, orientation, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
 	     stretch_mode, stretch_factor, style_border, style_line);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -409,8 +409,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	a3d_listbox_t* self = (a3d_listbox_t*) a3d_widget_new(screen,
 	                                                      wsize,
 	                                                      anchor,
-	                                                      wraph,
-	                                                      wrapv,
+	                                                      wrapx,
+	                                                      wrapy,
 	                                                      stretch_mode,
 	                                                      stretch_factor,
 	                                                      style_border,

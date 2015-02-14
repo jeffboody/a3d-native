@@ -67,7 +67,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
                                    int orientation,
                                    int anchor,
-                                   int wraph, int wrapv,
+                                   int wrapx, int wrapy,
                                    int stretch_mode,
                                    float stretch_factor,
                                    int style_border,
@@ -92,8 +92,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	assert(text_color_line);
 	assert(text_color_text);
 	assert(pvalue);
-	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wraph=%i, wrapv=%i",
-	     wsize, orientation, anchor, wraph, wrapv);
+	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wrapx=%i, wrapy=%i",
+	     wsize, orientation, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
 	     stretch_mode, stretch_factor, style_border, style_line);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -119,7 +119,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	                                                           wsize,
 	                                                           orientation,
 	                                                           anchor,
-	                                                           wraph, wrapv,
+	                                                           wrapx, wrapy,
 	                                                           stretch_mode,
 	                                                           stretch_factor,
 	                                                           style_border,

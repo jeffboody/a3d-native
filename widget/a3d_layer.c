@@ -196,7 +196,7 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
                            int anchor,
-                           int wraph, int wrapv,
+                           int wrapx, int wrapy,
                            int stretch_mode,
                            float stretch_factor,
                            int style_border,
@@ -207,8 +207,8 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
-	LOGD("debug wsize=%i, anchor=%i, wraph=%i, wrapv=%i",
-	     wsize, anchor, wraph, wrapv);
+	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
+	     wsize, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
 	     stretch_mode, stretch_factor, style_border, style_line);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -224,8 +224,8 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	a3d_layer_t* self = (a3d_layer_t*) a3d_widget_new(screen,
 	                                                  wsize,
 	                                                  anchor,
-	                                                  wraph,
-	                                                  wrapv,
+	                                                  wrapx,
+	                                                  wrapy,
 	                                                  stretch_mode,
 	                                                  stretch_factor,
 	                                                  style_border,

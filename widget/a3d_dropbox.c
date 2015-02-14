@@ -191,7 +191,7 @@ static void a3d_dropbox_refresh(a3d_widget_t* widget)
 a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
                                int wsize,
                                int anchor,
-                               int wraph, int wrapv,
+                               int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
                                int style_border,
@@ -216,8 +216,8 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	assert(text_color_line);
 	assert(text_color_text);
 	assert(drop_widget);
-	LOGD("debug wsize=%i, anchor=%i, wraph=%i, wrapv=%i",
-	     wsize, anchor, wraph, wrapv);
+	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
+	     wsize, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
 	     stretch_mode, stretch_factor, style_border, style_line);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -242,8 +242,8 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	a3d_dropbox_t* self = (a3d_dropbox_t*) a3d_widget_new(screen,
 	                                                      wsize,
 	                                                      anchor,
-	                                                      wraph,
-	                                                      wrapv,
+	                                                      wrapx,
+	                                                      wrapy,
 	                                                      stretch_mode,
 	                                                      stretch_factor,
 	                                                      style_border,

@@ -119,10 +119,11 @@ static int a3d_listbox_click(a3d_widget_t* widget,
 	return 1;
 }
 
-static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self)
+static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self,
+                                             int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x = 0.0f;
@@ -149,16 +150,18 @@ static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self)
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
-		a3d_widget_layoutXYClip(child, x, y, &rect_clip);
+		a3d_widget_layoutXYClip(child, x, y, &rect_clip,
+		                        dragx, dragy);
 
 		iter = a3d_list_next(iter);
 	}
 }
 
-static void a3d_listbox_layoutVerticalStretch(a3d_listbox_t* self)
+static void a3d_listbox_layoutVerticalStretch(a3d_listbox_t* self,
+                                              int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x   = 0.0f;
@@ -187,16 +190,18 @@ static void a3d_listbox_layoutVerticalStretch(a3d_listbox_t* self)
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
-		a3d_widget_layoutXYClip(child, x, y, &rect_clip);
+		a3d_widget_layoutXYClip(child, x, y, &rect_clip,
+		                        dragx, dragy);
 
 		iter = a3d_list_next(iter);
 	}
 }
 
-static void a3d_listbox_layoutHorizontalShrink(a3d_listbox_t* self)
+static void a3d_listbox_layoutHorizontalShrink(a3d_listbox_t* self,
+                                               int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x = 0.0f;
@@ -223,16 +228,18 @@ static void a3d_listbox_layoutHorizontalShrink(a3d_listbox_t* self)
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
-		a3d_widget_layoutXYClip(child, x, y, &rect_clip);
+		a3d_widget_layoutXYClip(child, x, y, &rect_clip,
+		                        dragx, dragy);
 
 		iter = a3d_list_next(iter);
 	}
 }
 
-static void a3d_listbox_layoutHorizontalStretch(a3d_listbox_t* self)
+static void a3d_listbox_layoutHorizontalStretch(a3d_listbox_t* self,
+                                                int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x   = 0.0f;
@@ -261,16 +268,18 @@ static void a3d_listbox_layoutHorizontalStretch(a3d_listbox_t* self)
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
-		a3d_widget_layoutXYClip(child, x, y, &rect_clip);
+		a3d_widget_layoutXYClip(child, x, y, &rect_clip,
+		                        dragx, dragy);
 
 		iter = a3d_list_next(iter);
 	}
 }
 
-static void a3d_listbox_layout(a3d_widget_t* widget)
+static void a3d_listbox_layout(a3d_widget_t* widget,
+                               int dragx, int dragy)
 {
 	assert(widget);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	a3d_listbox_t* self = (a3d_listbox_t*) widget;
 	if(a3d_list_empty(self->list))
@@ -282,22 +291,22 @@ static void a3d_listbox_layout(a3d_widget_t* widget)
 	{
 		if(widget->wrapy == A3D_WIDGET_WRAP_SHRINK)
 		{
-			a3d_listbox_layoutVerticalShrink(self);
+			a3d_listbox_layoutVerticalShrink(self, dragx, dragy);
 		}
 		else
 		{
-			a3d_listbox_layoutVerticalStretch(self);
+			a3d_listbox_layoutVerticalStretch(self, dragx, dragy);
 		}
 	}
 	else
 	{
 		if(widget->wrapx == A3D_WIDGET_WRAP_SHRINK)
 		{
-			a3d_listbox_layoutHorizontalShrink(self);
+			a3d_listbox_layoutHorizontalShrink(self, dragx, dragy);
 		}
 		else
 		{
-			a3d_listbox_layoutHorizontalStretch(self);
+			a3d_listbox_layoutHorizontalStretch(self, dragx, dragy);
 		}
 	}
 }

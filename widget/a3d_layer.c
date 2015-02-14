@@ -96,10 +96,11 @@ static int a3d_layer_click(a3d_widget_t* widget,
 	return 0;
 }
 
-static void a3d_layer_layout(a3d_widget_t* widget)
+static void a3d_layer_layout(a3d_widget_t* widget,
+                             int dragx, int dragy)
 {
 	assert(widget);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// the rect_clip is constant across all layers
 	a3d_rect4f_t rect_clip;
@@ -119,7 +120,8 @@ static void a3d_layer_layout(a3d_widget_t* widget)
 		a3d_widget_anchorPt(&widget->rect_draw,
 		                    child->anchor,
 		                    &x, &y);
-		a3d_widget_layoutXYClip(child, x, y, &rect_clip);
+		a3d_widget_layoutXYClip(child, x, y, &rect_clip,
+		                        dragx, dragy);
 
 		iter = a3d_list_next(iter);
 	}

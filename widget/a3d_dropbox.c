@@ -95,10 +95,11 @@ static int a3d_dropbox_click(a3d_widget_t* widget,
 	return 1;
 }
 
-static void a3d_dropbox_layout(a3d_widget_t* widget)
+static void a3d_dropbox_layout(a3d_widget_t* widget,
+                               int dragx, int dragy)
 {
 	assert(widget);
-	LOGD("debug");
+	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	a3d_dropbox_t* self        = (a3d_dropbox_t*) widget;
 	a3d_widget_t*  text_widget = (a3d_widget_t*) self->drop_text;
@@ -124,7 +125,8 @@ static void a3d_dropbox_layout(a3d_widget_t* widget)
 	a3d_rect4f_intersect(&rect_draw,
 	                     &self->widget.rect_clip,
 	                     &rect_clip);
-	a3d_widget_layoutXYClip(text_widget, x, y, &rect_clip);
+	a3d_widget_layoutXYClip(text_widget, x, y, &rect_clip,
+	                        dragx, dragy);
 
 	if(self->drop)
 	{
@@ -135,7 +137,8 @@ static void a3d_dropbox_layout(a3d_widget_t* widget)
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
-		a3d_widget_layoutXYClip(drop_widget, x, y, &rect_clip);
+		a3d_widget_layoutXYClip(drop_widget, x, y, &rect_clip,
+	                            dragx, dragy);
 	}
 }
 

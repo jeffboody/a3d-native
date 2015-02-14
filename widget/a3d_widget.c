@@ -132,11 +132,12 @@ void a3d_widget_priv(a3d_widget_t* self, void* priv)
 
 void a3d_widget_layoutXYClip(a3d_widget_t* self,
                              float x, float y,
-                             a3d_rect4f_t* clip)
+                             a3d_rect4f_t* clip,
+                             int dragx, int dragy)
 {
 	assert(self);
 	assert(clip);
-	LOGD("debug x=%f, y=%f", x, y);
+	LOGD("debug x=%f, y=%f, dragx=%i, dragy=%i", x, y, dragx, dragy);
 
 	float w  = self->rect_border.w;
 	float h  = self->rect_border.h;
@@ -190,42 +191,38 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	}
 
 	// drag the widget (see dragable rules)
-	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
+	if(dragx && (w > cw))
 	{
-		if(w > cw)
-		{
-			l += self->drag_dx;
+		l += self->drag_dx;
 
-			if(l > cl)
-			{
-				self->drag_dx -= l - cl;
-				l = cl;
-			}
-			else if((l + w) < (cl + cw))
-			{
-				self->drag_dx += (cl + cw) - (l + w);
-				l = cl + cw - w;
-			}
+		if(l > cl)
+		{
+			self->drag_dx -= l - cl;
+			l = cl;
 		}
+		else if((l + w) < (cl + cw))
+		{
+			self->drag_dx += (cl + cw) - (l + w);
+			l = cl + cw - w;
+		}
+		dragx = 0;
 	}
 
-	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
+	if(dragy && (h > ch))
 	{
-		if(h > ch)
-		{
-			t += self->drag_dy;
+		t += self->drag_dy;
 
-			if(t > ct)
-			{
-				self->drag_dy -= t - ct;
-				t = ct;
-			}
-			else if((t + h) < (ct + ch))
-			{
-				self->drag_dy += (ct + ch) - (t + h);
-				t = ct + ch - h;
-			}
+		if(t > ct)
+		{
+			self->drag_dy -= t - ct;
+			t = ct;
 		}
+		else if((t + h) < (ct + ch))
+		{
+			self->drag_dy += (ct + ch) - (t + h);
+			t = ct + ch - h;
+		}
+		dragy = 0;
 	}
 
 	// set the layout
@@ -240,7 +237,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	a3d_widget_layout_fn layout_fn = self->layout_fn;
 	if(layout_fn)
 	{
-		(*layout_fn)(self);
+		(*layout_fn)(self, dragx, dragy);
 	}
 }
 

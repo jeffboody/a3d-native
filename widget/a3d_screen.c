@@ -420,7 +420,7 @@ void a3d_screen_draw(a3d_screen_t* self)
 		float        h    = (float) self->h;
 		a3d_rect4f_t clip = { .t = 0.0f, .l = 0.0f, .w = w, .h = h };
 		a3d_widget_layoutSize(top, &w, &h);
-		a3d_widget_layoutXYClip(top, 0.0f, 0.0f, &clip);
+		a3d_widget_layoutXYClip(top, 0.0f, 0.0f, &clip, 1, 1);
 		self->dirty = 0;
 	}
 	glEnable(GL_SCISSOR_TEST);

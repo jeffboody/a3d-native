@@ -66,7 +66,8 @@ typedef void (*a3d_widget_size_fn)(struct a3d_widget_s* widget,
                                    float* w, float* h);
 typedef int  (*a3d_widget_click_fn)(struct a3d_widget_s* widget,
                                     float x, float y);
-typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget);
+typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget,
+                                     int dragx, int dragy);
 typedef int  (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
                                    float x, float y,
                                    float dx, float dy,
@@ -166,7 +167,8 @@ void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_priv(a3d_widget_t* self, void* priv);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,
                                       float x, float y,
-                                      a3d_rect4f_t* clip);
+                                      a3d_rect4f_t* clip,
+                                      int dragx, int dragy);
 void          a3d_widget_layoutSize(a3d_widget_t* self,
                                     float* w, float* h);
 int           a3d_widget_click(a3d_widget_t* self,

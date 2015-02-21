@@ -32,25 +32,18 @@
 * private                                                  *
 ***********************************************************/
 
-static a3d_listitem_t* a3d_listitem_new(a3d_list_t* list,
-                                        a3d_listitem_t* prev,
-                                        a3d_listitem_t* next,
-                                        const void* data)
+static void a3d_listitem_add(a3d_listitem_t* self,
+                             a3d_list_t* list,
+                             a3d_listitem_t* prev,
+                             a3d_listitem_t* next)
 {
-	// prev, next and data can be NULL
+	// prev and next can be NULL
+	assert(self);
 	assert(list);
 	LOGD("debug");
 
-	a3d_listitem_t* self = (a3d_listitem_t*) malloc(sizeof(a3d_listitem_t));
-	if(self == NULL)
-	{
-		LOGE("malloc failed");
-		return NULL;
-	}
-
 	self->next = next;
 	self->prev = prev;
-	self->data = data;
 
 	// update next/prev nodes
 	if(next)
@@ -78,7 +71,130 @@ static a3d_listitem_t* a3d_listitem_new(a3d_list_t* list,
 	{
 		(*add_fn)(list->owner, self);
 	}
+}
 
+static void a3d_listitem_remove(a3d_listitem_t* self,
+                                a3d_list_t* list)
+{
+	assert(self);
+	assert(list);
+	LOGD("debug");
+
+	a3d_listnotify_fn del_fn = list->del_fn;
+	if(del_fn)
+	{
+		(*del_fn)(list->owner, self);
+	}
+
+	// update next/prev nodes
+	if(self->prev)
+	{
+		self->prev->next = self->next;
+	}
+	if(self->next)
+	{
+		self->next->prev = self->prev;
+	}
+
+	// update the list
+	if(self == list->head)
+	{
+		list->head = self->next;
+	}
+	if(self == list->tail)
+	{
+		list->tail = self->prev;
+	}
+	--list->size;
+
+	self->next = NULL;
+	self->prev = NULL;
+}
+
+static void a3d_listitem_move(a3d_listitem_t* self,
+                              a3d_list_t* list,
+                              a3d_listitem_t* prev,
+                              a3d_listitem_t* next)
+{
+	// prev or next may be NULL but not both
+	assert(self);
+	assert(list);
+	assert(prev || next);
+	LOGD("debug");
+
+	// remove node
+	if(self->prev)
+	{
+		self->prev->next = self->next;
+	}
+	if(self->next)
+	{
+		self->next->prev = self->prev;
+	}
+
+	// update the list
+	// use "else if" since size >= 2 for move
+	if(self == list->head)
+	{
+		list->head = self->next;
+	}
+	else if(self == list->tail)
+	{
+		list->tail = self->prev;
+	}
+
+	// add node
+	self->prev = prev;
+	self->next = next;
+
+	// update next/prev nodes
+	if(next)
+	{
+		next->prev = self;
+	}
+	if(prev)
+	{
+		prev->next = self;
+	}
+
+	// update the list
+	// use "else if" since size >= 2 for move
+	if(prev == NULL)
+	{
+		list->head = self;
+	}
+	else if(next == NULL)
+	{
+		list->tail = self;
+	}
+
+	a3d_listnotify_fn mov_fn = list->mov_fn;
+	if(mov_fn)
+	{
+		(*mov_fn)(list->owner, self);
+	}
+}
+
+static a3d_listitem_t* a3d_listitem_new(a3d_list_t* list,
+                                        a3d_listitem_t* prev,
+                                        a3d_listitem_t* next,
+                                        const void* data)
+{
+	// prev, next and data can be NULL
+	assert(list);
+	LOGD("debug");
+
+	a3d_listitem_t* self = (a3d_listitem_t*) malloc(sizeof(a3d_listitem_t));
+	if(self == NULL)
+	{
+		LOGE("malloc failed");
+		return NULL;
+	}
+
+	self->next = NULL;
+	self->prev = NULL;
+	self->data = data;
+	a3d_listitem_add(self, list, prev, next);
 	return self;
 }
 
@@ -95,35 +211,9 @@ static const void* a3d_listitem_delete(a3d_listitem_t** _self,
 	{
 		LOGD("debug");
 
-		a3d_listnotify_fn del_fn = list->del_fn;
-		if(del_fn)
-		{
-			(*del_fn)(list->owner, self);
-		}
-
-		// update next/prev nodes
-		if(self->prev)
-		{
-			self->prev->next = self->next;
-		}
-		if(self->next)
-		{
-			self->next->prev = self->prev;
-		}
-
-		// update the list
-		if(self == list->head)
-		{
-			list->head = self->next;
-		}
-		if(self == list->tail)
-		{
-			list->tail = self->prev;
-		}
-		--list->size;
-
 		next = self->next;
 		data = self->data;
+		a3d_listitem_remove(self, list);
 		free(self);
 		*_self = next;
 	}
@@ -407,113 +497,105 @@ void a3d_list_move(a3d_list_t* self,
                    a3d_listitem_t* from,
                    a3d_listitem_t* to)
 {
+	// to may be NULL
 	assert(self);
 	assert(from);
-	assert(to);
 	LOGD("debug");
+
+	if(to == NULL)
+	{
+		to = a3d_list_head(self);
+	}
 
 	if(from == to)
 	{
 		return;
 	}
 
-	a3d_listnotify_fn mov_fn = self->mov_fn;
-	if(mov_fn)
-	{
-		(*mov_fn)(self->owner, from);
-		(*mov_fn)(self->owner, to);
-	}
-
-	a3d_listitem_t* from_next = from->next;
-	a3d_listitem_t* from_prev = from->prev;
-	a3d_listitem_t* to_prev   = to->prev;
-
-	from->next = to;
-	from->prev = to_prev;
-	to->prev   = from;
-
-	if(to_prev)
-	{
-		to_prev->next = from;
-	}
-	else
-	{
-		self->head = from;
-	}
-
-	if(from_next)
-	{
-		from_next->prev = from_prev;
-	}
-	else
-	{
-		self->tail = from_prev;
-	}
-
-	if(from_prev)
-	{
-		from_prev->next = from_next;
-	}
-	else
-	{
-		self->head = from_next;
-	}
+	a3d_listitem_move(from, self, to->prev, to);
 }
 
 void a3d_list_moven(a3d_list_t* self,
                     a3d_listitem_t* from,
                     a3d_listitem_t* to)
 {
+	// to may be NULL
 	assert(self);
 	assert(from);
-	assert(to);
 	LOGD("debug");
+
+	if(to == NULL)
+	{
+		to = a3d_list_tail(self);
+	}
 
 	if(from == to)
 	{
 		return;
 	}
 
-	a3d_listnotify_fn mov_fn = self->mov_fn;
-	if(mov_fn)
+	a3d_listitem_move(from, self, to, to->next);
+}
+
+void a3d_list_swap(a3d_list_t* fromList,
+                   a3d_list_t* toList,
+                   a3d_listitem_t* from,
+                   a3d_listitem_t* to)
+{
+	// to may be NULL
+	assert(fromList);
+	assert(toList);
+	assert(from);
+	LOGD("debug");
+
+	if(fromList == toList)
 	{
-		(*mov_fn)(self->owner, from);
-		(*mov_fn)(self->owner, to);
+		a3d_list_move(fromList,
+		              from,
+		              to);
+		return;
 	}
 
-	a3d_listitem_t* from_next = from->next;
-	a3d_listitem_t* from_prev = from->prev;
-	a3d_listitem_t* to_next   = to->next;
-
-	from->next = to_next;
-	from->prev = to;
-	to->next   = from;
-
-	if(to_next)
+	a3d_listitem_remove(from, fromList);
+	if(to == NULL)
 	{
-		to_next->prev = from;
+		a3d_listitem_t* head = a3d_list_head(toList);
+		a3d_listitem_add(from, toList, NULL, head);
 	}
 	else
 	{
-		self->tail = from;
+		a3d_listitem_add(from, toList, to->prev, to);
+	}
+}
+
+void a3d_list_swapn(a3d_list_t* fromList,
+                    a3d_list_t* toList,
+                    a3d_listitem_t* from,
+                    a3d_listitem_t* to)
+{
+	// to may be NULL
+	assert(fromList);
+	assert(toList);
+	assert(from);
+	LOGD("debug");
+
+	if(fromList == toList)
+	{
+		a3d_list_moven(fromList,
+		               from,
+		               to);
+		return;
 	}
 
-	if(from_next)
+	a3d_listitem_remove(from, fromList);
+	if(to == NULL)
 	{
-		from_next->prev = from_prev;
+		a3d_listitem_t* tail = a3d_list_tail(toList);
+		a3d_listitem_add(from, toList, tail, NULL);
 	}
 	else
 	{
-		self->tail = from_prev;
-	}
-
-	if(from_prev)
-	{
-		from_prev->next = from_next;
-	}
-	else
-	{
-		self->head = from_next;
+		a3d_listitem_add(from, toList, to, to->next);
 	}
 }
 

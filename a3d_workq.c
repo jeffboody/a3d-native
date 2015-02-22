@@ -40,7 +40,9 @@ const int A3D_WORKQ_STOP    = 1;
 // force purge a task or workq
 const int A3D_WORKQ_PURGE = -1;
 
-static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id)
+static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id,
+                                          a3d_workqrun_fn run_fn,
+                                          a3d_workqpurge_fn purge_fn)
 {
 	assert(task);
 	assert((purge_id == 0) || (purge_id == 1));
@@ -56,6 +58,8 @@ static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id)
 	self->purge_id = purge_id;
 	self->status   = A3D_WORKQ_PENDING;
 	self->task     = task;
+	self->run_fn   = run_fn;
+	self->purge_fn = purge_fn;
 
 	return self;
 }
@@ -92,32 +96,32 @@ static void* a3d_workq_thread(void* arg)
 	a3d_workq_t* self = (a3d_workq_t*) arg;
 	while(1)
 	{
-		pthread_mutex_lock(&self->queue_mutex);
+		pthread_mutex_lock(&self->mutex);
 
 		// pending for an event
 		while((a3d_list_size(self->queue_pending) == 0) &&
 		   (self->state == A3D_WORKQ_RUNNING))
 		{
-			pthread_cond_wait(&self->queue_cond, &self->queue_mutex);
+			pthread_cond_wait(&self->cond, &self->mutex);
 		}
 
 		if(self->state == A3D_WORKQ_STOP)
 		{
 			// stop condition
-			pthread_mutex_unlock(&self->queue_mutex);
+			pthread_mutex_unlock(&self->mutex);
 			return NULL;
 		}
 
 		// get the task
 		self->active_node = (a3d_workqnode_t*) a3d_list_dequeue(self->queue_pending);
 
-		pthread_mutex_unlock(&self->queue_mutex);
+		pthread_mutex_unlock(&self->mutex);
 
 		// run the task
 		a3d_workqnode_t* node = self->active_node;
-		int status = (*self->run_fn)(node->task);
+		int status = (*node->run_fn)(node->task);
 
-		pthread_mutex_lock(&self->queue_mutex);
+		pthread_mutex_lock(&self->mutex);
 
 		// put the task on the complete queue
 		node->status = status;
@@ -125,8 +129,8 @@ static void* a3d_workq_thread(void* arg)
 		self->active_node = NULL;
 
 		// signal anybody pending for the workq to become idle
-		pthread_cond_signal(&self->queue_cond);
-		pthread_mutex_unlock(&self->queue_mutex);
+		pthread_cond_signal(&self->cond);
+		pthread_mutex_unlock(&self->mutex);
 	}
 }
 
@@ -134,11 +138,8 @@ static void* a3d_workq_thread(void* arg)
 * public                                                   *
 ***********************************************************/
 
-a3d_workq_t* a3d_workq_new(a3d_workqrun_fn   run_fn,
-                           a3d_workqpurge_fn purge_fn)
+a3d_workq_t* a3d_workq_new(void)
 {
-	assert(run_fn);
-	assert(purge_fn);
 	LOGD("debug");
 
 	a3d_workq_t* self = (a3d_workq_t*) malloc(sizeof(a3d_workq_t));
@@ -151,17 +152,15 @@ a3d_workq_t* a3d_workq_new(a3d_workqrun_fn   run_fn,
 	self->state       = A3D_WORKQ_RUNNING;
 	self->purge_id    = 0;
 	self->active_node = NULL;
-	self->run_fn      = run_fn;
-	self->purge_fn    = purge_fn;
 
 	// PTHREAD_MUTEX_DEFAULT is not re-entrant
-	if(pthread_mutex_init(&self->queue_mutex, NULL) != 0)
+	if(pthread_mutex_init(&self->mutex, NULL) != 0)
 	{
 		LOGE("pthread_mutex_init failed");
 		goto fail_mutex_init;
 	}
 
-	if(pthread_cond_init(&self->queue_cond, NULL) != 0)
+	if(pthread_cond_init(&self->cond, NULL) != 0)
 	{
 		LOGE("pthread_cond_init failed");
 		goto fail_cond_init;
@@ -194,9 +193,9 @@ a3d_workq_t* a3d_workq_new(a3d_workqrun_fn   run_fn,
 	fail_queue_complete:
 		a3d_list_delete(&self->queue_pending);
 	fail_queue_pending:
-		pthread_cond_destroy(&self->queue_cond);
+		pthread_cond_destroy(&self->cond);
 	fail_cond_init:
-		pthread_mutex_destroy(&self->queue_mutex);
+		pthread_mutex_destroy(&self->mutex);
 	fail_mutex_init:
 		free(self);
 	return NULL;
@@ -212,22 +211,22 @@ void a3d_workq_delete(a3d_workq_t** _self)
 	{
 		LOGD("debug");
 
-		pthread_mutex_lock(&self->queue_mutex);
+		pthread_mutex_lock(&self->mutex);
 
 		// stop the workq thread
 		self->state = A3D_WORKQ_STOP;
 		if(self->active_node)
 		{
 			// pending for workq thread
-			pthread_cond_wait(&self->queue_cond, &self->queue_mutex);
+			pthread_cond_wait(&self->cond, &self->mutex);
 		}
 		else
 		{
 			// wake up workq thread
-			pthread_cond_signal(&self->queue_cond);
+			pthread_cond_signal(&self->cond);
 		}
 
-		pthread_mutex_unlock(&self->queue_mutex);
+		pthread_mutex_unlock(&self->mutex);
 		pthread_join(self->thread, NULL);
 
 		// destroy the queues
@@ -238,8 +237,8 @@ void a3d_workq_delete(a3d_workq_t** _self)
 		a3d_list_delete(&self->queue_pending);
 
 		// destroy the thread state
-		pthread_cond_destroy(&self->queue_cond);
-		pthread_mutex_destroy(&self->queue_mutex);
+		pthread_cond_destroy(&self->cond);
+		pthread_mutex_destroy(&self->mutex);
 
 		free(self);
 		*_self = NULL;
@@ -251,7 +250,7 @@ void a3d_workq_purge(a3d_workq_t* self)
 	assert(self);
 	LOGD("debug");
 
-	pthread_mutex_lock(&self->queue_mutex);
+	pthread_mutex_lock(&self->mutex);
 
 	// purge the pending queue
 	a3d_listitem_t* iter = a3d_list_head(self->queue_pending);
@@ -262,7 +261,7 @@ void a3d_workq_purge(a3d_workq_t* self)
 		if(node->purge_id != self->purge_id)
 		{
 			a3d_list_remove(self->queue_pending, &iter);
-			(*self->purge_fn)(node->task, node->status);
+			(*node->purge_fn)(node->task, node->status);
 			a3d_workqnode_delete(&node);
 		}
 		else
@@ -288,7 +287,7 @@ void a3d_workq_purge(a3d_workq_t* self)
 		   (node->purge_id == A3D_WORKQ_PURGE))
 		{
 			a3d_list_remove(self->queue_complete, &iter);
-			(*self->purge_fn)(node->task, node->status);
+			(*node->purge_fn)(node->task, node->status);
 			a3d_workqnode_delete(&node);
 		}
 		else
@@ -303,16 +302,20 @@ void a3d_workq_purge(a3d_workq_t* self)
 		self->purge_id = 1 - self->purge_id;
 	}
 
-	pthread_mutex_unlock(&self->queue_mutex);
+	pthread_mutex_unlock(&self->mutex);
 }
 
-int a3d_workq_run(a3d_workq_t* self, void* task)
+int a3d_workq_run(a3d_workq_t* self, void* task,
+                  a3d_workqrun_fn run_fn,
+                  a3d_workqpurge_fn purge_fn)
 {
 	assert(self);
 	assert(task);
+	assert(run_fn);
+	assert(purge_fn);
 	LOGD("debug task=%p", task);
 
-	pthread_mutex_lock(&self->queue_mutex);
+	pthread_mutex_lock(&self->mutex);
 
 	// find the node containing the task or create a new one
 	int status = A3D_WORKQ_ERROR;
@@ -346,7 +349,8 @@ int a3d_workq_run(a3d_workq_t* self, void* task)
 	{
 		// create new node
 		a3d_workqnode_t* node;
-		node = a3d_workqnode_new(task, self->purge_id);
+		node = a3d_workqnode_new(task, self->purge_id,
+		                         run_fn, purge_fn);
 		if(node == NULL)
 		{
 			status = A3D_WORKQ_ERROR;
@@ -361,18 +365,18 @@ int a3d_workq_run(a3d_workq_t* self, void* task)
 			status = A3D_WORKQ_PENDING;
 
 			// wake up workq thread
-			pthread_cond_signal(&self->queue_cond);
+			pthread_cond_signal(&self->cond);
 		}
 	}
 
-	pthread_mutex_unlock(&self->queue_mutex);
+	pthread_mutex_unlock(&self->mutex);
 
 	// success
 	return status;
 
 	// failure
 	fail_enqueue:
-		pthread_mutex_unlock(&self->queue_mutex);
+		pthread_mutex_unlock(&self->mutex);
 	return A3D_WORKQ_ERROR;;
 }
 
@@ -383,7 +387,7 @@ int a3d_workq_cancel(a3d_workq_t* self, void* task)
 	LOGD("debug task=%p");
 
 	int status = A3D_WORKQ_ERROR;
-	pthread_mutex_lock(&self->queue_mutex);
+	pthread_mutex_lock(&self->mutex);
 
 	a3d_listitem_t* iter;
 	if((iter = a3d_list_find(self->queue_pending, task,
@@ -402,7 +406,7 @@ int a3d_workq_cancel(a3d_workq_t* self, void* task)
 		        (self->active_node->task == task))
 		{
 			// must wait for active task to finish
-			pthread_cond_wait(&self->queue_cond, &self->queue_mutex);
+			pthread_cond_wait(&self->cond, &self->mutex);
 		}
 
 		if((iter = a3d_list_find(self->queue_complete, task,
@@ -417,7 +421,7 @@ int a3d_workq_cancel(a3d_workq_t* self, void* task)
 		}
 	}
 
-	pthread_mutex_unlock(&self->queue_mutex);
+	pthread_mutex_unlock(&self->mutex);
 	return status;
 }
 
@@ -427,12 +431,12 @@ int a3d_workq_pending(a3d_workq_t* self)
 	LOGD("debug");
 
 	int size;
-	pthread_mutex_lock(&self->queue_mutex);
+	pthread_mutex_lock(&self->mutex);
 	size = a3d_list_size(self->queue_pending);
 	if(self->active_node)
 	{
 		++size;
 	}
-	pthread_mutex_unlock(&self->queue_mutex);
+	pthread_mutex_unlock(&self->mutex);
 	return size;
 }

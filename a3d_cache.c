@@ -157,7 +157,7 @@ a3d_cache_t* a3d_cache_new(int max_size,
 		goto fail_lru;
 	}
 
-	self->loader = a3d_workq_new(a3d_cache_runfn, a3d_cache_purgefn);
+	self->loader = a3d_workq_new();
 	if(self->loader == NULL)
 	{
 		goto fail_loader;
@@ -289,7 +289,8 @@ int a3d_cache_request(a3d_cache_t* self,
 	{
 		a3d_list_moven(self->lru, key, a3d_list_tail(self->lru));
 
-		int r = a3d_workq_run(self->loader, (void*) key);
+		int r = a3d_workq_run(self->loader, (void*) key,
+		                      a3d_cache_runfn, a3d_cache_purgefn);
 		if(r == A3D_WORKQ_COMPLETE)
 		{
 			int s = (*self->store_fn)(n->data, &n->size);

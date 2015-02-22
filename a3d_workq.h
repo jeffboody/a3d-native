@@ -43,29 +43,33 @@ typedef struct
 	int   status;
 	int   purge_id;
 	void* task;
+
+	a3d_workqrun_fn   run_fn;
+	a3d_workqpurge_fn purge_fn;
 } a3d_workqnode_t;
 
 typedef struct
 {
-	int               state;
-	int               purge_id;
-	a3d_list_t*       queue_pending;
-	a3d_list_t*       queue_complete;
-	a3d_workqnode_t*  active_node;
-	a3d_workqrun_fn   run_fn;
-	a3d_workqpurge_fn purge_fn;
+	int state;
+	int purge_id;
+
+	// queues
+	a3d_list_t* queue_pending;
+	a3d_list_t* queue_complete;
+	a3d_workqnode_t* active_node;
 
 	// workq thread
 	pthread_t       thread;
-	pthread_mutex_t queue_mutex;
-	pthread_cond_t  queue_cond;
+	pthread_mutex_t mutex;
+	pthread_cond_t  cond;
 } a3d_workq_t;
 
-a3d_workq_t* a3d_workq_new(a3d_workqrun_fn   run_fn,
-                           a3d_workqpurge_fn purge_fn);
+a3d_workq_t* a3d_workq_new(void);
 void         a3d_workq_delete(a3d_workq_t** _self);
 void         a3d_workq_purge(a3d_workq_t* self);
-int          a3d_workq_run(a3d_workq_t* self, void* task);
+int          a3d_workq_run(a3d_workq_t* self, void* task,
+                           a3d_workqrun_fn run_fn,
+                           a3d_workqpurge_fn purge_fn);
 int          a3d_workq_cancel(a3d_workq_t* self, void* task);
 int          a3d_workq_pending(a3d_workq_t* self);
 

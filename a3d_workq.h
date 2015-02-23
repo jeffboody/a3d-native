@@ -33,10 +33,14 @@
 #define A3D_WORKQ_PENDING  2
 
 /* called from the workq thread */
-typedef int  (*a3d_workqrun_fn)(void* task);
+typedef int  (*a3d_workqrun_fn)(int tid,
+                                void* owner,
+                                void* task);
 
 /* called from main thread by purge or delete */
-typedef void (*a3d_workqpurge_fn)(void* task, int status);
+typedef void (*a3d_workqpurge_fn)(void* owner,
+                                  void* task,
+                                  int status);
 
 typedef struct
 {
@@ -50,21 +54,26 @@ typedef struct
 
 typedef struct
 {
-	int state;
-	int purge_id;
+	// queue state
+	int   state;
+	void* owner;
+	int   purge_id;
 
 	// queues
 	a3d_list_t* queue_pending;
 	a3d_list_t* queue_complete;
-	a3d_workqnode_t* active_node;
+	a3d_list_t* queue_active;
 
-	// workq thread
-	pthread_t       thread;
+	// workq thread(s)
+	int             thread_count;
+	pthread_t*      threads;
+	int             next_tid;
 	pthread_mutex_t mutex;
-	pthread_cond_t  cond;
+	pthread_cond_t  cond_pending;
+	pthread_cond_t  cond_complete;
 } a3d_workq_t;
 
-a3d_workq_t* a3d_workq_new(void);
+a3d_workq_t* a3d_workq_new(void* owner, int thread_count);
 void         a3d_workq_delete(a3d_workq_t** _self);
 void         a3d_workq_purge(a3d_workq_t* self);
 int          a3d_workq_run(a3d_workq_t* self, void* task,

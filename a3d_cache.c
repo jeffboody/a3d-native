@@ -77,8 +77,9 @@ static void a3d_cachenode_delete(a3d_cachenode_t** _self)
 	}
 }
 
-static int a3d_cache_runfn(void* task)
+static int a3d_cache_runfn(int tid, void* owner, void* task)
 {
+	// ignore tid and owner
 	assert(task);
 	LOGD("debug");
 
@@ -89,8 +90,9 @@ static int a3d_cache_runfn(void* task)
 	return (*cache->load_fn)(n->data);
 }
 
-static void a3d_cache_purgefn(void* task, int status)
+static void a3d_cache_purgefn(void* owner, void* task, int status)
 {
+	// ignore owner
 	assert(task);
 	LOGD("debug");
 
@@ -157,7 +159,7 @@ a3d_cache_t* a3d_cache_new(int max_size,
 		goto fail_lru;
 	}
 
-	self->loader = a3d_workq_new();
+	self->loader = a3d_workq_new(NULL, 1);
 	if(self->loader == NULL)
 	{
 		goto fail_loader;

@@ -106,7 +106,9 @@ void test_workq(void)
 		LOGI("ABX");
 
 		// note: tests were designed for a single thread
-		a3d_workq_t* workq = a3d_workq_new(NULL, 1);
+		a3d_workq_t* workq = a3d_workq_new(NULL, 1,
+		                                   test_run_fn,
+		                                   test_purge_fn);
 		if(workq == NULL)
 		{
 			return;
@@ -118,11 +120,11 @@ void test_workq(void)
 		test_task_t* x = test_task_new('x', 0);
 		test_task_t* y = test_task_new('y', 1);
 
-		testeq(a3d_workq_run(workq, (void*) a, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
-		testeq(a3d_workq_run(workq, (void*) b, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
-		testeq(a3d_workq_run(workq, (void*) c, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
-		testeq(a3d_workq_run(workq, (void*) x, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
-		testeq(a3d_workq_run(workq, (void*) y, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) a), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) b), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) c), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) x), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) y), A3D_WORKQ_PENDING);
 		testeq(a3d_workq_pending(workq), 5);
 
 		// cancel c
@@ -132,9 +134,9 @@ void test_workq(void)
 		usleep(150000);
 		a3d_workq_purge(workq);
 
-		testeq(a3d_workq_run(workq, (void*) a, test_run_fn, test_purge_fn), A3D_WORKQ_COMPLETE);
-		testeq(a3d_workq_run(workq, (void*) b, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
-		testeq(a3d_workq_run(workq, (void*) x, test_run_fn, test_purge_fn), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) a), A3D_WORKQ_COMPLETE);
+		testeq(a3d_workq_run(workq, (void*) b), A3D_WORKQ_PENDING);
+		testeq(a3d_workq_run(workq, (void*) x), A3D_WORKQ_PENDING);
 		testeq(a3d_workq_pending(workq), 3);
 
 		// purge y
@@ -144,8 +146,8 @@ void test_workq(void)
 		// wait for b, x
 		usleep(200000);
 
-		testeq(a3d_workq_run(workq, (void*) b, test_run_fn, test_purge_fn), A3D_WORKQ_COMPLETE);
-		testeq(a3d_workq_run(workq, (void*) x, test_run_fn, test_purge_fn), A3D_WORKQ_COMPLETE);
+		testeq(a3d_workq_run(workq, (void*) b), A3D_WORKQ_COMPLETE);
+		testeq(a3d_workq_run(workq, (void*) x), A3D_WORKQ_COMPLETE);
 		testeq(a3d_workq_pending(workq), 0);
 
 		a3d_workq_delete(&workq);

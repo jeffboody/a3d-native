@@ -29,6 +29,9 @@
 #elif defined(A3D_GLESv2_LOAX)
 	#define A3D_GLESv2
 	#include <loax/gl2.h>
+#elif defined(A3D_GLESv2_RASPI)
+	#define A3D_GLESv2
+	#include "GLES2/gl2.h"
 #elif defined(A3D_GLESv2)
 	#include <GLES2/gl2.h>
 #elif defined(A3D_GL2)

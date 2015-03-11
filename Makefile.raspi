@@ -1,0 +1,21 @@
+TARGET   = liba3d.a
+A3D      = a3d_log a3d_texfont a3d_GL a3d_list a3d_tex a3d_unit a3d_time a3d_glsm a3d_shader a3d_texstring a3d_workq a3d_cache
+A3D_MATH = a3d_mat3f a3d_mat4f a3d_regionf a3d_stack4f a3d_vec2f a3d_vec3f a3d_vec4f a3d_quaternion a3d_orientation a3d_sphere a3d_plane a3d_fplane a3d_ray
+SOURCE   = $(A3D:%=%.c) $(A3D_MATH:%=math/%.c)
+OBJECTS  = $(SOURCE:.c=.o)
+HFILES   = $(A3D:%=%.h) $(A3D_MATH:%=math/%.h)
+OPT      = -O2 -Wall
+CFLAGS_RASPI = -DSTANDALONE -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -D_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -U_FORTIFY_SOURCE -ftree-vectorize -pipe -DHAVE_LIBBCM_HOST -DUSE_EXTERNAL_LIBBCM_HOST -DUSE_VCHIQ_ARM
+CFLAGS   = $(OPT) $(CFLAGS_RASPI) -I. -I/opt/vc/include -I/opt/vc/include/interface/vcos/pthreads -I/opt/vc/include/interface/vmcs_host/linux -DA3D_GLESv2_RASPI
+LDFLAGS  = -L/opt/vc/lib/ -lGLESv2 -lEGL -lbcm_host -lvcos -lvchiq_arm  -La3d -la3d -lpthread -lm -lz
+AR       = ar
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(AR) rcs $@ $(OBJECTS)
+
+clean:
+	rm -f $(OBJECTS) *~ \#*\# $(TARGET)
+
+$(OBJECTS): $(HFILES)

@@ -11,16 +11,26 @@ LOCAL_SRC_FILES := a3d/a3d_log.c a3d/a3d_glsm.c a3d/a3d_unit.c a3d/a3d_time.c a3
                    a3d/widget/a3d_screen.c a3d/widget/a3d_layer.c a3d/widget/a3d_listbox.c a3d/widget/a3d_text.c a3d/widget/a3d_widget.c a3d/widget/a3d_font.c a3d/widget/a3d_radiolist.c \
                    a3d/widget/a3d_radiobox.c a3d/widget/a3d_checkbox.c a3d/widget/a3d_dropbox.c a3d/widget/a3d_droptext.c a3d/widget/a3d_sprite.c
 
-ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM)
+LOCAL_LDLIBS := -Llibs/armeabi
+LOCAL_SHARED_LIBRARIES := libtexgz
+
+ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM_TRACE)
 	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv1_CM.c
+endif
+
+ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv2_TRACE)
+	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv2.c a3d/a3d_shader.c
+endif
+
+ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM)
+	LOCAL_LDLIBS += -lGLESv1_CM
 endif
 
 ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv2)
 	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv2.c a3d/a3d_shader.c
+	LOCAL_LDLIBS    += -lGLESv2
 endif
 
-LOCAL_LDLIBS    := -Llibs/armeabi \
-                   -llog -lz -ldl
-LOCAL_SHARED_LIBRARIES := libtexgz
+LOCAL_LDLIBS += -llog -lz -ldl
 
 include $(BUILD_SHARED_LIBRARY)

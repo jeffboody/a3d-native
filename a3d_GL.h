@@ -24,6 +24,12 @@
 #ifndef a3d_GL_H
 #define a3d_GL_H
 
+#if defined(A3D_GLESv1_CM_TRACE)
+	#define A3D_GLESv1_CM
+#elif defined(A3D_GLESv2_TRACE)
+	#define A3D_GLESv2
+#endif
+
 #if defined(A3D_GLESv1_CM)
 	#include <GLES/gl.h>
 #elif defined(A3D_GLESv2_LOAX)

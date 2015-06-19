@@ -32,6 +32,8 @@
 #define LOG_TAG "a3d"
 #include "a3d_log.h"
 
+#if defined(A3D_GLESv2_TRACE)
+
 /***********************************************************
 * function ids                                             *
 ***********************************************************/
@@ -784,3 +786,25 @@ void a3d_GL_frame_end(void)
 		a3d_GLES_reset();
 	}
 }
+
+#else // A3D_GLESv2_TRACE
+
+int a3d_GL_load(void)
+{
+	return 1;
+}
+
+int a3d_GL_unload(void)
+{
+	return 0;
+}
+
+void a3d_GL_frame_begin(void)
+{
+}
+
+void a3d_GL_frame_end(void)
+{
+}
+
+#endif // A3D_GLESv2_TRACE

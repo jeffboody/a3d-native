@@ -42,6 +42,7 @@ void a3d_ray_load(a3d_ray_t* self,
 
 	a3d_vec3f_load(&self->p, px, py, pz);
 	a3d_vec3f_load(&self->v, vx, vy, vz);
+	a3d_vec3f_normalize(&self->v);
 }
 
 int a3d_ray_hitsphere(const a3d_ray_t* self, const a3d_sphere_t* s)

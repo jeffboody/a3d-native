@@ -76,3 +76,14 @@ int a3d_ray_hitsphere(const a3d_ray_t* self, const a3d_sphere_t* s)
 	// does ray pass through sphere
 	return (d < s->r) ? 1 : 0;
 }
+
+void a3d_ray_getpoint(const a3d_ray_t* self, float s, a3d_vec3f_t* p)
+{
+	assert(self);
+	assert(p);
+	LOGD("debug s=%f", s);
+
+	p->x = self->p.x + s*self->v.x;
+	p->y = self->p.y + s*self->v.y;
+	p->z = self->p.z + s*self->v.z;
+}

@@ -37,5 +37,6 @@ void a3d_ray_load(a3d_ray_t* self,
                   GLfloat px, GLfloat py, GLfloat pz,
                   GLfloat vx, GLfloat vy, GLfloat vz);
 int  a3d_ray_hitsphere(const a3d_ray_t* self, const a3d_sphere_t* s);
+void a3d_ray_getpoint(const a3d_ray_t* self, float s, a3d_vec3f_t* p);
 
 #endif

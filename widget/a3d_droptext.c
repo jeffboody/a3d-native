@@ -56,7 +56,7 @@ static void a3d_droptext_refresh(a3d_widget_t* widget)
 	if(self->value != *(self->pvalue))
 	{
 		self->value = *(self->pvalue);
-		a3d_text_prefix((a3d_text_t*) self, "%s ",
+		a3d_text_prefix((a3d_text_t*) self, "%s",
 		                self->value ? "-" : "+");
 	}
 }
@@ -118,7 +118,7 @@ a3d_droptext_t* a3d_droptext_new(a3d_screen_t* screen,
 
 	self->pvalue = pvalue;
 	self->value  = *pvalue;
-	a3d_text_prefix((a3d_text_t*) self, "%s ", self->value ? "-" : "+");
+	a3d_text_prefix((a3d_text_t*) self, "%s", self->value ? "-" : "+");
 
 	return self;
 }

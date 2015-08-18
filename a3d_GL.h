@@ -30,7 +30,10 @@
 	#define A3D_GLESv2
 #endif
 
-#if defined(A3D_GLESv1_CM)
+#ifdef __APPLE__
+	#include <SDL2/SDL_opengl.h>
+	#define A3D_GL2
+#elif defined(A3D_GLESv1_CM)
 	#include <GLES/gl.h>
 #elif defined(A3D_GLESv2_LOAX)
 	#define A3D_GLESv2

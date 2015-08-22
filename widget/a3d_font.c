@@ -23,7 +23,7 @@
 
 #include "a3d_font.h"
 #include "../a3d_shader.h"
-#include <texgz/texgz_tex.h>
+#include "../../texgz/texgz_tex.h"
 #include <stdlib.h>
 #include <assert.h>
 

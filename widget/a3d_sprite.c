@@ -25,7 +25,7 @@
 #include "a3d_screen.h"
 #include "../a3d_shader.h"
 #include "../math/a3d_regionf.h"
-#include <texgz/texgz_tex.h>
+#include "../../texgz/texgz_tex.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>

@@ -26,6 +26,7 @@
 
 #include "a3d_widget.h"
 #include "a3d_font.h"
+#include "a3d_sprite.h"
 #include "../math/a3d_vec4f.h"
 #include "../math/a3d_mat4f.h"
 
@@ -59,6 +60,9 @@ typedef struct a3d_screen_s
 	// font - shared resource
 	a3d_font_t* font;
 
+	// sprite - shared resource
+	a3d_spriteShader_t* sprite_shader;
+
 	// fill/line state
 	GLuint id_coords;
 	GLuint prog;
@@ -68,24 +72,28 @@ typedef struct a3d_screen_s
 	GLint  unif_color;
 } a3d_screen_t;
 
-a3d_screen_t* a3d_screen_new(a3d_font_t* font);
-void          a3d_screen_delete(a3d_screen_t** _self);
-void          a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
-a3d_font_t*   a3d_screen_font(a3d_screen_t* self);
-void          a3d_screen_resize(a3d_screen_t* self, int w, int h);
-void          a3d_screen_sizei(a3d_screen_t* self, int* w, int* h);
-void          a3d_screen_sizef(a3d_screen_t* self, float* w, float* h);
-void          a3d_screen_rescale(a3d_screen_t* self, int scale);
-int           a3d_screen_scalei(a3d_screen_t* self);
-float         a3d_screen_scalef(a3d_screen_t* self);
-void          a3d_screen_dirty(a3d_screen_t* self);
-float         a3d_screen_layoutBorder(a3d_screen_t* self, int style);
-float         a3d_screen_layoutLine(a3d_screen_t* self, int style);
-float         a3d_screen_layoutText(a3d_screen_t* self, int style);
-int           a3d_screen_pointerDown(a3d_screen_t* self, float x, float y, double t0);
-int           a3d_screen_pointerUp(a3d_screen_t* self, float x, float y, double t0);
-int           a3d_screen_pointerMove(a3d_screen_t* self, float x, float y, double t0);
-void          a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect);
-void          a3d_screen_draw(a3d_screen_t* self);
+a3d_screen_t*       a3d_screen_new(a3d_font_t* font);
+void                a3d_screen_delete(a3d_screen_t** _self);
+void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
+a3d_font_t*         a3d_screen_font(a3d_screen_t* self);
+a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self);
+void                a3d_screen_resize(a3d_screen_t* self, int w, int h);
+void                a3d_screen_sizei(a3d_screen_t* self, int* w, int* h);
+void                a3d_screen_sizef(a3d_screen_t* self, float* w, float* h);
+void                a3d_screen_rescale(a3d_screen_t* self, int scale);
+int                 a3d_screen_scalei(a3d_screen_t* self);
+float               a3d_screen_scalef(a3d_screen_t* self);
+void                a3d_screen_dirty(a3d_screen_t* self);
+float               a3d_screen_layoutBorder(a3d_screen_t* self, int style);
+float               a3d_screen_layoutLine(a3d_screen_t* self, int style);
+float               a3d_screen_layoutText(a3d_screen_t* self, int style);
+int                 a3d_screen_pointerDown(a3d_screen_t* self,
+                                           float x, float y, double t0);
+int                 a3d_screen_pointerUp(a3d_screen_t* self,
+                                         float x, float y, double t0);
+int                 a3d_screen_pointerMove(a3d_screen_t* self,
+                                           float x, float y, double t0);
+void                a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect);
+void                a3d_screen_draw(a3d_screen_t* self);
 
 #endif

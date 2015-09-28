@@ -114,6 +114,12 @@ a3d_screen_t* a3d_screen_new(a3d_font_t* font)
 		goto fail_shaders;
 	}
 
+	self->sprite_shader = a3d_spriteShader_new();
+	if(self->sprite_shader == NULL)
+	{
+		goto fail_sprite_shader;
+	}
+
 	self->w             = 0;
 	self->h             = 0;
 	self->scale         = A3D_SCREEN_SCALE_MEDIUM;
@@ -135,6 +141,8 @@ a3d_screen_t* a3d_screen_new(a3d_font_t* font)
 	return self;
 
 	// failure
+	fail_sprite_shader:
+		glDeleteProgram(self->prog);
 	fail_shaders:
 		free(self);
 	return NULL;
@@ -149,6 +157,7 @@ void a3d_screen_delete(a3d_screen_t** _self)
 	{
 		LOGD("debug");
 
+		a3d_spriteShader_delete(&self->sprite_shader);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords);
 		glDeleteProgram(self->prog);
@@ -172,6 +181,14 @@ a3d_font_t* a3d_screen_font(a3d_screen_t* self)
 	LOGD("debug");
 
 	return self->font;
+}
+
+a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->sprite_shader;
 }
 
 void a3d_screen_resize(a3d_screen_t* self, int w, int h)

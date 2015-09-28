@@ -25,9 +25,22 @@
 #define a3d_sprite_H
 
 #include "a3d_widget.h"
-#include "a3d_screen.h"
 #include "../a3d_GL.h"
 #include "../math/a3d_vec4f.h"
+
+struct a3d_screen_s;
+
+typedef struct
+{
+	GLuint prog;
+	GLint  attr_vertex;
+	GLint  attr_coords;
+	GLint  unif_mvp;
+	GLint  unif_sampler;
+} a3d_spriteShader_t;
+
+a3d_spriteShader_t* a3d_spriteShader_new(void);
+void                a3d_spriteShader_delete(a3d_spriteShader_t** _self);
 
 typedef struct
 {
@@ -37,16 +50,9 @@ typedef struct
 	GLuint id_tex;
 	GLuint id_vertex;
 	GLuint id_coords;
-
-	// shader state
-	GLuint prog;
-	GLint  attr_vertex;
-	GLint  attr_coords;
-	GLint  unif_mvp;
-	GLint  unif_sampler;
 } a3d_sprite_t;
 
-a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
+a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              int wsize,
                              int anchor,
                              int wrapx, int wrapy,

@@ -85,25 +85,6 @@ static const char* FSHADER =
 	"	gl_FragColor = texture2D(sampler, varying_coords);\n"
 	"}\n";
 
-static int a3d_sprite_shaders(a3d_sprite_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
-	if(self->prog == 0)
-	{
-		return 0;
-	}
-
-	self->attr_vertex  = glGetAttribLocation(self->prog, "vertex");
-	self->attr_coords  = glGetAttribLocation(self->prog, "coords");
-	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
-	self->unif_sampler = glGetUniformLocation(self->prog, "sampler");
-
-	return 1;
-}
-
 static int a3d_sprite_tex(a3d_sprite_t* self, const char* fname)
 {
 	assert(self);
@@ -153,26 +134,28 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 	a3d_mat4f_translate(&mvp, 0, x, y, -1.0f);
 	a3d_mat4f_scale(&mvp, 0, ww, hh, 1.0f);
 
+	a3d_spriteShader_t* shader = a3d_screen_spriteShader(widget->screen);
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glUseProgram(self->prog);
-	glEnableVertexAttribArray(self->attr_vertex);
-	glEnableVertexAttribArray(self->attr_coords);
+	glUseProgram(shader->prog);
+	glEnableVertexAttribArray(shader->attr_vertex);
+	glEnableVertexAttribArray(shader->attr_coords);
 
 	// draw sprite
 	glBindTexture(GL_TEXTURE_2D, self->id_tex);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
-	glVertexAttribPointer(self->attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(shader->attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
-	glVertexAttribPointer(self->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-	glUniform1i(self->unif_sampler, 0);
+	glVertexAttribPointer(shader->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+	glUniform1i(shader->unif_sampler, 0);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glDisableVertexAttribArray(self->attr_coords);
-	glDisableVertexAttribArray(self->attr_vertex);
+	glDisableVertexAttribArray(shader->attr_coords);
+	glDisableVertexAttribArray(shader->attr_vertex);
 	glUseProgram(0);
 	glDisable(GL_BLEND);
 }
@@ -180,6 +163,50 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 /***********************************************************
 * public                                                   *
 ***********************************************************/
+
+a3d_spriteShader_t* a3d_spriteShader_new(void)
+{
+	LOGD("debug");
+
+	a3d_spriteShader_t* self = (a3d_spriteShader_t*) malloc(sizeof(a3d_spriteShader_t));
+	if(self == NULL)
+	{
+		LOGE("malloc failed");
+		return 0;
+	}
+
+	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
+	if(self->prog == 0)
+	{
+		goto fail_prog;
+	}
+
+	self->attr_vertex  = glGetAttribLocation(self->prog, "vertex");
+	self->attr_coords  = glGetAttribLocation(self->prog, "coords");
+	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
+	self->unif_sampler = glGetUniformLocation(self->prog, "sampler");
+
+	// success
+	return self;
+
+	// failure
+	fail_prog:
+		free(self);
+	return NULL;
+}
+
+void a3d_spriteShader_delete(a3d_spriteShader_t** _self)
+{
+	a3d_spriteShader_t* self = *_self;
+	if(self)
+	{
+		LOGD("debug");
+
+		glDeleteProgram(self->prog);
+		free(self);
+		*_self = NULL;
+	}
+}
 
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
@@ -243,11 +270,6 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	if(a3d_sprite_shaders(self) == 0)
-	{
-		goto fail_shaders;
-	}
-
 	if(a3d_sprite_tex(self, fname) == 0)
 	{
 		goto fail_tex;
@@ -268,8 +290,6 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	// failure
 	fail_tex:
-		glDeleteProgram(self->prog);
-	fail_shaders:
 		free(self);
 	return NULL;
 }
@@ -289,7 +309,6 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords);
 		glDeleteBuffers(1, &self->id_vertex);
-		glDeleteProgram(self->prog);
 
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}

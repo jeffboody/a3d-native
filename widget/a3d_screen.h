@@ -25,6 +25,7 @@
 #define a3d_screen_H
 
 #include "a3d_widget.h"
+#include "../a3d_list.h"
 #include "a3d_font.h"
 #include "a3d_sprite.h"
 #include "../math/a3d_vec4f.h"
@@ -62,6 +63,7 @@ typedef struct a3d_screen_s
 
 	// sprite - shared resource
 	a3d_spriteShader_t* sprite_shader;
+	a3d_list_t*         sprite_list;
 
 	// fill/line state
 	GLuint id_coords;
@@ -77,6 +79,8 @@ void                a3d_screen_delete(a3d_screen_t** _self);
 void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
 a3d_font_t*         a3d_screen_font(a3d_screen_t* self);
 a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self);
+GLuint              a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname);
+void                a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id);
 void                a3d_screen_resize(a3d_screen_t* self, int w, int h);
 void                a3d_screen_sizei(a3d_screen_t* self, int* w, int* h);
 void                a3d_screen_sizef(a3d_screen_t* self, float* w, float* h);

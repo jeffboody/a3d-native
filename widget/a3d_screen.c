@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
+#include <string.h>
 
 #define LOG_TAG "a3d"
 #include "../a3d_log.h"
@@ -93,6 +94,30 @@ static int a3d_screen_shaders(a3d_screen_t* self)
 	return 1;
 }
 
+static int a3d_screen_compareTexFname(const void* a, const void* b)
+{
+	assert(a);
+	assert(b);
+	LOGD("debug");
+
+	a3d_spriteTex_t* t = (a3d_spriteTex_t*) a;
+	const char*      s = (const char*) b;
+
+	return strncmp(t->fname, s, 256);
+}
+
+static int a3d_screen_compareTexId(const void* a, const void* b)
+{
+	assert(a);
+	assert(b);
+	LOGD("debug");
+
+	a3d_spriteTex_t* t  = (a3d_spriteTex_t*) a;
+	GLuint           id = (GLuint) b;
+
+	return (id == t->id_tex) ? 0 : 1;
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -120,6 +145,12 @@ a3d_screen_t* a3d_screen_new(a3d_font_t* font)
 		goto fail_sprite_shader;
 	}
 
+	self->sprite_list = a3d_list_new();
+	if(self->sprite_list == NULL)
+	{
+		goto fail_sprite_list;
+	}
+
 	self->w             = 0;
 	self->h             = 0;
 	self->scale         = A3D_SCREEN_SCALE_MEDIUM;
@@ -141,6 +172,8 @@ a3d_screen_t* a3d_screen_new(a3d_font_t* font)
 	return self;
 
 	// failure
+	fail_sprite_list:
+		a3d_spriteShader_delete(&self->sprite_shader);
 	fail_sprite_shader:
 		glDeleteProgram(self->prog);
 	fail_shaders:
@@ -156,6 +189,9 @@ void a3d_screen_delete(a3d_screen_t** _self)
 	if(self)
 	{
 		LOGD("debug");
+
+		// all sprites should have been unmapped already
+		a3d_list_delete(&self->sprite_list);
 
 		a3d_spriteShader_delete(&self->sprite_shader);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -189,6 +225,67 @@ a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self)
 	LOGD("debug");
 
 	return self->sprite_shader;
+}
+
+GLuint a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname)
+{
+	assert(self);
+	assert(fname);
+	LOGD("debug fname=%s", fname);
+
+	a3d_spriteTex_t* t    = NULL;
+	a3d_listitem_t*  iter = a3d_list_find(self->sprite_list,
+	                                      fname,
+	                                      a3d_screen_compareTexFname);
+	if(iter)
+	{
+		t = (a3d_spriteTex_t*) a3d_list_peekitem(iter);
+	}
+	else
+	{
+		t = a3d_spriteTex_new(fname);
+		if(t == NULL)
+		{
+			return 0;
+		}
+
+		if(a3d_list_enqueue(self->sprite_list, (const void*) t) == 0)
+		{
+			goto fail_enqueue;
+		}
+	}
+
+	// success
+	a3d_spriteTex_incRef(t);
+	return t->id_tex;
+
+	// failure
+	fail_enqueue:
+		a3d_spriteTex_delete(&t);
+	return 0;
+}
+
+void a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id)
+{
+	assert(self);
+	assert(_id);
+	LOGD("debug");
+
+	a3d_listitem_t* iter = a3d_list_find(self->sprite_list,
+	                                     (const void*) *_id,
+	                                     a3d_screen_compareTexId);
+	if(iter == NULL)
+	{
+		LOGW("id=%u not found", *_id);
+		return;
+	}
+
+	a3d_spriteTex_t* t = (a3d_spriteTex_t*) a3d_list_peekitem(iter);
+	if(a3d_spriteTex_decRef(t) == 0)
+	{
+		a3d_list_remove(self->sprite_list, &iter);
+		a3d_spriteTex_delete(&t);
+	}
 }
 
 void a3d_screen_resize(a3d_screen_t* self, int w, int h)

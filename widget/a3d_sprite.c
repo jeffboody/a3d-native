@@ -85,36 +85,6 @@ static const char* FSHADER =
 	"	gl_FragColor = texture2D(sampler, varying_coords);\n"
 	"}\n";
 
-static int a3d_sprite_tex(a3d_sprite_t* self, const char* fname)
-{
-	assert(self);
-	assert(fname);
-	LOGD("debug fname=%s", fname);
-
-	texgz_tex_t* tex = texgz_tex_import(fname);
-	if(tex == NULL)
-	{
-		return 0;
-	}
-
-	// load tex
-	glGenTextures(1, &self->id_tex);
-	glBindTexture(GL_TEXTURE_2D, self->id_tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexImage2D(GL_TEXTURE_2D, 0, tex->format,
-	             tex->stride, tex->vstride,
-	             0, tex->format, tex->type,
-	             tex->pixels);
-
-	// no longer needed
-	texgz_tex_delete(&tex);
-
-	return 1;
-}
-
 static void a3d_sprite_draw(a3d_widget_t* widget)
 {
 	assert(widget);
@@ -208,6 +178,84 @@ void a3d_spriteShader_delete(a3d_spriteShader_t** _self)
 	}
 }
 
+a3d_spriteTex_t* a3d_spriteTex_new(const char* fname)
+{
+	assert(fname);
+	LOGD("debug fname=%s", fname);
+
+	a3d_spriteTex_t* self = (a3d_spriteTex_t*) malloc(sizeof(a3d_spriteTex_t));
+	if(self == NULL)
+	{
+		LOGE("malloc failed");
+		return NULL;
+	}
+
+	texgz_tex_t* tex = texgz_tex_import(fname);
+	if(tex == NULL)
+	{
+		goto fail_tex;
+	}
+
+	// load tex
+	glGenTextures(1, &self->id_tex);
+	glBindTexture(GL_TEXTURE_2D, self->id_tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexImage2D(GL_TEXTURE_2D, 0, tex->format,
+	             tex->stride, tex->vstride,
+	             0, tex->format, tex->type,
+	             tex->pixels);
+
+	// no longer needed
+	texgz_tex_delete(&tex);
+
+	strncpy(self->fname, fname, 256);
+	self->fname[255] = '\0';
+	self->ref_count  = 0;
+
+	// success
+	return self;
+
+	// failure
+	fail_tex:
+		free(self);
+	return NULL;
+}
+
+void a3d_spriteTex_delete(a3d_spriteTex_t** _self)
+{
+	assert(_self);
+
+	a3d_spriteTex_t* self = *_self;
+	if(self)
+	{
+		LOGD("debug");
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &self->id_tex);
+
+		free(self);
+		*_self = NULL;
+	}
+}
+
+void a3d_spriteTex_incRef(a3d_spriteTex_t* self)
+{
+	assert(self);
+
+	++self->ref_count;
+}
+
+int a3d_spriteTex_decRef(a3d_spriteTex_t* self)
+{
+	assert(self);
+
+	--self->ref_count;
+	return self->ref_count;
+}
+
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
                              int anchor,
@@ -270,7 +318,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	if(a3d_sprite_tex(self, fname) == 0)
+	self->id_tex = a3d_screen_spriteTexMap(screen, fname);
+	if(self->id_tex == 0)
 	{
 		goto fail_tex;
 	}
@@ -303,8 +352,8 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 	{
 		LOGD("debug");
 
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDeleteTextures(1, &self->id_tex);
+		a3d_widget_t* widget = (a3d_widget_t*) self;
+		a3d_screen_spriteTexUnmap(widget->screen, &self->id_tex);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords);

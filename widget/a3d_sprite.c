@@ -90,7 +90,8 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 	assert(widget);
 	LOGD("debug");
 
-	a3d_sprite_t* self = (a3d_sprite_t*) widget;
+	a3d_sprite_t* self   = (a3d_sprite_t*) widget;
+	a3d_screen_t* screen = widget->screen;
 	a3d_mat4f_t   mvp;
 
 	float w  = 0.0f;
@@ -99,12 +100,12 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 	float y  = widget->rect_draw.t;
 	float ww = widget->rect_draw.w;
 	float hh = widget->rect_draw.h;
-	a3d_screen_sizef(widget->screen, &w, &h);
+	a3d_screen_sizef(screen, &w, &h);
 	a3d_mat4f_ortho(&mvp, 1, 0.0f, w, h, 0.0f, 0.0f, 2.0f);
 	a3d_mat4f_translate(&mvp, 0, x, y, -1.0f);
 	a3d_mat4f_scale(&mvp, 0, ww, hh, 1.0f);
 
-	a3d_spriteShader_t* shader = a3d_screen_spriteShader(widget->screen);
+	a3d_spriteShader_t* shader = a3d_screen_spriteShader(screen);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -113,7 +114,7 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 	glEnableVertexAttribArray(shader->attr_coords);
 
 	// draw sprite
-	glBindTexture(GL_TEXTURE_2D, self->id_tex);
+	glBindTexture(GL_TEXTURE_2D, self->id_tex[self->index]);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
 	glVertexAttribPointer(shader->attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
@@ -268,7 +269,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              a3d_vec4f_t* color_line,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_refresh_fn refresh_fn,
-                             const char* fname)
+                             int count)
 {
 	// click_fn and refresh_fn may be NULL
 	assert(screen);
@@ -282,7 +283,13 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug fname=%s", fname);
+	LOGD("debug count=%i", count);
+
+	if(count <= 0)
+	{
+		LOGE("invalid count=%i", count);
+		return NULL;
+	}
 
 	if((wrapx == A3D_WIDGET_WRAP_SHRINK) ||
 	   (wrapy == A3D_WIDGET_WRAP_SHRINK))
@@ -318,11 +325,15 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->id_tex = a3d_screen_spriteTexMap(screen, fname);
-	if(self->id_tex == 0)
+	self->id_tex = (GLuint*) malloc(count*sizeof(GLuint));
+	if(self->id_tex == NULL)
 	{
+		LOGE("malloc failed");
 		goto fail_tex;
 	}
+
+	self->index = 0;
+	self->count = count;
 
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);
@@ -339,7 +350,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	// failure
 	fail_tex:
-		free(self);
+		a3d_widget_delete((a3d_widget_t**) &self);
 	return NULL;
 }
 
@@ -352,8 +363,14 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 	{
 		LOGD("debug");
 
+		int i;
 		a3d_widget_t* widget = (a3d_widget_t*) self;
-		a3d_screen_spriteTexUnmap(widget->screen, &self->id_tex);
+		a3d_screen_t* screen = widget->screen;
+		for(i = 0; i < self->count; ++i)
+		{
+			a3d_screen_spriteTexUnmap(screen, &(self->id_tex[i]));
+		}
+		free(self->id_tex);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords);
@@ -361,4 +378,45 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
+}
+
+int a3d_sprite_load(a3d_sprite_t* self, int index, const char* fname)
+{
+	assert(self);
+	assert(fname);
+	LOGD("debug index=%i, fname=%s", index, fname);
+
+	// check for invalid index
+	if((index < 0) || (index >= self->count))
+	{
+		LOGW("invalid index=%i, count=%i", index, self->count);
+		return 0;
+	}
+
+	// unmap existing tex
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_screen_t* screen = widget->screen;
+	if(self->id_tex[index])
+	{
+		a3d_screen_spriteTexUnmap(screen, &(self->id_tex[index]));
+	}
+
+	// map the new tex
+	self->id_tex[index] = a3d_screen_spriteTexMap(screen, fname);
+	return self->id_tex[index] > 0;
+}
+
+void a3d_sprite_select(a3d_sprite_t* self, int index)
+{
+	assert(self);
+	LOGD("debug index=%i", index);
+
+	// check for invalid index
+	if((index < 0) || (index >= self->count))
+	{
+		LOGW("invalid index=%i, count=%i", index, self->count);
+		return;
+	}
+
+	self->index = index;
 }

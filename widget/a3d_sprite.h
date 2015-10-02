@@ -58,10 +58,14 @@ typedef struct
 {
 	a3d_widget_t widget;
 
+	// texture(s)
+	int count;
+	int index;
+
 	// GL data
-	GLuint id_tex;
-	GLuint id_vertex;
-	GLuint id_coords;
+	GLuint* id_tex;
+	GLuint  id_vertex;
+	GLuint  id_coords;
 } a3d_sprite_t;
 
 a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
@@ -76,7 +80,12 @@ a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              a3d_vec4f_t* color_line,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_refresh_fn refresh_fn,
-                             const char* fname);
+                             int count);
 void          a3d_sprite_delete(a3d_sprite_t** _self);
+int           a3d_sprite_load(a3d_sprite_t* self,
+                              int index,
+                              const char* fname);
+void          a3d_sprite_select(a3d_sprite_t* self,
+                                int index);
 
 #endif

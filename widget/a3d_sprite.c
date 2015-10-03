@@ -116,12 +116,13 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 	glEnableVertexAttribArray(shader->attr_coords);
 
 	// draw sprite
+	a3d_vec4f_t* c = &self->color;
 	glBindTexture(GL_TEXTURE_2D, self->id_tex[self->index]);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
 	glVertexAttribPointer(shader->attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
 	glVertexAttribPointer(shader->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glUniform4fv(shader->unif_color, 1, self->color);
+	glUniform4f(shader->unif_color, c->r, c->g, c->b, c->a);
 	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 	glUniform1i(shader->unif_sampler, 0);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -271,6 +272,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int style_line,
                              a3d_vec4f_t* color_fill,
                              a3d_vec4f_t* color_line,
+                             a3d_vec4f_t* color_sprite,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_refresh_fn refresh_fn,
                              int count)
@@ -279,14 +281,17 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
+	assert(color_sprite);
 	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
 	     wsize, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
 	     stretch_mode, stretch_factor, style_border, style_line);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
+	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
+	     color_line->r, color_line->g, color_line->b, color_line->a);
+	LOGD("debug color_sprite: r=%f, g=%f, b=%f, a=%f",
+	     color_sprite->r, color_sprite->g, color_sprite->b, color_sprite->a);
 	LOGD("debug count=%i", count);
 
 	if(count <= 0)
@@ -338,10 +343,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	self->index    = 0;
 	self->count    = count;
-	self->color[0] = 1.0f;
-	self->color[1] = 1.0f;
-	self->color[2] = 1.0f;
-	self->color[3] = 1.0f;
+	a3d_vec4f_copy(color_sprite, &self->color);
 
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);
@@ -427,17 +429,4 @@ void a3d_sprite_select(a3d_sprite_t* self, int index)
 	}
 
 	self->index = index;
-}
-
-void a3d_sprite_color(a3d_sprite_t* self,
-                      float r, float g,
-                      float b, float a)
-{
-	assert(self);
-	LOGD("debug r=%f, g=%f, b=%f, a=%f", r, g, b, a)
-
-	self->color[0] = r;
-	self->color[1] = g;
-	self->color[2] = b;
-	self->color[3] = a;
 }

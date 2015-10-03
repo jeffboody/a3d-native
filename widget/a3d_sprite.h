@@ -64,7 +64,7 @@ typedef struct
 	int index;
 
 	// GL color
-	GLfloat color[4];
+	a3d_vec4f_t color;
 
 	// GL data
 	GLuint* id_tex;
@@ -82,6 +82,7 @@ a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              int style_line,
                              a3d_vec4f_t* color_fill,
                              a3d_vec4f_t* color_line,
+                             a3d_vec4f_t* color_sprite,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_refresh_fn refresh_fn,
                              int count);
@@ -91,8 +92,5 @@ int           a3d_sprite_load(a3d_sprite_t* self,
                               const char* fname);
 void          a3d_sprite_select(a3d_sprite_t* self,
                                 int index);
-void          a3d_sprite_color(a3d_sprite_t* self,
-                               float r, float g,
-                               float b, float a);
 
 #endif

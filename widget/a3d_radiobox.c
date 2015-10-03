@@ -62,7 +62,6 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  a3d_vec4f_t* color_line,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
-                                 int indent,
                                  int value,
                                  a3d_radiolist_t* parent)
 {
@@ -79,7 +78,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i, indent=%i", max_len, indent);
+	LOGD("debug max_len=%i", max_len);
 
 	if(wsize == 0)
 	{
@@ -96,7 +95,6 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	                                                      color_line,
 	                                                      color_text,
 	                                                      max_len,
-	                                                      indent,
 	                                                      a3d_radiobox_click,
 	                                                      NULL);
 	if(self == NULL)
@@ -107,8 +105,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	self->value  = value;
 	self->parent = parent;
 
-	a3d_text_prefix((a3d_text_t*) self, "(%s) ",
-	                (self->value == *(parent->pvalue)) ? "*" : " ");
+	// TODO - icon
 
 	return self;
 }
@@ -132,7 +129,6 @@ void a3d_radiobox_refresh(a3d_radiobox_t* self)
 	assert(self);
 	LOGD("debug");
 
-	a3d_radiolist_t* parent = self->parent;
-	a3d_text_prefix((a3d_text_t*) self, "(%s) ",
-	                (self->value == *(parent->pvalue)) ? "*" : " ");
+	// a3d_radiolist_t* parent = self->parent;
+	// TODO - icon
 }

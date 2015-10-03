@@ -43,11 +43,7 @@ static int a3d_text_strlen(a3d_text_t* self)
 	assert(self);
 	LOGD("debug");
 
-	int len0 = self->indent;
-	int len1 = strlen(self->prefix);
-	int len2 = strlen(self->string);
-
-	int len = len0 + len1 + len2;
+	int len = strlen(self->string);
 	if(len >= self->max_len)
 	{
 		len = self->max_len - 1;
@@ -119,18 +115,11 @@ static void a3d_text_draw(a3d_widget_t* widget)
 }
 
 static void a3d_text_addc(a3d_text_t* self, char c,
-                          int* _i, float* _offset)
+                          int i, float* _offset)
 {
 	assert(self);
 
-	int i        = *_i;
-	float offset = *_offset;
-
-	if(i >= self->max_len)
-	{
-		return;
-	}
-
+	float         offset = *_offset;
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_font_t*   font   = a3d_screen_font(widget->screen);
 
@@ -178,39 +167,23 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 
 	// next character offset
 	*_offset += vertex.r;
-	*_i      += 1;
 }
 
 static void a3d_text_update(a3d_text_t* self)
 {
 	assert(self);
 
-	int   i;
-	int   pos    = 0;
-	float offset = 0.0f;
-
-	int len0 = self->indent;
-	for(i = 0; i < len0; ++i)
-	{
-		a3d_text_addc(self, ' ', &pos, &offset);
-	}
-
-	int len1 = strlen(self->prefix);
-	for(i = 0; i < len1; ++i)
-	{
-		a3d_text_addc(self, self->prefix[i], &pos, &offset);
-	}
-
-	int len2 = strlen(self->string);
-	for(i = 0; i < len2; ++i)
-	{
-		a3d_text_addc(self, self->string[i], &pos, &offset);
-	}
-
-	int len = len0 + len1 + len2;
+	int len = strlen(self->string);
 	if(len >= self->max_len)
 	{
 		len = self->max_len - 1;
+	}
+
+	int   i;
+	float offset = 0.0f;
+	for(i = 0; i < len; ++i)
+	{
+		a3d_text_addc(self, self->string[i], i, &offset);
 	}
 
 	int vertex_size = 18*len;   // 2 * 3 * xyz
@@ -240,7 +213,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_line,
                          a3d_vec4f_t* color_text,
                          int max_len,
-                         int indent,
                          a3d_widget_click_fn click_fn,
                          a3d_widget_refresh_fn refresh_fn)
 {
@@ -257,7 +229,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i, indent=%i", max_len, indent);
+	LOGD("debug max_len=%i", max_len);
 
 	if(wsize == 0)
 	{
@@ -293,8 +265,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_string;
 	}
 
-	self->prefix[0] = '\0';
-
 	int vertex_size = 18 * (max_len - 1);   // 2 * 3 * xyz
 	self->vertex = (GLfloat*) malloc(sizeof(GLfloat) * vertex_size);
 	if(self->vertex == NULL)
@@ -312,7 +282,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	}
 
 	self->max_len = max_len;
-	self->indent  = indent;
 	self->style   = style_text;
 	a3d_vec4f_copy(color_text, &self->color);
 	glGenBuffers(1, &self->id_vertex);
@@ -364,23 +333,6 @@ void a3d_text_printf(a3d_text_t* self,
 	va_end(argptr);
 
 	LOGD("debug %s", self->string);
-
-	a3d_text_update(self);
-}
-
-void a3d_text_prefix(a3d_text_t* self,
-                     const char* fmt, ...)
-{
-	assert(self);
-	assert(fmt);
-
-	// decode string
-	va_list argptr;
-	va_start(argptr, fmt);
-	vsnprintf(self->prefix, A3D_TEXT_PREFIX_LEN, fmt, argptr);
-	va_end(argptr);
-
-	LOGD("debug %s", self->prefix);
 
 	a3d_text_update(self);
 }

@@ -56,8 +56,8 @@ static void a3d_checkbox_refresh(a3d_widget_t* widget)
 	if(self->value != *(self->pvalue))
 	{
 		self->value = *(self->pvalue);
-		a3d_text_t* text = (a3d_text_t*) widget;
-		a3d_text_prefix(text, "[%s] ", self->value ? "x" : " ");
+		// a3d_text_t* text = (a3d_text_t*) widget;
+		// TODO - icon
 	}
 }
 
@@ -75,7 +75,6 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  a3d_vec4f_t* color_line,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
-                                 int indent,
                                  int* pvalue)
 {
 	assert(screen);
@@ -91,7 +90,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i, indent=%i", max_len, indent);
+	LOGD("debug max_len=%i", max_len);
 
 	if(wsize == 0)
 	{
@@ -108,7 +107,6 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	                                                      color_line,
 	                                                      color_text,
 	                                                      max_len,
-	                                                      indent,
 	                                                      a3d_checkbox_click,
 	                                                      a3d_checkbox_refresh);
 	if(self == NULL)
@@ -119,7 +117,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	self->pvalue = pvalue;
 	self->value  = *pvalue;
 
-	a3d_text_prefix((a3d_text_t*) self, "[%s] ", self->value ? "x" : " ");
+	// TODO - icon
 
 	return self;
 }

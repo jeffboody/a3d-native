@@ -182,7 +182,7 @@ void a3d_textbox_printf(a3d_textbox_t* self,
 	                                &(self->color_line),
 	                                &(self->color_text),
 	                                self->max_len,
-	                                0, NULL, NULL);
+	                                NULL, NULL);
 	if(text == NULL)
 	{
 		goto fail_text;

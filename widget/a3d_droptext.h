@@ -45,7 +45,6 @@ a3d_droptext_t* a3d_droptext_new(a3d_screen_t* screen,
                                  a3d_vec4f_t* color_line,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
-                                 int indent,
                                  int* pvalue);
 void            a3d_droptext_delete(a3d_droptext_t** _self);
 

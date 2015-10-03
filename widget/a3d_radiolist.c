@@ -82,7 +82,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    a3d_vec4f_t* text_color_line,
                                    a3d_vec4f_t* text_color_text,
                                    int text_max_len,
-                                   int text_indent,
                                    int* pvalue)
 {
 	assert(screen);
@@ -108,7 +107,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug text_max_len=%i, text_indent=%i", text_max_len, text_indent);
+	LOGD("debug text_max_len=%i", text_max_len);
 
 	if(wsize == 0)
 	{
@@ -137,7 +136,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	self->style_line   = text_style_line;
 	self->style_text   = text_style_text;
 	self->max_len      = text_max_len;
-	self->indent       = text_indent;
 	self->pvalue       = pvalue;
 	self->value        = *pvalue;
 
@@ -212,7 +210,6 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	                                      &(self->color_line),
 	                                      &(self->color_text),
 	                                      self->max_len,
-	                                      self->indent,
 	                                      value,
 	                                      self);
 	if(rb == NULL)

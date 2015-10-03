@@ -46,7 +46,6 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  a3d_vec4f_t* color_line,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
-                                 int indent,
                                  int value,
                                  a3d_radiolist_t* parent);
 void        a3d_radiobox_delete(a3d_radiobox_t** _self);

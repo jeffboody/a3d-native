@@ -208,7 +208,6 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* text_color_line,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
-                               int text_indent,
                                a3d_widget_t* drop_widget)
 {
 	assert(screen);
@@ -234,7 +233,7 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug text_max_len=%i, text_indent=%i", text_max_len, text_indent);
+	LOGD("debug text_max_len=%i", text_max_len);
 
 	if(wsize == 0)
 	{
@@ -273,7 +272,6 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	                                   text_color_line,
 	                                   text_color_text,
 	                                   text_max_len,
-	                                   text_indent,
 	                                   &self->drop);
 	if(self->drop_text == NULL)
 	{

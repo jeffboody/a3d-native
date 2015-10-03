@@ -35,6 +35,7 @@ typedef struct
 	GLuint prog;
 	GLint  attr_vertex;
 	GLint  attr_coords;
+	GLint  unif_color;
 	GLint  unif_mvp;
 	GLint  unif_sampler;
 } a3d_spriteShader_t;
@@ -62,6 +63,9 @@ typedef struct
 	int count;
 	int index;
 
+	// GL color
+	GLfloat color[4];
+
 	// GL data
 	GLuint* id_tex;
 	GLuint  id_vertex;
@@ -87,5 +91,8 @@ int           a3d_sprite_load(a3d_sprite_t* self,
                               const char* fname);
 void          a3d_sprite_select(a3d_sprite_t* self,
                                 int index);
+void          a3d_sprite_color(a3d_sprite_t* self,
+                               float r, float g,
+                               float b, float a);
 
 #endif

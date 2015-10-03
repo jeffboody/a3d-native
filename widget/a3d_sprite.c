@@ -78,11 +78,13 @@ static const char* FSHADER =
 	"#endif\n"
 	"\n"
 	"uniform sampler2D sampler;\n"
+	"uniform vec4      color;\n"
 	"varying vec2      varying_coords;\n"
 	"\n"
 	"void main()\n"
 	"{\n"
-	"	gl_FragColor = texture2D(sampler, varying_coords);\n"
+	"	gl_FragColor = color*texture2D(sampler,\n"
+	"	                               varying_coords);\n"
 	"}\n";
 
 static void a3d_sprite_draw(a3d_widget_t* widget)
@@ -119,6 +121,7 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 	glVertexAttribPointer(shader->attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
 	glVertexAttribPointer(shader->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glUniform4fv(shader->unif_color, 1, self->color);
 	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 	glUniform1i(shader->unif_sampler, 0);
 	glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -154,6 +157,7 @@ a3d_spriteShader_t* a3d_spriteShader_new(void)
 
 	self->attr_vertex  = glGetAttribLocation(self->prog, "vertex");
 	self->attr_coords  = glGetAttribLocation(self->prog, "coords");
+	self->unif_color   = glGetUniformLocation(self->prog, "color");
 	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
 	self->unif_sampler = glGetUniformLocation(self->prog, "sampler");
 
@@ -332,8 +336,12 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		goto fail_tex;
 	}
 
-	self->index = 0;
-	self->count = count;
+	self->index    = 0;
+	self->count    = count;
+	self->color[0] = 1.0f;
+	self->color[1] = 1.0f;
+	self->color[2] = 1.0f;
+	self->color[3] = 1.0f;
 
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);
@@ -419,4 +427,17 @@ void a3d_sprite_select(a3d_sprite_t* self, int index)
 	}
 
 	self->index = index;
+}
+
+void a3d_sprite_color(a3d_sprite_t* self,
+                      float r, float g,
+                      float b, float a)
+{
+	assert(self);
+	LOGD("debug r=%f, g=%f, b=%f, a=%f", r, g, b, a)
+
+	self->color[0] = r;
+	self->color[1] = g;
+	self->color[2] = b;
+	self->color[3] = a;
 }

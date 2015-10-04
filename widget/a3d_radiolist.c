@@ -223,8 +223,7 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 		goto fail_enqueue;
 	}
 
-	a3d_text_t* text = (a3d_text_t*) rb;
-	a3d_text_printf(text, "%s", string);
+	a3d_radiobox_textPrintf(rb, "%s", string);
 	free(string);
 
 	// success

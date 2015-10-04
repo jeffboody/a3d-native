@@ -24,14 +24,14 @@
 #ifndef a3d_radiobox_H
 #define a3d_radiobox_H
 
-#include "a3d_text.h"
+#include "a3d_bulletbox.h"
 #include "a3d_radiolist.h"
 #include "a3d_screen.h"
 #include "../math/a3d_vec4f.h"
 
 typedef struct
 {
-	a3d_text_t       text;
+	a3d_bulletbox_t  bullet;
 	int              value;
 	a3d_radiolist_t* parent;
 } a3d_radiobox_t;
@@ -50,5 +50,8 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  a3d_radiolist_t* parent);
 void        a3d_radiobox_delete(a3d_radiobox_t** _self);
 void        a3d_radiobox_refresh(a3d_radiobox_t* self);
+
+#define a3d_radiobox_textPrintf(self, fmt, ...) \
+	a3d_text_printf(self->bullet.text, fmt, __VA_ARGS__)
 
 #endif

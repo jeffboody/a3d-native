@@ -85,29 +85,55 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_radiobox_t);
 	}
 
-	a3d_radiobox_t* self = (a3d_radiobox_t*) a3d_text_new(screen,
-	                                                      wsize,
-	                                                      anchor,
-	                                                      style_border,
-	                                                      style_line,
-	                                                      style_text,
-	                                                      color_fill,
-	                                                      color_line,
-	                                                      color_text,
-	                                                      max_len,
-	                                                      a3d_radiobox_click,
-	                                                      NULL);
+	a3d_vec4f_t clear =
+	{
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f
+	};
+
+	a3d_radiobox_t* self = (a3d_radiobox_t*) a3d_bulletbox_new(screen,
+	                                                           wsize,
+	                                                           anchor,
+	                                                           style_border,
+	                                                           style_line,
+	                                                           style_text,
+	                                                           &clear, &clear,
+	                                                           color_text, color_text,
+	                                                           max_len, 2,
+	                                                           a3d_radiobox_click,
+	                                                           NULL);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
+	a3d_bulletbox_t* bullet = &(self->bullet);
+	if(a3d_bulletbox_spriteLoad(bullet, 0,
+	                            "$ic_radio_button_unchecked_white_24dp.texz") == 0)
+	{
+		goto fail_sprite;
+	}
+
+	if(a3d_bulletbox_spriteLoad(bullet, 1,
+	                            "$ic_radio_button_checked_white_24dp.texz") == 0)
+	{
+		goto fail_sprite;
+	}
+
 	self->value  = value;
 	self->parent = parent;
 
-	// TODO - icon
+	a3d_radiobox_refresh(self);
 
+	// success
 	return self;
+
+	// failure
+	fail_sprite:
+		a3d_bulletbox_delete((a3d_bulletbox_t**) &self);
+	return NULL;
 }
 
 void a3d_radiobox_delete(a3d_radiobox_t** _self)
@@ -119,7 +145,7 @@ void a3d_radiobox_delete(a3d_radiobox_t** _self)
 	{
 		LOGD("debug");
 
-		a3d_text_delete((a3d_text_t**) _self);
+		a3d_bulletbox_delete((a3d_bulletbox_t**) _self);
 		*_self = NULL;
 	}
 }
@@ -129,6 +155,14 @@ void a3d_radiobox_refresh(a3d_radiobox_t* self)
 	assert(self);
 	LOGD("debug");
 
-	// a3d_radiolist_t* parent = self->parent;
-	// TODO - icon
+	a3d_radiolist_t* parent = self->parent;
+	a3d_bulletbox_t* bullet = &(self->bullet);
+	if(self->value == parent->value)
+	{
+		a3d_bulletbox_spriteSelect(bullet, 1);
+	}
+	else
+	{
+		a3d_bulletbox_spriteSelect(bullet, 0);
+	}
 }

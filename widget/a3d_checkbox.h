@@ -24,15 +24,14 @@
 #ifndef a3d_checkbox_H
 #define a3d_checkbox_H
 
-#include "a3d_text.h"
+#include "a3d_bulletbox.h"
 #include "a3d_screen.h"
 #include "../math/a3d_vec4f.h"
 
 typedef struct
 {
-	a3d_text_t text;
-	int*       pvalue;
-	int        value;
+	a3d_bulletbox_t bullet;
+	int* pvalue;
 } a3d_checkbox_t;
 
 a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
@@ -47,5 +46,8 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int max_len,
                                  int* pvalue);
 void        a3d_checkbox_delete(a3d_checkbox_t** _self);
+
+#define a3d_checkbox_textPrintf(self, fmt, ...) \
+	a3d_text_printf(self->bullet.text, fmt, __VA_ARGS__)
 
 #endif

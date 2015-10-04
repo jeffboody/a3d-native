@@ -52,13 +52,9 @@ static void a3d_checkbox_refresh(a3d_widget_t* widget)
 	assert(widget);
 	LOGD("debug");
 
-	a3d_checkbox_t* self = (a3d_checkbox_t*) widget;
-	if(self->value != *(self->pvalue))
-	{
-		self->value = *(self->pvalue);
-		// a3d_text_t* text = (a3d_text_t*) widget;
-		// TODO - icon
-	}
+	a3d_checkbox_t*  self   = (a3d_checkbox_t*) widget;
+	a3d_bulletbox_t* bullet = &(self->bullet);
+	a3d_bulletbox_spriteSelect(bullet, *(self->pvalue));
 }
 
 /***********************************************************
@@ -97,29 +93,52 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_checkbox_t);
 	}
 
-	a3d_checkbox_t* self = (a3d_checkbox_t*) a3d_text_new(screen,
-	                                                      wsize,
-	                                                      anchor,
-	                                                      style_border,
-	                                                      style_line,
-	                                                      style_text,
-	                                                      color_fill,
-	                                                      color_line,
-	                                                      color_text,
-	                                                      max_len,
-	                                                      a3d_checkbox_click,
-	                                                      a3d_checkbox_refresh);
+	a3d_vec4f_t clear =
+	{
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f
+	};
+
+	a3d_checkbox_t* self = (a3d_checkbox_t*) a3d_bulletbox_new(screen,
+	                                                           wsize,
+	                                                           anchor,
+	                                                           style_border,
+	                                                           style_line,
+	                                                           style_text,
+	                                                           &clear, &clear,
+	                                                           color_text, color_text,
+	                                                           max_len, 2,
+	                                                           a3d_checkbox_click,
+	                                                           a3d_checkbox_refresh);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
+	a3d_bulletbox_t* bullet = &(self->bullet);
+	if(a3d_bulletbox_spriteLoad(bullet, 0,
+	                            "$ic_check_box_outline_blank_white_24dp.texz") == 0)
+	{
+		goto fail_sprite;
+	}
+
+	if(a3d_bulletbox_spriteLoad(bullet, 1,
+	                            "$ic_check_box_white_24dp.texz") == 0)
+	{
+		goto fail_sprite;
+	}
+
 	self->pvalue = pvalue;
-	self->value  = *pvalue;
 
-	// TODO - icon
-
+	// success
 	return self;
+
+	// failure
+	fail_sprite:
+		a3d_bulletbox_delete((a3d_bulletbox_t**) &self);
+	return NULL;
 }
 
 void a3d_checkbox_delete(a3d_checkbox_t** _self)
@@ -131,7 +150,7 @@ void a3d_checkbox_delete(a3d_checkbox_t** _self)
 	{
 		LOGD("debug");
 
-		a3d_text_delete((a3d_text_t**) _self);
+		a3d_bulletbox_delete((a3d_bulletbox_t**) _self);
 		*_self = NULL;
 	}
 }

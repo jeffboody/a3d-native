@@ -271,6 +271,12 @@ void a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id)
 	assert(_id);
 	LOGD("debug");
 
+	// ignore zero
+	if(*_id == 0)
+	{
+		return;
+	}
+
 	a3d_listitem_t* iter = a3d_list_find(self->sprite_list,
 	                                     (const void*) *_id,
 	                                     a3d_screen_compareTexId);
@@ -280,12 +286,16 @@ void a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id)
 		return;
 	}
 
+	// the texture may be mapped by multiple sprites
 	a3d_spriteTex_t* t = (a3d_spriteTex_t*) a3d_list_peekitem(iter);
 	if(a3d_spriteTex_decRef(t) == 0)
 	{
 		a3d_list_remove(self->sprite_list, &iter);
 		a3d_spriteTex_delete(&t);
 	}
+
+	// always clear the id
+	*_id = 0;
 }
 
 void a3d_screen_resize(a3d_screen_t* self, int w, int h)

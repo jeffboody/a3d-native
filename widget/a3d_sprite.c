@@ -334,7 +334,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->id_tex = (GLuint*) malloc(count*sizeof(GLuint));
+	self->id_tex = (GLuint*) calloc(count, sizeof(GLuint));
 	if(self->id_tex == NULL)
 	{
 		LOGE("malloc failed");

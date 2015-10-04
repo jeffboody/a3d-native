@@ -311,6 +311,18 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	}
 	a3d_widget_priv((a3d_widget_t*) self->bullet, (void*) self);
 
+	if(a3d_bulletbox_spriteLoad(self->bullet, 0,
+	                            "$ic_arrow_drop_down_white_24dp.texz") == 0)
+	{
+		goto fail_sprite;
+	}
+
+	if(a3d_bulletbox_spriteLoad(self->bullet, 1,
+	                            "$ic_arrow_drop_up_white_24dp.texz") == 0)
+	{
+		goto fail_sprite;
+	}
+
 	self->drop = 0;
 	self->body = body;
 
@@ -318,6 +330,8 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	return self;
 
 	// failure
+	fail_sprite:
+		a3d_bulletbox_delete(&self->bullet);
 	fail_bullet:
 		a3d_widget_delete((a3d_widget_t**) &self);
 	return NULL;

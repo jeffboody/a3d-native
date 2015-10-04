@@ -282,11 +282,13 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		if(self->wrapx == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rw = sq ? ssq : sw;
+			*w = rw;
 		}
 		else if((self->wrapx >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
 		        (self->wrapx <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rw = sq ? tsq : tw;
+			*w = rw;
 		}
 		rw *= self->stretch_factor;
 
@@ -305,11 +307,13 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		if(self->wrapy == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rh = sq ? ssq : sh;
+			*h = rh;
 		}
 		else if((self->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
 		        (self->wrapy <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rh = sq ? tsq : th;
+			*h = rh;
 		}
 		rh *= self->stretch_factor;
 

@@ -12,7 +12,7 @@ LOCAL_SRC_FILES := a3d/a3d_log.c a3d/a3d_glsm.c a3d/a3d_unit.c a3d/a3d_time.c a3
                    a3d/widget/a3d_radiobox.c a3d/widget/a3d_checkbox.c a3d/widget/a3d_dropbox.c a3d/widget/a3d_bulletbox.c a3d/widget/a3d_sprite.c
 
 LOCAL_LDLIBS := -Llibs/armeabi
-LOCAL_SHARED_LIBRARIES := libtexgz
+LOCAL_SHARED_LIBRARIES := libpak libtexgz
 
 ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM_TRACE)
 	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv1_CM.c

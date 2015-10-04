@@ -25,7 +25,7 @@
 #define a3d_dropbox_H
 
 #include "a3d_widget.h"
-#include "a3d_droptext.h"
+#include "a3d_bulletbox.h"
 #include "a3d_screen.h"
 #include "../math/a3d_vec4f.h"
 
@@ -33,9 +33,9 @@ typedef struct
 {
 	a3d_widget_t  widget;
 
-	int             drop;
-	a3d_droptext_t* drop_text;
-	a3d_widget_t*   drop_widget;
+	int              drop;
+	a3d_bulletbox_t* bullet;
+	a3d_widget_t*    body;
 } a3d_dropbox_t;
 
 a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
@@ -56,7 +56,7 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* text_color_line,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
-                               a3d_widget_t* drop_widget);
+                               a3d_widget_t* body);
 void            a3d_dropbox_delete(a3d_dropbox_t** _self);
 void            a3d_dropbox_raise(a3d_dropbox_t* self);
 

@@ -40,36 +40,36 @@ static void a3d_dropbox_size(a3d_widget_t* widget,
 	assert(h);
 	LOGD("debug");
 
-	a3d_dropbox_t* self        = (a3d_dropbox_t*) widget;
-	a3d_widget_t*  text_widget = (a3d_widget_t*) self->drop_text;
-	a3d_widget_t*  drop_widget = self->drop_widget;
+	a3d_dropbox_t* self   = (a3d_dropbox_t*) widget;
+	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
+	a3d_widget_t*  body   = self->body;
 
-	float wmax  = 0.0f;
-	float hsum  = 0.0f;
-	float tmp_w = *w;
-	float tmp_h = *h;
+	float wmax     = 0.0f;
+	float hsum     = 0.0f;
+	float bullet_w = *w;
+	float bullet_h = *h;
 
-	a3d_widget_layoutSize(text_widget, &tmp_w, &tmp_h);
-	wmax = tmp_w;
-	hsum = tmp_h;
+	a3d_widget_layoutSize(bullet, &bullet_w, &bullet_h);
+	wmax = bullet_w;
+	hsum = bullet_h;
 
 	if(self->drop)
 	{
-		float h2 = *h - tmp_h;
+		float h2 = *h - bullet_h;
 		if(h2 < 0.0f)
 		{
 			h2 = 0.0f;
 		}
 
-		tmp_w = *w;
-		tmp_h = h2 ;
-		a3d_widget_layoutSize(drop_widget, &tmp_w, &tmp_h);
+		float body_w = *w;
+		float body_h = h2 ;
+		a3d_widget_layoutSize(body, &body_w, &body_h);
 
-		if(tmp_w > wmax)
+		if(body_w > wmax)
 		{
-			wmax = tmp_w;
+			wmax = body_w;
 		}
-		hsum += tmp_h;
+		hsum += body_h;
 	}
 
 	*w = wmax;
@@ -84,12 +84,12 @@ static int a3d_dropbox_click(a3d_widget_t* widget,
 	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	if(a3d_widget_click((a3d_widget_t*) self->drop_text,
+	if(a3d_widget_click((a3d_widget_t*) self->bullet,
 	                    state, x, y) == 0)
 	{
 		if(self->drop)
 		{
-			return a3d_widget_click(self->drop_widget,
+			return a3d_widget_click(self->body,
 			                        state, x, y);
 		}
 		return 0;
@@ -104,9 +104,9 @@ static void a3d_dropbox_layout(a3d_widget_t* widget,
 	assert(widget);
 	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
-	a3d_dropbox_t* self        = (a3d_dropbox_t*) widget;
-	a3d_widget_t*  text_widget = (a3d_widget_t*) self->drop_text;
-	a3d_widget_t*  drop_widget = self->drop_widget;
+	a3d_dropbox_t* self   = (a3d_dropbox_t*) widget;
+	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
+	a3d_widget_t*  body   = self->body;
 
 	// initialize the layout
 	float x  = 0.0f;
@@ -115,7 +115,7 @@ static void a3d_dropbox_layout(a3d_widget_t* widget,
 	float l  = self->widget.rect_draw.l;
 	float w  = self->widget.rect_draw.w;
 	float h  = self->widget.rect_draw.h;
-	float th = text_widget->rect_border.h;
+	float th = bullet->rect_border.h;
 	a3d_rect4f_t rect_clip;
 	a3d_rect4f_t rect_draw;
 
@@ -124,11 +124,11 @@ static void a3d_dropbox_layout(a3d_widget_t* widget,
 	rect_draw.w = w;
 	rect_draw.h = th;
 
-	a3d_widget_anchorPt(&rect_draw, text_widget->anchor, &x, &y);
+	a3d_widget_anchorPt(&rect_draw, bullet->anchor, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &self->widget.rect_clip,
 	                     &rect_clip);
-	a3d_widget_layoutXYClip(text_widget, x, y, &rect_clip,
+	a3d_widget_layoutXYClip(bullet, x, y, &rect_clip,
 	                        dragx, dragy);
 
 	if(self->drop)
@@ -136,11 +136,11 @@ static void a3d_dropbox_layout(a3d_widget_t* widget,
 		rect_draw.t = t + th;
 		rect_draw.h = h - th;
 
-		a3d_widget_anchorPt(&rect_draw, drop_widget->anchor, &x, &y);
+		a3d_widget_anchorPt(&rect_draw, body->anchor, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
-		a3d_widget_layoutXYClip(drop_widget, x, y, &rect_clip,
+		a3d_widget_layoutXYClip(body, x, y, &rect_clip,
 	                            dragx, dragy);
 	}
 }
@@ -154,11 +154,11 @@ static void a3d_dropbox_drag(a3d_widget_t* widget,
 	LOGD("debug");
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	a3d_widget_drag((a3d_widget_t*) self->drop_text,
+	a3d_widget_drag((a3d_widget_t*) self->bullet,
 	                x, y, dx, dy, dt);
 	if(self->drop)
 	{
-		a3d_widget_drag(self->drop_widget,
+		a3d_widget_drag(self->body,
 		                x, y, dx, dy, dt);
 	}
 }
@@ -169,10 +169,10 @@ static void a3d_dropbox_draw(a3d_widget_t* widget)
 	LOGD("debug");
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	a3d_widget_draw((a3d_widget_t*) self->drop_text);
+	a3d_widget_draw((a3d_widget_t*) self->bullet);
 	if(self->drop)
 	{
-		a3d_widget_draw(self->drop_widget);
+		a3d_widget_draw(self->body);
 	}
 }
 
@@ -182,8 +182,32 @@ static void a3d_dropbox_refresh(a3d_widget_t* widget)
 	LOGD("debug");
 
 	a3d_dropbox_t* self = (a3d_dropbox_t*) widget;
-	a3d_widget_refresh((a3d_widget_t*) self->drop_text);
-	a3d_widget_refresh(self->drop_widget);
+	a3d_widget_refresh((a3d_widget_t*) self->bullet);
+	a3d_widget_refresh(self->body);
+}
+
+static int a3d_dropbox_clickBullet(a3d_widget_t* widget,
+                                   int state,
+                                   float x, float y)
+{
+	assert(widget);
+	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
+
+	a3d_dropbox_t* self = (a3d_dropbox_t*) widget->priv;
+	if(state == A3D_WIDGET_POINTER_UP)
+	{
+		self->drop = 1 - self->drop;
+	}
+	return 1;
+}
+
+static void a3d_dropbox_refreshBullet(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug x=%f, y=%f", x, y);
+
+	a3d_dropbox_t* self = (a3d_dropbox_t*) widget->priv;
+	a3d_bulletbox_spriteSelect(self->bullet, self->drop);
 }
 
 /***********************************************************
@@ -208,7 +232,7 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* text_color_line,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
-                               a3d_widget_t* drop_widget)
+                               a3d_widget_t* body)
 {
 	assert(screen);
 	assert(color_fill);
@@ -216,7 +240,7 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	assert(text_color_fill);
 	assert(text_color_line);
 	assert(text_color_text);
-	assert(drop_widget);
+	assert(body);
 	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
 	     wsize, anchor, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
@@ -262,30 +286,39 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->drop_text = a3d_droptext_new(screen,
-	                                   0,
-	                                   text_anchor,
-	                                   text_style_border,
-	                                   text_style_line,
-	                                   text_style_text,
-	                                   text_color_fill,
-	                                   text_color_line,
-	                                   text_color_text,
-	                                   text_max_len,
-	                                   &self->drop);
-	if(self->drop_text == NULL)
+	a3d_vec4f_t clear =
 	{
-		goto fail_text;
-	}
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f
+	};
 
-	self->drop        = 0;
-	self->drop_widget = drop_widget;
+	self->bullet = a3d_bulletbox_new(screen,
+	                                 0,
+	                                 text_anchor,
+	                                 text_style_border,
+	                                 text_style_line,
+	                                 text_style_text,
+	                                 &clear, &clear,
+	                                 text_color_text, text_color_text,
+	                                 text_max_len, 2,
+	                                 a3d_dropbox_clickBullet,
+	                                 a3d_dropbox_refreshBullet);
+	if(self->bullet == NULL)
+	{
+		goto fail_bullet;
+	}
+	a3d_widget_priv((a3d_widget_t*) self->bullet, (void*) self);
+
+	self->drop = 0;
+	self->body = body;
 
 	// success
 	return self;
 
 	// failure
-	fail_text:
+	fail_bullet:
 		a3d_widget_delete((a3d_widget_t**) &self);
 	return NULL;
 }
@@ -299,7 +332,7 @@ void a3d_dropbox_delete(a3d_dropbox_t** _self)
 	{
 		LOGD("debug");
 
-		a3d_droptext_delete(&self->drop_text);
+		a3d_bulletbox_delete(&self->bullet);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
 }

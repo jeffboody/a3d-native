@@ -24,6 +24,7 @@
 #include "a3d_radiobox.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <stdarg.h>
 #include <stdio.h>
 
 #define LOG_TAG "a3d"

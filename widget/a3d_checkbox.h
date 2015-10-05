@@ -46,8 +46,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int max_len,
                                  int* pvalue);
 void        a3d_checkbox_delete(a3d_checkbox_t** _self);
-
-#define a3d_checkbox_textPrintf(self, fmt, ...) \
-	a3d_text_printf(self->bullet.text, fmt, __VA_ARGS__)
+void        a3d_checkbox_textPrintf(a3d_checkbox_t* self,
+                                    const char* fmt, ...);
 
 #endif

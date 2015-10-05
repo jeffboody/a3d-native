@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 #include "a3d_bulletbox.h"
 
 #define LOG_TAG "a3d"
@@ -251,4 +252,41 @@ void a3d_bulletbox_delete(a3d_bulletbox_t** _self)
 		a3d_sprite_delete(&self->icon);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
+}
+
+int a3d_bulletbox_spriteLoad(a3d_bulletbox_t* self,
+                             int index,
+                             const char* fname)
+{
+	assert(self);
+	LOGD("debug index=%i, fname=%s", index, fname);
+
+	return a3d_sprite_load(self->icon, index, fname);
+}
+
+void a3d_bulletbox_spriteSelect(a3d_bulletbox_t* self,
+                                int index)
+{
+	assert(self);
+	LOGD("debug index=%i", index);
+
+	a3d_sprite_select(self->icon, index);
+}
+
+void a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
+                              const char* fmt, ...)
+{
+	assert(self);
+	assert(fmt);
+
+	// decode string
+	char    string[256];
+	va_list argptr;
+	va_start(argptr, fmt);
+	vsnprintf(string, 256, fmt, argptr);
+	va_end(argptr);
+
+	LOGD("debug %s", string);
+
+	a3d_text_printf(self->text, "%s", string);
 }

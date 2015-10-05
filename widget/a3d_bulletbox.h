@@ -51,12 +51,12 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    a3d_widget_click_fn click_fn,
                                    a3d_widget_refresh_fn refresh_fn);
 void            a3d_bulletbox_delete(a3d_bulletbox_t** _self);
-
-#define a3d_bulletbox_spriteLoad(self, index, fname) \
-	a3d_sprite_load(self->icon, index, fname)
-#define a3d_bulletbox_spriteSelect(self, index) \
-	a3d_sprite_select(self->icon, index)
-#define a3d_bulletbox_textPrintf(self, fmt, ...) \
-	a3d_text_printf(self->text, fmt, __VA_ARGS__)
+int             a3d_bulletbox_spriteLoad(a3d_bulletbox_t* self,
+                                         int index,
+                                         const char* fname);
+void            a3d_bulletbox_spriteSelect(a3d_bulletbox_t* self,
+                                           int index);
+void            a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
+                                         const char* fmt, ...);
 
 #endif

@@ -24,6 +24,7 @@
 #include "a3d_checkbox.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
 
 #define LOG_TAG "a3d"
 #include "../a3d_log.h"
@@ -153,4 +154,22 @@ void a3d_checkbox_delete(a3d_checkbox_t** _self)
 		a3d_bulletbox_delete((a3d_bulletbox_t**) _self);
 		*_self = NULL;
 	}
+}
+
+void a3d_checkbox_textPrintf(a3d_checkbox_t* self,
+                             const char* fmt, ...)
+{
+	assert(self);
+	assert(fmt);
+
+	// decode string
+	char    string[256];
+	va_list argptr;
+	va_start(argptr, fmt);
+	vsnprintf(string, 256, fmt, argptr);
+	va_end(argptr);
+
+	LOGD("debug %s", string);
+
+	a3d_bulletbox_textPrintf(&self->bullet, "%s", string);
 }

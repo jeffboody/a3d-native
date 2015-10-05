@@ -59,5 +59,7 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
                                a3d_widget_t* body);
 void            a3d_dropbox_delete(a3d_dropbox_t** _self);
 void            a3d_dropbox_raise(a3d_dropbox_t* self);
+void            a3d_dropbox_textPrintf(a3d_dropbox_t* self,
+                                       const char* fmt, ...);
 
 #endif

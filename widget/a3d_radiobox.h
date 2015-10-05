@@ -50,8 +50,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  a3d_radiolist_t* parent);
 void        a3d_radiobox_delete(a3d_radiobox_t** _self);
 void        a3d_radiobox_refresh(a3d_radiobox_t* self);
-
-#define a3d_radiobox_textPrintf(self, fmt, ...) \
-	a3d_text_printf(self->bullet.text, fmt, __VA_ARGS__)
+void        a3d_radiobox_textPrintf(a3d_radiobox_t* self,
+                                    const char* fmt, ...);
 
 #endif

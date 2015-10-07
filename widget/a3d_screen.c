@@ -113,9 +113,9 @@ static int a3d_screen_compareTexId(const void* a, const void* b)
 	LOGD("debug");
 
 	a3d_spriteTex_t* t  = (a3d_spriteTex_t*) a;
-	GLuint           id = (GLuint) b;
+	GLuint*          id = (GLuint*) b;
 
-	return (id == t->id_tex) ? 0 : 1;
+	return ((*id) == t->id_tex) ? 0 : 1;
 }
 
 /***********************************************************
@@ -282,7 +282,7 @@ void a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id)
 	}
 
 	a3d_listitem_t* iter = a3d_list_find(self->sprite_list,
-	                                     (const void*) *_id,
+	                                     (const void*) _id,
 	                                     a3d_screen_compareTexId);
 	if(iter == NULL)
 	{

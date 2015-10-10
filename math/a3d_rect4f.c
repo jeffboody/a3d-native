@@ -85,6 +85,10 @@ int a3d_rect4f_intersect(const a3d_rect4f_t* ra,
 	LOGD("debug");
 
 	// degenerate rectangles
+	rc->t = 0.0f;
+	rc->l = 0.0f;
+	rc->w = 0.0f;
+	rc->h = 0.0f;
 	if((ra->w <= 0.0f) ||
 	   (ra->h <= 0.0f) ||
 	   (rb->w <= 0.0f) ||

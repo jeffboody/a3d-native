@@ -383,25 +383,46 @@ void a3d_screen_dirty(a3d_screen_t* self)
 	self->dirty = 1;
 }
 
-float a3d_screen_layoutBorder(a3d_screen_t* self, int style)
+void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
+                             float* hborder, float* vborder)
 {
 	assert(self);
+	assert(hborder);
+	assert(vborder);
 	LOGD("debug style=%i", style);
 
+	*hborder = 0.0f;
+	*vborder = 0.0f;
+
 	float size = a3d_screen_layoutText(self, A3D_TEXT_STYLE_MEDIUM);
-	if(style == A3D_WIDGET_BORDER_SMALL)
+
+	// horizontal
+	if(style & A3D_WIDGET_BORDER_HSMALL)
 	{
-		return 0.125f*size;
+		*hborder = 0.125f*size;
 	}
-	else if(style == A3D_WIDGET_BORDER_MEDIUM)
+	else if(style & A3D_WIDGET_BORDER_HMEDIUM)
 	{
-		return 0.25f*size;
+		*hborder = 0.25f*size;
 	}
-	else if(style == A3D_WIDGET_BORDER_LARGE)
+	else if(style & A3D_WIDGET_BORDER_HLARGE)
 	{
-		return 0.5f*size;
+		*hborder = 0.5f*size;
 	}
-	return 0.0f;
+
+	// vertical
+	if(style & A3D_WIDGET_BORDER_VSMALL)
+	{
+		*vborder = 0.125f*size;
+	}
+	else if(style & A3D_WIDGET_BORDER_VMEDIUM)
+	{
+		*vborder = 0.25f*size;
+	}
+	else if(style & A3D_WIDGET_BORDER_VLARGE)
+	{
+		*vborder = 0.5f*size;
+	}
 }
 
 float a3d_screen_layoutLine(a3d_screen_t* self, int style)

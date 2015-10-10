@@ -226,12 +226,15 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	}
 
 	// set the layout
-	float bo = a3d_screen_layoutBorder(self->screen,
-	                                   self->style_border);
+	float h_bo = 0.0f;
+	float v_bo = 0.0f;
+	a3d_screen_layoutBorder(self->screen,
+	                        self->style_border,
+	                        &h_bo, &v_bo);
 	self->rect_border.t = t;
 	self->rect_border.l = l;
-	self->rect_draw.t   = t + bo;
-	self->rect_draw.l   = l + bo;
+	self->rect_draw.t   = t + v_bo;
+	self->rect_draw.l   = l + h_bo;
 
 	// allow the widget to layout it's children
 	a3d_widget_layout_fn layout_fn = self->layout_fn;
@@ -270,11 +273,15 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	int   sq  = (self->stretch_mode == A3D_WIDGET_STRETCH_SQUARE);
 
 	// initialize size
-	float bo = a3d_screen_layoutBorder(self->screen, self->style_border);
+	float h_bo = 0.0f;
+	float v_bo = 0.0f;
+	a3d_screen_layoutBorder(self->screen,
+	                        self->style_border,
+	                        &h_bo, &v_bo);
 	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->rect_draw.w   = 0.0f;
-		self->rect_border.w = 2.0f*bo;
+		self->rect_border.w = 2.0f*h_bo;
 	}
 	else
 	{
@@ -292,14 +299,14 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		}
 		rw *= self->stretch_factor;
 
-		self->rect_draw.w   = rw - 2.0f*bo;
+		self->rect_draw.w   = rw - 2.0f*h_bo;
 		self->rect_border.w = rw;
 	}
 
 	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->rect_draw.h   = 0.0f;
-		self->rect_border.h = 2.0f*bo;
+		self->rect_border.h = 2.0f*v_bo;
 	}
 	else
 	{
@@ -317,7 +324,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		}
 		rh *= self->stretch_factor;
 
-		self->rect_draw.h   = rh - 2.0f*bo;
+		self->rect_draw.h   = rh - 2.0f*v_bo;
 		self->rect_border.h = rh;
 	}
 
@@ -336,7 +343,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// wrap width
 	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
-		*w = draw_w + 2.0f*bo;
+		*w = draw_w + 2.0f*h_bo;
 		self->rect_draw.w   = draw_w;
 		self->rect_border.w = *w;
 	}
@@ -344,7 +351,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// wrap height
 	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
-		*h = draw_h + 2.0f*bo;
+		*h = draw_h + 2.0f*v_bo;
 		self->rect_draw.h   = draw_h;
 		self->rect_border.h = *h;
 	}

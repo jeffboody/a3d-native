@@ -37,6 +37,209 @@
 * private                                                  *
 ***********************************************************/
 
+static void a3d_textbox_printText(a3d_textbox_t* self,
+                                  const char* string)
+{
+	assert(self);
+	assert(string);
+	LOGD("debug string=%s", string);
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_text_t* text = a3d_text_new(widget->screen,
+	                                0,
+	                                self->anchor,
+	                                self->style_border,
+	                                self->style_line,
+	                                self->style_text,
+	                                &(self->color_fill),
+	                                &(self->color_line),
+	                                &(self->color_text),
+	                                self->max_len,
+	                                NULL, NULL);
+	if(text == NULL)
+	{
+		return;
+	}
+
+	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
+	if(a3d_list_enqueue(listbox->list, (const void*) text) == 0)
+	{
+		goto fail_enqueue;
+	}
+
+	a3d_text_printf(text, "%s", string);
+
+	// success
+	return;
+
+	// failure
+	fail_enqueue:
+		a3d_text_delete(&text);
+}
+
+#define A3D_TOKEN_END   0
+#define A3D_TOKEN_TEXT  1
+#define A3D_TOKEN_BREAK 2
+
+static int getToken(const char* src, char* tok,
+                    int* _srci, int* _toki)
+{
+	assert(src);
+	assert(tok);
+	assert(_srci);
+	assert(_toki);
+
+	int srci = *_srci;
+	int toki = 0;
+
+	// skip whitespace
+	while((src[srci] == '\n') ||
+	      (src[srci] == '\r') ||
+	      (src[srci] == '\t') ||
+	      (src[srci] == ' '))
+	{
+		++srci;
+	}
+
+	// check for the end
+	if(src[srci] == '\0')
+	{
+		*_srci = srci;
+		*_toki = toki;
+		return (srci == 0) ? A3D_TOKEN_BREAK : A3D_TOKEN_END;
+	}
+
+	// read text
+	while((src[srci] != '\0') &&
+	      (src[srci] != '\n') &&
+	      (src[srci] != '\r') &&
+	      (src[srci] != '\t') &&
+	      (src[srci] != ' '))
+	{
+		tok[toki++] = src[srci++];
+		tok[toki]   = '\0';
+	}
+
+	*_srci = srci;
+	*_toki = toki;
+	return A3D_TOKEN_TEXT;
+}
+
+static void a3d_textbox_reflow(a3d_widget_t* widget,
+                               float w, float h)
+{
+	assert(widget);
+	LOGD("debug w=%f, h=%f", w, h);
+
+	a3d_textbox_t* self = (a3d_textbox_t*) widget;
+
+	// reflow text when changes occur
+	if((self->dirty  == 0) &&
+	   (self->last_w == w) &&
+	   (self->last_h == h))
+	{
+		return;
+	}
+	self->dirty  = 0;
+	self->last_w = w;
+	self->last_h = h;
+
+	// determine maxi
+	a3d_font_t* font   = a3d_screen_font(widget->screen);
+	float       aspect = a3d_font_aspectRatio(font);
+	float       size   = a3d_screen_layoutText(widget->screen,
+	                                           self->style_text);
+	int         maxi   = (int) (w/(aspect*size));
+
+	// maxi does not include null character
+	// but max_len does
+	// limit to max_len
+	if((maxi >= self->max_len) ||
+	   (maxi == 0))
+	{
+		maxi = self->max_len - 1;
+	}
+
+	// clear the text
+	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
+	a3d_listitem_t* iter    = a3d_list_head(listbox->list);
+	while(iter)
+	{
+		a3d_text_t* text;
+		text = (a3d_text_t*) a3d_list_remove(listbox->list, &iter);
+		a3d_text_delete(&text);
+	}
+
+	// initialize parser
+	char tok[256];
+	char dst[256];
+	int  srci = 0;
+	int  toki = 0;
+	int  dsti = 0;
+	int  type = A3D_TOKEN_END;
+
+	// reflow the string(s)
+	iter = a3d_list_head(self->strings);
+	while(iter)
+	{
+		const char* src = (const char*) a3d_list_peekitem(iter);
+
+		srci = 0;
+		type = getToken(src, tok, &srci, &toki);
+		while(type != A3D_TOKEN_END)
+		{
+			if(type == A3D_TOKEN_BREAK)
+			{
+				if(dsti > 0)
+				{
+					a3d_textbox_printText(self, dst);
+					a3d_textbox_printText(self, "");
+				}
+				else
+				{
+					a3d_textbox_printText(self, "");
+				}
+				dsti = 0;
+				break;
+			}
+
+			if(dsti == 0)
+			{
+				strncpy(dst, tok, 256);
+				dst[255] = '\0';
+				dsti = toki;
+			}
+			else
+			{
+				if(dsti + toki + 1 <= maxi)
+				{
+					strcat(dst, " ");
+					strcat(dst, tok);
+					dst[255] = '\0';
+					dsti += toki + 1;
+				}
+				else
+				{
+					a3d_textbox_printText(self, dst);
+
+					strncpy(dst, tok, 256);
+					dst[255] = '\0';
+					dsti = toki;
+				}
+			}
+
+			type = getToken(src, tok, &srci, &toki);
+		}
+
+		iter = a3d_list_next(iter);
+	}
+
+	if(dsti > 0)
+	{
+		a3d_textbox_printText(self, dst);
+	}
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -90,22 +293,40 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_textbox_t);
 	}
 
-	a3d_textbox_t* self = (a3d_textbox_t*) a3d_listbox_new(screen,
-	                                                       wsize,
-	                                                       orientation,
-	                                                       anchor,
-	                                                       wrapx, wrapy,
-	                                                       stretch_mode,
-	                                                       stretch_factor,
-	                                                       style_border,
-	                                                       style_line,
-	                                                       color_fill,
-	                                                       color_line,
-	                                                       NULL);
+	a3d_widget_reflow_fn reflow_fn = a3d_textbox_reflow;
+	if(wrapx == A3D_WIDGET_WRAP_SHRINK)
+	{
+		reflow_fn = NULL;
+	}
+
+	a3d_textbox_t* self;
+	self = (a3d_textbox_t*) a3d_listbox_new(screen,
+	                                        wsize,
+	                                        orientation,
+	                                        anchor,
+	                                        wrapx, wrapy,
+	                                        stretch_mode,
+	                                        stretch_factor,
+	                                        style_border,
+	                                        style_line,
+	                                        color_fill,
+	                                        color_line,
+	                                        reflow_fn,
+	                                        NULL);
 	if(self == NULL)
 	{
 		return NULL;
 	}
+
+	self->strings = a3d_list_new();
+	if(self->strings == NULL)
+	{
+		goto fail_strings;
+	}
+
+	self->dirty  = 1;
+	self->last_w = 0.0f;
+	self->last_h = 0.0f;
 
 	self->anchor       = text_anchor;
 	self->style_border = text_style_border;
@@ -117,7 +338,13 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	a3d_vec4f_copy(text_color_line, &self->color_line);
 	a3d_vec4f_copy(text_color_text, &self->color_text);
 
+	// success
 	return self;
+
+	// failure
+	fail_strings:
+		a3d_listbox_delete((a3d_listbox_t**) &self);
+	return NULL;
 }
 
 void a3d_textbox_delete(a3d_textbox_t** _self)
@@ -148,6 +375,13 @@ void a3d_textbox_clear(a3d_textbox_t* self)
 		text = (a3d_text_t*) a3d_list_remove(listbox->list, &iter);
 		a3d_text_delete(&text);
 	}
+
+	iter = a3d_list_head(self->strings);
+	while(iter)
+	{
+		void* string = (void*) a3d_list_remove(self->strings, &iter);
+		free(string);
+	}
 }
 
 void a3d_textbox_printf(a3d_textbox_t* self,
@@ -171,38 +405,19 @@ void a3d_textbox_printf(a3d_textbox_t* self,
 
 	LOGD("debug %s", string);
 
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_text_t* text = a3d_text_new(widget->screen,
-	                                0,
-	                                self->anchor,
-	                                self->style_border,
-	                                self->style_line,
-	                                self->style_text,
-	                                &(self->color_fill),
-	                                &(self->color_line),
-	                                &(self->color_text),
-	                                self->max_len,
-	                                NULL, NULL);
-	if(text == NULL)
-	{
-		goto fail_text;
-	}
+	self->dirty = 1;
 
-	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
-	if(a3d_list_enqueue(listbox->list, (const void*) text) == 0)
+	if(a3d_list_enqueue(self->strings, (const void*) string) == 0)
 	{
 		goto fail_enqueue;
 	}
 
-	a3d_text_printf(text, "%s", string);
-	free(string);
+	a3d_textbox_printText(self, string);
 
 	// success
 	return;
 
 	// failure
 	fail_enqueue:
-		a3d_text_delete(&text);
-	fail_text:
 		free(string);
 }

@@ -72,6 +72,8 @@ struct a3d_screen_s;
 
 // derived class functions
 struct a3d_widget_s;
+typedef void (*a3d_widget_reflow_fn)(struct a3d_widget_s* widget,
+                                     float w, float h);
 typedef void (*a3d_widget_size_fn)(struct a3d_widget_s* widget,
                                    float* w, float* h);
 typedef int  (*a3d_widget_click_fn)(struct a3d_widget_s* widget,
@@ -131,6 +133,11 @@ typedef struct a3d_widget_s
 	a3d_vec4f_t color_line;
 	a3d_vec4f_t color_fill;
 
+	// reflow_fn allows a derived widget to reflow
+	// it's content in a resize (e.g. textbox)
+	// called internally by a3d_widget_layoutSize()
+	a3d_widget_reflow_fn reflow_fn;
+
 	// size_fn allows a derived widget to define
 	// it's internal size (e.g. ignoring borders)
 	// called internally by a3d_widget_layoutSize()
@@ -168,6 +175,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int style_line,
                              a3d_vec4f_t* color_line,
                              a3d_vec4f_t* color_fill,
+                             a3d_widget_reflow_fn reflow_fn,
                              a3d_widget_size_fn size_fn,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_layout_fn layout_fn,

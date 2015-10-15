@@ -48,6 +48,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int style_line,
                              a3d_vec4f_t* color_line,
                              a3d_vec4f_t* color_fill,
+                             a3d_widget_reflow_fn reflow_fn,
                              a3d_widget_size_fn size_fn,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_layout_fn layout_fn,
@@ -55,7 +56,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_draw_fn draw_fn,
                              a3d_widget_refresh_fn refresh_fn)
 {
-	// size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
+	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
 	assert(screen);
 	assert(color_line);
 	assert(color_fill);
@@ -91,6 +92,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->stretch_factor = stretch_factor;
 	self->style_border   = style_border;
 	self->style_line     = style_line;
+	self->reflow_fn      = reflow_fn;
 	self->size_fn        = size_fn;
 	self->click_fn       = click_fn;
 	self->layout_fn      = layout_fn;
@@ -328,12 +330,20 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		self->rect_border.h = rh;
 	}
 
+	// reflow dynamically sized widgets (e.g. textbox)
+	// this makes the most sense for stretched widgets
+	float draw_w = self->rect_draw.w;
+	float draw_h = self->rect_draw.h;
+	a3d_widget_reflow_fn reflow_fn = self->reflow_fn;
+	if(reflow_fn)
+	{
+		(*reflow_fn)(self, draw_w, draw_h);
+	}
+
 	// compute draw size for shrink wrapped widgets and
 	// recursively compute size of any children
 	// the draw size of the widget also becomes the border
 	// size of any children
-	float draw_w = self->rect_draw.w;
-	float draw_h = self->rect_draw.h;
 	a3d_widget_size_fn size_fn = self->size_fn;
 	if(size_fn)
 	{

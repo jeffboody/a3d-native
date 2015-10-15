@@ -125,6 +125,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	                                                           style_line,
 	                                                           color_fill,
 	                                                           color_line,
+	                                                           NULL,
 	                                                           a3d_radiolist_refresh);
 	if(self == NULL)
 	{

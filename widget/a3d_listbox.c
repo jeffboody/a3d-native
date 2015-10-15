@@ -385,9 +385,10 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int style_line,
                                a3d_vec4f_t* color_fill,
                                a3d_vec4f_t* color_line,
+                               a3d_widget_reflow_fn reflow_fn,
                                a3d_widget_refresh_fn refresh_fn)
 {
-	// refresh_fn may be NULL
+	// reflow_fn, refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
@@ -422,6 +423,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	                                                      style_line,
 	                                                      color_line,
 	                                                      color_fill,
+	                                                      reflow_fn,
 	                                                      a3d_listbox_size,
 	                                                      a3d_listbox_click,
 	                                                      a3d_listbox_layout,

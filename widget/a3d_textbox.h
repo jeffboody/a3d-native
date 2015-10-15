@@ -33,6 +33,12 @@ typedef struct
 {
 	a3d_listbox_t listbox;
 
+	// cached strings to reflow text
+	a3d_list_t* strings;
+	int         dirty;
+	float       last_w;
+	float       last_h;
+
 	// text properties
 	int         anchor;
 	int         style_border;

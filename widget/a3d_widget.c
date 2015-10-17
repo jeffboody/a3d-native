@@ -269,7 +269,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	}
 	float tw = ar*th;
 
-	// screen/text/pixel square
+	// screen/text/parent square
 	float ssq = (sw > sh) ? sh : sw;
 	float tsq = th;   // always use the height for square
 	float psq = (*w > *h) ? *h : *w;
@@ -283,12 +283,12 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	                        &h_bo, &v_bo);
 	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
-		self->rect_draw.w   = 0.0f;
-		self->rect_border.w = 2.0f*h_bo;
+		self->rect_draw.w   = *w - 2.0f*h_bo;
+		self->rect_border.w = *w;
 	}
 	else
 	{
-		float rw = sq ? psq : *w;
+		float rw = 0.0f;
 		if(self->wrapx == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rw = sq ? ssq : sw;
@@ -306,22 +306,27 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		}
 		else
 		{
+			rw = sq ? psq : *w;
 			rw *= self->stretch_factor;
 			self->rect_draw.w   = rw - 2.0f*h_bo;
 			self->rect_border.w = rw;
 		}
+	}
 
-		*w = self->rect_border.w;
+	// intersect draw with border interior
+	if(self->rect_draw.w < 0.0f)
+	{
+		self->rect_draw.w = 0.0f;
 	}
 
 	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
-		self->rect_draw.h   = 0.0f;
-		self->rect_border.h = 2.0f*v_bo;
+		self->rect_draw.h   = *h - 2.0f*v_bo;
+		self->rect_border.h = *h;
 	}
 	else
 	{
-		float rh = sq ? psq : *h;
+		float rh = 0.0f;
 		if(self->wrapy == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rh = sq ? ssq : sh;
@@ -339,12 +344,17 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		}
 		else
 		{
+			rh = sq ? psq : *h;
 			rh *= self->stretch_factor;
 			self->rect_draw.h   = rh - 2.0f*v_bo;
 			self->rect_border.h = rh;
 		}
+	}
 
-		*h = self->rect_border.h;
+	// intersect draw with border interior
+	if(self->rect_draw.h < 0.0f)
+	{
+		self->rect_draw.h = 0.0f;
 	}
 
 	// reflow dynamically sized widgets (e.g. textbox)
@@ -370,18 +380,19 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// wrap width
 	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
-		*w = draw_w + 2.0f*h_bo;
 		self->rect_draw.w   = draw_w;
-		self->rect_border.w = *w;
+		self->rect_border.w = draw_w + 2.0f*h_bo;
 	}
 
 	// wrap height
 	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
-		*h = draw_h + 2.0f*v_bo;
 		self->rect_draw.h   = draw_h;
-		self->rect_border.h = *h;
+		self->rect_border.h = draw_h + 2.0f*v_bo;
 	}
+
+	*w = self->rect_border.w;
+	*h = self->rect_border.h;
 }
 
 int a3d_widget_click(a3d_widget_t* self,

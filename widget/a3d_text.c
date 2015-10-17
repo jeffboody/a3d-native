@@ -169,36 +169,6 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 	*_offset += vertex.r;
 }
 
-static void a3d_text_update(a3d_text_t* self)
-{
-	assert(self);
-
-	int len = strlen(self->string);
-	if(len >= self->max_len)
-	{
-		len = self->max_len - 1;
-	}
-
-	int   i;
-	float offset = 0.0f;
-	for(i = 0; i < len; ++i)
-	{
-		a3d_text_addc(self, self->string[i], i, &offset);
-	}
-
-	int vertex_size = 18*len;   // 2 * 3 * xyz
-	int coords_size = 12*len;   // 2 * 3 * uv
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
-	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
-	             self->vertex, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
-	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
-	             self->coords, GL_STATIC_DRAW);
-
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_screen_dirty(widget->screen);
-}
-
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -327,6 +297,8 @@ void a3d_text_printf(a3d_text_t* self,
 	assert(self);
 	assert(fmt);
 
+	int len0 = strlen(self->string);
+
 	// decode string
 	va_list argptr;
 	va_start(argptr, fmt);
@@ -335,5 +307,33 @@ void a3d_text_printf(a3d_text_t* self,
 
 	LOGD("debug %s", self->string);
 
-	a3d_text_update(self);
+	int len1 = strlen(self->string);
+	if(len1 >= self->max_len)
+	{
+		len1 = self->max_len - 1;
+	}
+
+	int   i;
+	float offset = 0.0f;
+	for(i = 0; i < len1; ++i)
+	{
+		a3d_text_addc(self, self->string[i], i, &offset);
+	}
+
+	int vertex_size = 18*len1;   // 2 * 3 * xyz
+	int coords_size = 12*len1;   // 2 * 3 * uv
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
+	             self->vertex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
+	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
+	             self->coords, GL_STATIC_DRAW);
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+
+	// check for text resizes which need to trigger screen layout
+	if(len0 != len1)
+	{
+		a3d_screen_dirty(widget->screen);
+	}
 }

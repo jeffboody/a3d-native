@@ -211,6 +211,11 @@ void a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top)
 	assert(self);
 	LOGD("debug");
 
+	if(self->top_widget == top)
+	{
+		return;
+	}
+
 	self->top_widget = top;
 	self->dirty      = 1;
 }
@@ -307,6 +312,11 @@ void a3d_screen_resize(a3d_screen_t* self, int w, int h)
 	assert(self);
 	LOGD("debug w=%i, h=%i");
 
+	if((self->w == w) && (self->h == h))
+	{
+		return;
+	}
+
 	self->w     = w;
 	self->h     = h;
 	self->dirty = 1;
@@ -334,6 +344,11 @@ void a3d_screen_rescale(a3d_screen_t* self, int scale)
 {
 	assert(self);
 	LOGD("debug scale=%i", scale);
+
+	if(self->scale == scale)
+	{
+		return;
+	}
 
 	if((scale >= A3D_SCREEN_SCALE_XSMALL) &&
 	   (scale <= A3D_SCREEN_SCALE_XLARGE))
@@ -544,6 +559,7 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
 
 	a3d_widget_drag(self->top_widget,
 	                x, y, dx, dy, dt);
+	self->dirty = 1;
 
 	return 1;
 }

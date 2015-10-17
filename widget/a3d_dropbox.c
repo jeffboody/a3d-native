@@ -199,6 +199,7 @@ static int a3d_dropbox_clickBullet(a3d_widget_t* widget,
 	if(state == A3D_WIDGET_POINTER_UP)
 	{
 		self->drop = 1 - self->drop;
+		a3d_screen_dirty(widget->screen);
 	}
 	return 1;
 }
@@ -360,6 +361,9 @@ void a3d_dropbox_raise(a3d_dropbox_t* self)
 	LOGD("debug");
 
 	self->drop = 0;
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_screen_dirty(widget->screen);
 }
 
 void a3d_dropbox_textPrintf(a3d_dropbox_t* self,

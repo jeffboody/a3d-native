@@ -382,6 +382,9 @@ void a3d_textbox_clear(a3d_textbox_t* self)
 		void* string = (void*) a3d_list_remove(self->strings, &iter);
 		free(string);
 	}
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_screen_dirty(widget->screen);
 }
 
 void a3d_textbox_printf(a3d_textbox_t* self,

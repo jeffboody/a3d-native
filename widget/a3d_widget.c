@@ -269,6 +269,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	}
 	float tw = ar*th;
 
+	// screen/text/pixel square
 	float ssq = (sw > sh) ? sh : sw;
 	float tsq = th;   // always use the height for square
 	float psq = (*w > *h) ? *h : *w;
@@ -291,18 +292,26 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		if(self->wrapx == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rw = sq ? ssq : sw;
-			*w = rw;
+			rw *= self->stretch_factor;
+			self->rect_draw.w   = rw - 2.0f*h_bo;
+			self->rect_border.w = rw;
 		}
 		else if((self->wrapx >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
 		        (self->wrapx <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rw = sq ? tsq : tw;
-			*w = rw;
+			rw *= self->stretch_factor;
+			self->rect_draw.w   = rw;
+			self->rect_border.w = rw + 2.0f*h_bo;
 		}
-		rw *= self->stretch_factor;
+		else
+		{
+			rw *= self->stretch_factor;
+			self->rect_draw.w   = rw - 2.0f*h_bo;
+			self->rect_border.w = rw;
+		}
 
-		self->rect_draw.w   = rw - 2.0f*h_bo;
-		self->rect_border.w = rw;
+		*w = self->rect_border.w;
 	}
 
 	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
@@ -316,18 +325,26 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		if(self->wrapy == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rh = sq ? ssq : sh;
-			*h = rh;
+			rh *= self->stretch_factor;
+			self->rect_draw.h   = rh - 2.0f*v_bo;
+			self->rect_border.h = rh;
 		}
 		else if((self->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
 		        (self->wrapy <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rh = sq ? tsq : th;
-			*h = rh;
+			rh *= self->stretch_factor;
+			self->rect_draw.h   = rh;
+			self->rect_border.h = rh + 2.0f*v_bo;
 		}
-		rh *= self->stretch_factor;
+		else
+		{
+			rh *= self->stretch_factor;
+			self->rect_draw.h   = rh - 2.0f*v_bo;
+			self->rect_border.h = rh;
+		}
 
-		self->rect_draw.h   = rh - 2.0f*v_bo;
-		self->rect_border.h = rh;
+		*h = self->rect_border.h;
 	}
 
 	// reflow dynamically sized widgets (e.g. textbox)

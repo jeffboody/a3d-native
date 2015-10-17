@@ -199,6 +199,16 @@ static int a3d_dropbox_clickBullet(a3d_widget_t* widget,
 	if(state == A3D_WIDGET_POINTER_UP)
 	{
 		self->drop = 1 - self->drop;
+		if(self->drop)
+		{
+			self->widget.wrapx = self->wrapx;
+			self->widget.wrapy = self->wrapy;
+		}
+		else
+		{
+			self->widget.wrapx = A3D_WIDGET_WRAP_SHRINK;
+			self->widget.wrapy = A3D_WIDGET_WRAP_SHRINK;
+		}
 		a3d_screen_dirty(widget->screen);
 	}
 	return 1;
@@ -270,8 +280,8 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 	a3d_dropbox_t* self = (a3d_dropbox_t*) a3d_widget_new(screen,
 	                                                      wsize,
 	                                                      anchor,
-	                                                      wrapx,
-	                                                      wrapy,
+	                                                      A3D_WIDGET_WRAP_SHRINK,
+	                                                      A3D_WIDGET_WRAP_SHRINK,
 	                                                      stretch_mode,
 	                                                      stretch_factor,
 	                                                      style_border,
@@ -327,8 +337,10 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 		goto fail_sprite;
 	}
 
-	self->drop = 0;
-	self->body = body;
+	self->drop  = 0;
+	self->wrapx = wrapx;
+	self->wrapy = wrapy;
+	self->body  = body;
 
 	// success
 	return self;
@@ -360,7 +372,14 @@ void a3d_dropbox_raise(a3d_dropbox_t* self)
 	assert(self);
 	LOGD("debug");
 
+	if(self->drop == 0)
+	{
+		return;
+	}
+
 	self->drop = 0;
+	self->widget.wrapx = A3D_WIDGET_WRAP_SHRINK;
+	self->widget.wrapy = A3D_WIDGET_WRAP_SHRINK;
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_screen_dirty(widget->screen);

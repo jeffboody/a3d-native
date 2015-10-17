@@ -34,6 +34,8 @@ typedef struct
 	a3d_widget_t  widget;
 
 	int              drop;
+	int              wrapx;
+	int              wrapy;
 	a3d_bulletbox_t* bullet;
 	a3d_widget_t*    body;
 } a3d_dropbox_t;

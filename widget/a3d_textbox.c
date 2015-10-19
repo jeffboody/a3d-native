@@ -60,6 +60,7 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	{
 		return;
 	}
+	a3d_text_wrapx(text, self->text_wrapx);
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
 	if(a3d_list_enqueue(listbox->list, (const void*) text) == 0)
@@ -256,6 +257,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* color_fill,
                                a3d_vec4f_t* color_line,
                                int text_anchor,
+                               int text_wrapx,
                                int text_style_border,
                                int text_style_line,
                                int text_style_text,
@@ -329,6 +331,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->last_h = 0.0f;
 
 	self->anchor       = text_anchor;
+	self->text_wrapx   = text_wrapx;
 	self->style_border = text_style_border;
 	self->style_line   = text_style_line;
 	self->style_text   = text_style_text;

@@ -65,7 +65,15 @@ static void a3d_text_size(a3d_widget_t* widget,
 	int         len  = a3d_text_strlen(self);
 	float       size = a3d_screen_layoutText(widget->screen, self->style);
 	float       r    = a3d_font_aspectRatio(font);
-	*w = r*size*len;
+	if(self->wrapx == A3D_TEXT_WRAP_STRETCH)
+	{
+		int max_len = self->max_len;
+		*w = r*size*max_len;
+	}
+	else
+	{
+		*w = r*size*len;
+	}
 	*h = size;
 }
 
@@ -252,6 +260,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_coords;
 	}
 
+	self->wrapx   = A3D_TEXT_WRAP_SHRINK;
 	self->max_len = max_len;
 	self->style   = style_text;
 	a3d_vec4f_copy(color_text, &self->color);
@@ -336,4 +345,17 @@ void a3d_text_printf(a3d_text_t* self,
 	{
 		a3d_screen_dirty(widget->screen);
 	}
+}
+
+void a3d_text_wrapx(a3d_text_t* self, int wrapx)
+{
+	assert(self);
+
+	if((wrapx < 0) || (wrapx >= A3D_TEXT_WRAP_COUNT))
+	{
+		LOGW("invalid wrapx=%i", wrapx);
+		return;
+	}
+
+	self->wrapx = wrapx;
 }

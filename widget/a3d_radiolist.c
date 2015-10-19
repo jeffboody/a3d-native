@@ -75,6 +75,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    a3d_vec4f_t* color_fill,
                                    a3d_vec4f_t* color_line,
                                    int text_anchor,
+                                   int text_wrapx,
                                    int text_style_border,
                                    int text_style_line,
                                    int text_style_text,
@@ -133,6 +134,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	}
 
 	self->anchor       = text_anchor;
+	self->text_wrapx   = text_wrapx;
 	self->style_border = text_style_border;
 	self->style_line   = text_style_line;
 	self->style_text   = text_style_text;
@@ -217,6 +219,7 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	{
 		goto fail_rb;
 	}
+	a3d_radiobox_textWrapx(rb, self->text_wrapx);
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
 	if(a3d_list_enqueue(listbox->list, (const void*) rb) == 0)

@@ -63,5 +63,7 @@ void            a3d_dropbox_delete(a3d_dropbox_t** _self);
 void            a3d_dropbox_raise(a3d_dropbox_t* self);
 void            a3d_dropbox_textPrintf(a3d_dropbox_t* self,
                                        const char* fmt, ...);
+void            a3d_dropbox_textWrapx(a3d_dropbox_t* self,
+                                      int wrapx);
 
 #endif

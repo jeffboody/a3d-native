@@ -48,5 +48,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 void        a3d_checkbox_delete(a3d_checkbox_t** _self);
 void        a3d_checkbox_textPrintf(a3d_checkbox_t* self,
                                     const char* fmt, ...);
+void        a3d_checkbox_textWrapx(a3d_checkbox_t* self,
+                                   int wrapx);
 
 #endif

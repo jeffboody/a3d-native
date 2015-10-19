@@ -33,9 +33,16 @@
 #define A3D_TEXT_STYLE_MEDIUM 1
 #define A3D_TEXT_STYLE_LARGE  2
 
+#define A3D_TEXT_WRAP_SHRINK  0
+#define A3D_TEXT_WRAP_STRETCH 1
+#define A3D_TEXT_WRAP_COUNT   2
+
 typedef struct
 {
 	a3d_widget_t widget;
+
+	// layout/size properties
+	int wrapx;
 
 	// text properties
 	// max_len includes null terminator
@@ -66,5 +73,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 void        a3d_text_delete(a3d_text_t** _self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
+void        a3d_text_wrapx(a3d_text_t* self, int wrapx);
 
 #endif

@@ -58,5 +58,7 @@ void            a3d_bulletbox_spriteSelect(a3d_bulletbox_t* self,
                                            int index);
 void            a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
                                          const char* fmt, ...);
+void            a3d_bulletbox_textWrapx(a3d_bulletbox_t* self,
+                                        int wrapx);
 
 #endif

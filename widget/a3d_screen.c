@@ -37,12 +37,18 @@
 * private                                                  *
 ***********************************************************/
 
-static const GLfloat COORDS[] =
+static const GLfloat COORDS4[] =
 {
 	0.0f, 0.0f,   // top-left
 	0.0f, 1.0f,   // bottom-left
 	1.0f, 1.0f,   // bottom-right
 	1.0f, 0.0f,   // top-right
+};
+
+static const GLfloat COORDS2[] =
+{
+	0.0f, 0.0f,   // left
+	1.0f, 1.0f,   // right
 };
 
 static const char* VSHADER =
@@ -167,10 +173,16 @@ a3d_screen_t* a3d_screen_new(const char* icon_pak, a3d_font_t* font)
 	self->icon_pak[255] = '\0';
 
 	int coords_size = 8;   // 4*uv
-	glGenBuffers(1, &self->id_coords);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
+	glGenBuffers(1, &self->id_coords4);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords4);
 	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
-	             COORDS, GL_STATIC_DRAW);
+	             COORDS4, GL_STATIC_DRAW);
+
+	coords_size = 4;   // 2*uv
+	glGenBuffers(1, &self->id_coords2);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords2);
+	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
+	             COORDS2, GL_STATIC_DRAW);
 
 	// success
 	return self;
@@ -199,7 +211,8 @@ void a3d_screen_delete(a3d_screen_t** _self)
 
 		a3d_spriteShader_delete(&self->sprite_shader);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &self->id_coords);
+		glDeleteBuffers(1, &self->id_coords2);
+		glDeleteBuffers(1, &self->id_coords4);
 		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;

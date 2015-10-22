@@ -55,9 +55,18 @@ static void a3d_dropbox_size(a3d_widget_t* widget,
 	wmax = bullet_w;
 	hsum = bullet_h;
 
+	float h_bo = 0.0f;
+	float v_bo = 0.0f;
+	if(self->separator)
+	{
+		a3d_screen_layoutBorder(widget->screen,
+		                        widget->style_border,
+		                        &h_bo, &v_bo);
+	}
+
 	if(self->drop)
 	{
-		float h2 = *h - bullet_h;
+		float h2 = *h - bullet_h - 2.0f*v_bo;
 		if(h2 < 0.0f)
 		{
 			h2 = 0.0f;
@@ -135,8 +144,17 @@ static void a3d_dropbox_layout(a3d_widget_t* widget,
 
 	if(self->drop)
 	{
-		rect_draw.t = t + th;
-		rect_draw.h = h - th;
+		float h_bo = 0.0f;
+		float v_bo = 0.0f;
+		if(self->separator)
+		{
+			a3d_screen_layoutBorder(widget->screen,
+			                        widget->style_border,
+			                        &h_bo, &v_bo);
+		}
+
+		rect_draw.t = t + th + 2.0f*v_bo;
+		rect_draw.h = h - th - 2.0f*v_bo;
 
 		a3d_widget_anchorPt(&rect_draw, body->anchor, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
@@ -175,6 +193,83 @@ static void a3d_dropbox_draw(a3d_widget_t* widget)
 	if(self->drop)
 	{
 		a3d_widget_draw(self->body);
+
+		// show separator
+		if(self->separator == 0)
+		{
+			return;
+		}
+
+		// clip border
+		a3d_rect4f_t rect_border_clip;
+		if(a3d_rect4f_intersect(&widget->rect_border,
+		                        &widget->rect_clip,
+		                        &rect_border_clip) == 0)
+		{
+			return;
+		}
+
+		float h_bo = 0.0f;
+		float v_bo = 0.0f;
+		a3d_screen_layoutBorder(widget->screen,
+		                        widget->style_border,
+		                        &h_bo, &v_bo);
+
+		// clip separator
+		a3d_widget_t* bw  = &(self->bullet->widget);
+		float         y   = bw->rect_border.t + bw->rect_border.h + v_bo;
+		float         top = widget->rect_clip.t;
+		float         bot = widget->rect_clip.t + widget->rect_clip.h;
+		if((y < top) || (y > bot))
+		{
+			return;
+		}
+
+		a3d_rect4f_t line =
+		{
+			.t = y,
+			.l = rect_border_clip.l,
+			.w = rect_border_clip.w,
+			.h = 0.0f
+		};
+
+		// draw the separator
+		a3d_vec4f_t*  c      = &widget->color_line;
+		a3d_screen_t* screen = widget->screen;
+		if((c->a > 0.0f) && (widget->style_line != A3D_WIDGET_LINE_NONE))
+		{
+			glDisable(GL_SCISSOR_TEST);
+			if(c->a < 1.0f)
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}
+			glUseProgram(screen->prog);
+			glEnableVertexAttribArray(screen->attr_coords);
+
+			float lw = a3d_screen_layoutLine(screen, widget->style_line);
+			glLineWidth(lw);
+
+			a3d_rect4f_t* r = &line;
+			glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords2);
+			glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			a3d_mat4f_t mvp;
+			a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
+			glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+			glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
+			glUniform4f(screen->unif_color, c->r, c->g, c->b, c->a);
+			glDrawArrays(GL_LINES, 0, 2);
+
+			glLineWidth(1.0f);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glDisableVertexAttribArray(screen->attr_coords);
+			glUseProgram(0);
+			if(c->a < 1.0f)
+			{
+				glDisable(GL_BLEND);
+			}
+			glEnable(GL_SCISSOR_TEST);
+		}
 	}
 }
 
@@ -337,10 +432,11 @@ a3d_dropbox_t* a3d_dropbox_new(a3d_screen_t* screen,
 		goto fail_sprite;
 	}
 
-	self->drop  = 0;
-	self->wrapx = wrapx;
-	self->wrapy = wrapy;
-	self->body  = body;
+	self->drop      = 0;
+	self->separator = 0;
+	self->wrapx     = wrapx;
+	self->wrapy     = wrapy;
+	self->body      = body;
 
 	// success
 	return self;
@@ -409,4 +505,12 @@ void a3d_dropbox_textWrapx(a3d_dropbox_t* self,
 	assert(self);
 
 	a3d_bulletbox_textWrapx(self->bullet, wrapx);
+}
+
+void a3d_dropbox_separator(a3d_dropbox_t* self,
+                           int separator)
+{
+	assert(self);
+
+	self->separator = separator;
 }

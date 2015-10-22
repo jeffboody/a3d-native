@@ -484,7 +484,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 		glEnableVertexAttribArray(screen->attr_coords);
 
 		a3d_rect4f_t* r = &self->rect_border;
-		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords);
+		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords4);
 		glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
@@ -533,7 +533,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 		glLineWidth(lw);
 
 		a3d_rect4f_t* r = &rect_border_clip;
-		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords);
+		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords4);
 		glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);

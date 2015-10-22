@@ -34,6 +34,7 @@ typedef struct
 	a3d_widget_t  widget;
 
 	int              drop;
+	int              separator;
 	int              wrapx;
 	int              wrapy;
 	a3d_bulletbox_t* bullet;
@@ -65,5 +66,7 @@ void            a3d_dropbox_textPrintf(a3d_dropbox_t* self,
                                        const char* fmt, ...);
 void            a3d_dropbox_textWrapx(a3d_dropbox_t* self,
                                       int wrapx);
+void            a3d_dropbox_separator(a3d_dropbox_t* self,
+                                      int separator);
 
 #endif

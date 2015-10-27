@@ -126,7 +126,6 @@ void a3d_widget_delete(a3d_widget_t** _self)
 void a3d_widget_priv(a3d_widget_t* self, void* priv)
 {
 	assert(self);
-	assert(priv);
 	LOGD("debug");
 
 	self->priv = priv;

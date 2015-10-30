@@ -24,6 +24,7 @@
 #include "a3d_font.h"
 #include "../a3d_shader.h"
 #include "../../texgz/texgz_tex.h"
+#include "../../libpak/pak_file.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -237,8 +238,10 @@ static int a3d_font_loadShaders(a3d_font_t* self)
 * public                                                   *
 ***********************************************************/
 
-a3d_font_t* a3d_font_new(const char* fname)
+a3d_font_t* a3d_font_new(const char* resource,
+                         const char* fname)
 {
+	assert(resource);
 	assert(fname);
 	LOGD("debug");
 
@@ -254,7 +257,27 @@ a3d_font_t* a3d_font_new(const char* fname)
 		goto fail_shaders;
 	}
 
-	texgz_tex_t* tex = texgz_tex_import(fname);
+	pak_file_t*  pak = NULL;
+	texgz_tex_t* tex = NULL;
+	if(fname[0] == '$')
+	{
+		pak = pak_file_open(resource, PAK_FLAG_READ);
+		if(pak)
+		{
+			const char* key = &(fname[1]);
+			int size = pak_file_seek(pak, key);
+			if(size > 0)
+			{
+				tex = texgz_tex_importf(pak->f, size);
+			}
+			pak_file_close(&pak);
+		}
+	}
+	else
+	{
+		tex = texgz_tex_import(fname);
+	}
+
 	if(tex == NULL)
 	{
 		goto fail_tex;

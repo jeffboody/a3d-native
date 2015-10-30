@@ -45,7 +45,8 @@ typedef struct
 	GLuint id_tex;
 } a3d_font_t;
 
-a3d_font_t* a3d_font_new(const char* fname);
+a3d_font_t* a3d_font_new(const char* resource,
+                         const char* fname);
 void        a3d_font_delete(a3d_font_t** _self);
 void        a3d_font_request(a3d_font_t* self,
                              char c,

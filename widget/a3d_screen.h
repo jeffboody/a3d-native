@@ -58,8 +58,8 @@ typedef struct a3d_screen_s
 	float  pointer_y0;
 	double pointer_t0;
 
-	// icon.pak
-	char icon_pak[256];
+	// resource.pak
+	char resource[256];
 
 	// font - shared resource
 	a3d_font_t* font;
@@ -78,7 +78,8 @@ typedef struct a3d_screen_s
 	GLint  unif_color;
 } a3d_screen_t;
 
-a3d_screen_t*       a3d_screen_new(const char* icon_pak, a3d_font_t* font);
+a3d_screen_t*       a3d_screen_new(const char* resource,
+                                   a3d_font_t* font);
 void                a3d_screen_delete(a3d_screen_t** _self);
 void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
 a3d_font_t*         a3d_screen_font(a3d_screen_t* self);

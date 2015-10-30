@@ -128,9 +128,10 @@ static int a3d_screen_compareTexId(const void* a, const void* b)
 * public                                                   *
 ***********************************************************/
 
-a3d_screen_t* a3d_screen_new(const char* icon_pak, a3d_font_t* font)
+a3d_screen_t* a3d_screen_new(const char* resource,
+                             a3d_font_t* font)
 {
-	assert(icon_pak);
+	assert(resource);
 	assert(font);
 	LOGD("debug");
 
@@ -169,8 +170,8 @@ a3d_screen_t* a3d_screen_new(const char* icon_pak, a3d_font_t* font)
 	self->pointer_t0    = 0.0;
 	self->font          = font;
 
-	strncpy(self->icon_pak, icon_pak, 256);
-	self->icon_pak[255] = '\0';
+	strncpy(self->resource, resource, 256);
+	self->resource[255] = '\0';
 
 	int coords_size = 8;   // 4*uv
 	glGenBuffers(1, &self->id_coords4);
@@ -265,7 +266,7 @@ GLuint a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname)
 	}
 	else
 	{
-		t = a3d_spriteTex_new(fname, self->icon_pak);
+		t = a3d_spriteTex_new(fname, self->resource);
 		if(t == NULL)
 		{
 			return 0;

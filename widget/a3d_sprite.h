@@ -50,7 +50,8 @@ typedef struct
 	GLuint id_tex;
 } a3d_spriteTex_t;
 
-a3d_spriteTex_t* a3d_spriteTex_new(const char* fname, const char* icon_pak);
+a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
+                                   const char* resource);
 void             a3d_spriteTex_delete(a3d_spriteTex_t** _self);
 void             a3d_spriteTex_incRef(a3d_spriteTex_t* self);
 int              a3d_spriteTex_decRef(a3d_spriteTex_t* self);

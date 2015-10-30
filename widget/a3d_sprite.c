@@ -185,11 +185,12 @@ void a3d_spriteShader_delete(a3d_spriteShader_t** _self)
 	}
 }
 
-a3d_spriteTex_t* a3d_spriteTex_new(const char* fname, const char* icon_pak)
+a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
+                                   const char* resource)
 {
 	assert(fname);
-	assert(icon_pak);
-	LOGD("debug fname=%s, icon_pak=%s", fname, icon_pak);
+	assert(resource);
+	LOGD("debug fname=%s, resource=%s", fname, resource);
 
 	a3d_spriteTex_t* self = (a3d_spriteTex_t*) malloc(sizeof(a3d_spriteTex_t));
 	if(self == NULL)
@@ -202,7 +203,7 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname, const char* icon_pak)
 	texgz_tex_t* tex = NULL;
 	if(fname[0] == '$')
 	{
-		pak = pak_file_open(icon_pak, PAK_FLAG_READ);
+		pak = pak_file_open(resource, PAK_FLAG_READ);
 		if(pak)
 		{
 			const char* key = &(fname[1]);

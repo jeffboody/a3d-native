@@ -54,6 +54,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_layout_fn layout_fn,
                              a3d_widget_drag_fn drag_fn,
                              a3d_widget_draw_fn draw_fn,
+                             a3d_widget_fade_fn fade_fn,
                              a3d_widget_refresh_fn refresh_fn)
 {
 	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
@@ -99,6 +100,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->drag_fn        = drag_fn;
 	self->refresh_fn     = refresh_fn;
 	self->draw_fn        = draw_fn;
+	self->fade_fn        = fade_fn;
+	self->fade           = 0.0f;
 
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -469,12 +472,13 @@ void a3d_widget_draw(a3d_widget_t* self)
 	}
 
 	// draw the fill
-	a3d_vec4f_t*  c      = &self->color_fill;
 	a3d_screen_t* screen = self->screen;
-	if(c->a > 0.0f)
+	a3d_vec4f_t*  c      = &self->color_fill;
+	float         alpha  = self->fade*c->a;
+	if(alpha > 0.0f)
 	{
 		a3d_screen_scissor(screen, &rect_border_clip);
-		if(c->a < 1.0f)
+		if(alpha < 1.0f)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -489,13 +493,13 @@ void a3d_widget_draw(a3d_widget_t* self)
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, c->a);
+		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDisableVertexAttribArray(screen->attr_coords);
 		glUseProgram(0);
-		if(c->a < 1.0f)
+		if(alpha < 1.0f)
 		{
 			glDisable(GL_BLEND);
 		}
@@ -516,11 +520,12 @@ void a3d_widget_draw(a3d_widget_t* self)
 	}
 
 	// draw the border
-	c = &self->color_line;
-	if((c->a > 0.0f) && (self->style_line != A3D_WIDGET_LINE_NONE))
+	c     = &self->color_line;
+	alpha = self->fade*c->a;
+	if((alpha > 0.0f) && (self->style_line != A3D_WIDGET_LINE_NONE))
 	{
 		glDisable(GL_SCISSOR_TEST);
-		if(c->a < 1.0f)
+		if(alpha < 1.0f)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -538,19 +543,63 @@ void a3d_widget_draw(a3d_widget_t* self)
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, c->a);
+		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
 		glDrawArrays(GL_LINE_LOOP, 0, 4);
 
 		glLineWidth(1.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDisableVertexAttribArray(screen->attr_coords);
 		glUseProgram(0);
-		if(c->a < 1.0f)
+		if(alpha < 1.0f)
 		{
 			glDisable(GL_BLEND);
 		}
 		glEnable(GL_SCISSOR_TEST);
 	}
+}
+
+int a3d_widget_fade(a3d_widget_t* self, float fade, float dt)
+{
+	assert(self);
+
+	int animate = 0;
+	if(self->fade != fade)
+	{
+		// animate and clamp fade
+		float dfade = 2.0f*dt;
+		if(self->fade > fade)
+		{
+			self->fade -= dfade;
+			if(self->fade < fade)
+			{
+				self->fade = fade;
+			}
+			else
+			{
+				animate = 1;
+			}
+		}
+		else
+		{
+			self->fade += dfade;
+			if(self->fade > fade)
+			{
+				self->fade = fade;
+			}
+			else
+			{
+				animate = 1;
+			}
+		}
+	}
+
+	a3d_widget_fade_fn fade_fn = self->fade_fn;
+	if(fade_fn)
+	{
+		animate |= (*fade_fn)(self, fade, dt);
+	}
+
+	return animate;
 }
 
 // helper function

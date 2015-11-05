@@ -81,16 +81,31 @@ static int a3d_layer_click(a3d_widget_t* widget,
 
 	// send events front-to-back
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
-	a3d_listitem_t* iter = a3d_list_head(self->list);
-	while(iter)
+	if(self->mode == A3D_LAYER_MODE_FRONT)
 	{
-		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		if(a3d_widget_click(widget, state, x, y))
+		a3d_listitem_t* iter = a3d_list_head(self->list);
+		if(iter)
 		{
-			return 1;
+			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			if(a3d_widget_click(widget, state, x, y))
+			{
+				return 1;
+			}
 		}
+	}
+	else
+	{
+		a3d_listitem_t* iter = a3d_list_head(self->list);
+		while(iter)
+		{
+			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			if(a3d_widget_click(widget, state, x, y))
+			{
+				return 1;
+			}
 
-		iter = a3d_list_next(iter);
+			iter = a3d_list_next(iter);
+		}
 	}
 
 	// layers are only clicked if a child is clicked
@@ -137,12 +152,24 @@ static void a3d_layer_drag(a3d_widget_t* widget,
 	LOGD("debug");
 
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
-	a3d_listitem_t* iter = a3d_list_head(self->list);
-	while(iter)
+	if(self->mode == A3D_LAYER_MODE_FRONT)
 	{
-		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		a3d_widget_drag(widget, x, y, dx, dy, dt);
-		iter = a3d_list_next(iter);
+		a3d_listitem_t* iter = a3d_list_head(self->list);
+		if(iter)
+		{
+			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			a3d_widget_drag(widget, x, y, dx, dy, dt);
+		}
+	}
+	else
+	{
+		a3d_listitem_t* iter = a3d_list_head(self->list);
+		while(iter)
+		{
+			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			a3d_widget_drag(widget, x, y, dx, dy, dt);
+			iter = a3d_list_next(iter);
+		}
 	}
 }
 
@@ -160,6 +187,36 @@ static void a3d_layer_draw(a3d_widget_t* widget)
 		a3d_widget_draw(widget);
 		iter = a3d_list_prev(iter);
 	}
+}
+
+static int a3d_layer_fade(a3d_widget_t* widget,
+                          float fade, float dt)
+{
+	assert(widget);
+	LOGD("debug");
+
+	// draw back-to-front
+	int             animate = 0;
+	a3d_layer_t*    self    = (a3d_layer_t*) widget;
+	a3d_listitem_t* iter    = a3d_list_tail(self->list);
+	a3d_widget_t*   head    = (a3d_widget_t*)
+	                          a3d_list_peekhead(self->list);
+	while(iter)
+	{
+		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+		if((self->mode == A3D_LAYER_MODE_LAYERED) ||
+		   (widget == head))
+		{
+			animate |= a3d_widget_fade(widget, fade, dt);
+		}
+		else
+		{
+			animate |= a3d_widget_fade(widget, 0.0f, dt);
+		}
+		iter = a3d_list_prev(iter);
+	}
+
+	return animate;
 }
 
 static void a3d_layer_refresh(a3d_widget_t* widget)
@@ -185,6 +242,15 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 
 	a3d_widget_t* self = (a3d_widget_t*) owner;
 	a3d_screen_dirty(self->screen);
+	a3d_screen_animate(self->screen);
+}
+
+static int a3d_layer_compare(const void* a, const void* b)
+{
+	assert(a);
+	assert(b);
+
+	return (a == b) ? 0 : 1;
 }
 
 /***********************************************************
@@ -200,7 +266,8 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int style_border,
                            int style_line,
                            a3d_vec4f_t* color_fill,
-                           a3d_vec4f_t* color_line)
+                           a3d_vec4f_t* color_line,
+                           int mode)
 {
 	assert(screen);
 	assert(color_fill);
@@ -236,6 +303,7 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	                                                  a3d_layer_layout,
 	                                                  a3d_layer_drag,
 	                                                  a3d_layer_draw,
+	                                                  a3d_layer_fade,
 	                                                  a3d_layer_refresh);
 	if(self == NULL)
 	{
@@ -247,6 +315,8 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	{
 		goto fail_list;
 	}
+
+	self->mode = mode;
 
 	a3d_list_notify(self->list,
 	                (void*) self,
@@ -274,5 +344,21 @@ void a3d_layer_delete(a3d_layer_t** _self)
 
 		a3d_list_delete(&self->list);
 		a3d_widget_delete((a3d_widget_t**) _self);
+	}
+}
+
+void a3d_layer_bringFront(a3d_layer_t* self,
+                          a3d_widget_t* widget)
+{
+	assert(self);
+	assert(widget);
+
+	a3d_listitem_t* item;
+	item = a3d_list_find(self->list,
+	                     (const void*) widget,
+	                     a3d_layer_compare);
+	if(item)
+	{
+		a3d_list_move(self->list, item, NULL);
 	}
 }

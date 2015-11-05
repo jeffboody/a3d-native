@@ -212,12 +212,13 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 	};
 
 	// draw the separator
-	a3d_vec4f_t*  c      = &widget->color_line;
 	a3d_screen_t* screen = widget->screen;
-	if((c->a > 0.0f) && (widget->style_line != A3D_WIDGET_LINE_NONE))
+	a3d_vec4f_t*  c      = &widget->color_line;
+	float         alpha  = widget->fade*c->a;
+	if((alpha > 0.0f) && (widget->style_line != A3D_WIDGET_LINE_NONE))
 	{
 		glDisable(GL_SCISSOR_TEST);
-		if(c->a < 1.0f)
+		if(alpha < 1.0f)
 		{
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -235,19 +236,33 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, c->a);
+		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
 		glDrawArrays(GL_LINES, 0, 2);
 
 		glLineWidth(1.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDisableVertexAttribArray(screen->attr_coords);
 		glUseProgram(0);
-		if(c->a < 1.0f)
+		if(alpha < 1.0f)
 		{
 			glDisable(GL_BLEND);
 		}
 		glEnable(GL_SCISSOR_TEST);
 	}
+}
+
+static int a3d_viewbox_fade(a3d_widget_t* widget,
+                            float fade, float dt)
+{
+	assert(widget);
+	LOGD("debug");
+
+	int            animate = 0;
+	a3d_viewbox_t* self    = (a3d_viewbox_t*) widget;
+	a3d_widget_t*  bullet  = (a3d_widget_t*) self->bullet;
+	animate |= a3d_widget_fade(bullet, fade, dt);
+	animate |= a3d_widget_fade(self->body, fade, dt);
+	return animate;
 }
 
 static void a3d_viewbox_refresh(a3d_widget_t* widget)
@@ -319,6 +334,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	                                       a3d_viewbox_layout,
 	                                       a3d_viewbox_drag,
 	                                       a3d_viewbox_draw,
+	                                       a3d_viewbox_fade,
 	                                       a3d_viewbox_refresh);
 	if(self == NULL)
 	{

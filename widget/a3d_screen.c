@@ -164,6 +164,7 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->scale         = A3D_SCREEN_SCALE_MEDIUM;
 	self->top_widget    = NULL;
 	self->dirty         = 1;
+	self->animate       = 1;
 	self->pointer_state = A3D_WIDGET_POINTER_UP;
 	self->pointer_x0    = 0.0f;
 	self->pointer_y0    = 0.0f;
@@ -232,6 +233,7 @@ void a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top)
 
 	self->top_widget = top;
 	self->dirty      = 1;
+	self->animate    = 1;
 }
 
 a3d_font_t* a3d_screen_font(a3d_screen_t* self)
@@ -412,6 +414,14 @@ void a3d_screen_dirty(a3d_screen_t* self)
 	self->dirty = 1;
 }
 
+void a3d_screen_animate(a3d_screen_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	self->animate = 1;
+}
+
 void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
                              float* hborder, float* vborder)
 {
@@ -590,7 +600,7 @@ void a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect)
 	          (GLsizei) (rect->h + 0.5f));
 }
 
-void a3d_screen_draw(a3d_screen_t* self)
+void a3d_screen_draw(a3d_screen_t* self, float dt)
 {
 	assert(self);
 	LOGD("debug");
@@ -603,6 +613,7 @@ void a3d_screen_draw(a3d_screen_t* self)
 	}
 
 	a3d_widget_refresh(top);
+
 	if(self->dirty)
 	{
 		float        w    = (float) self->w;
@@ -612,10 +623,14 @@ void a3d_screen_draw(a3d_screen_t* self)
 		a3d_widget_layoutXYClip(top, 0.0f, 0.0f, &clip, 1, 1);
 		self->dirty = 0;
 	}
+
+	if(self->animate)
+	{
+		self->animate = a3d_widget_fade(self->top_widget, 1.0f, dt);
+	}
+
 	glEnable(GL_SCISSOR_TEST);
 	a3d_widget_draw(self->top_widget);
-
-	// restore the scissor
 	glScissor((GLint) 0,
 	          (GLint) 0,
 	          (GLsizei) self->w,

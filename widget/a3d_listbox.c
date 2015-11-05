@@ -345,6 +345,25 @@ static void a3d_listbox_draw(a3d_widget_t* widget)
 	}
 }
 
+static int a3d_listbox_fade(a3d_widget_t* widget,
+                            float fade, float dt)
+{
+	assert(widget);
+	LOGD("debug");
+
+	int             animate = 0;
+	a3d_listbox_t*  self    = (a3d_listbox_t*) widget;
+	a3d_listitem_t* iter    = a3d_list_head(self->list);
+	while(iter)
+	{
+		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+		animate |= a3d_widget_fade(widget, fade, dt);
+		iter = a3d_list_next(iter);
+	}
+
+	return animate;
+}
+
 static void a3d_listbox_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
@@ -368,6 +387,7 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 
 	a3d_widget_t* self = (a3d_widget_t*) owner;
 	a3d_screen_dirty(self->screen);
+	a3d_screen_animate(self->screen);
 }
 
 /***********************************************************
@@ -429,6 +449,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	                                                      a3d_listbox_layout,
 	                                                      a3d_listbox_drag,
 	                                                      a3d_listbox_draw,
+	                                                      a3d_listbox_fade,
 	                                                      refresh_fn);
 	if(self == NULL)
 	{

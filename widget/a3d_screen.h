@@ -52,6 +52,9 @@ typedef struct a3d_screen_s
 	// layout dirty flag
 	int dirty;
 
+	// fade animation flag
+	int animate;
+
 	// pointer generates click and drag events
 	int    pointer_state;
 	float  pointer_x0;
@@ -93,6 +96,7 @@ void                a3d_screen_rescale(a3d_screen_t* self, int scale);
 int                 a3d_screen_scalei(a3d_screen_t* self);
 float               a3d_screen_scalef(a3d_screen_t* self);
 void                a3d_screen_dirty(a3d_screen_t* self);
+void                a3d_screen_animate(a3d_screen_t* self);
 void                a3d_screen_layoutBorder(a3d_screen_t* self, int style,
                                             float* hborder, float* vborder);
 float               a3d_screen_layoutLine(a3d_screen_t* self, int style);
@@ -104,6 +108,6 @@ int                 a3d_screen_pointerUp(a3d_screen_t* self,
 int                 a3d_screen_pointerMove(a3d_screen_t* self,
                                            float x, float y, double t0);
 void                a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect);
-void                a3d_screen_draw(a3d_screen_t* self);
+void                a3d_screen_draw(a3d_screen_t* self, float dt);
 
 #endif

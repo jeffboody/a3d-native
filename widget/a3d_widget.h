@@ -86,6 +86,8 @@ typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
                                    float dx, float dy,
                                    double dt);
 typedef void (*a3d_widget_draw_fn)(struct a3d_widget_s* widget);
+typedef int  (*a3d_widget_fade_fn)(struct a3d_widget_s* widget,
+                                   float fade, float dt);
 typedef void (*a3d_widget_refresh_fn)(struct a3d_widget_s* widget);
 
 typedef struct a3d_widget_s
@@ -133,6 +135,9 @@ typedef struct a3d_widget_s
 	a3d_vec4f_t color_line;
 	a3d_vec4f_t color_fill;
 
+	// fade animation
+	float fade;
+
 	// reflow_fn allows a derived widget to reflow
 	// it's content in a resize (e.g. textbox)
 	// called internally by a3d_widget_layoutSize()
@@ -160,6 +165,11 @@ typedef struct a3d_widget_s
 	// called internally by a3d_widget_draw
 	a3d_widget_draw_fn draw_fn;
 
+	// fade_fn allows a derived widget to define
+	// it's childrens fade behavior
+	// called internally by a3d_widget_fade
+	a3d_widget_fade_fn fade_fn;
+
 	// refresh_fn allows a widget to refresh it's external state
 	// called internally by a3d_widget_refresh
 	a3d_widget_refresh_fn refresh_fn;
@@ -181,6 +191,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_layout_fn layout_fn,
                              a3d_widget_drag_fn drag_fn,
                              a3d_widget_draw_fn draw_fn,
+                             a3d_widget_fade_fn fade_fn,
                              a3d_widget_refresh_fn refresh_fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_priv(a3d_widget_t* self, void* priv);
@@ -198,6 +209,8 @@ void          a3d_widget_drag(a3d_widget_t* self,
                               float dx, float dy,
                               double dt);
 void          a3d_widget_draw(a3d_widget_t* self);
+int           a3d_widget_fade(a3d_widget_t* self,
+                              float fade, float dt);
 void          a3d_widget_anchorPt(a3d_rect4f_t* rect,
                                   int anchor,
                                   float* x, float * y);

@@ -122,6 +122,18 @@ static void a3d_bulletbox_draw(a3d_widget_t* widget)
 	a3d_widget_draw((a3d_widget_t*) self->text);
 }
 
+static int a3d_bulletbox_fade(a3d_widget_t* widget,
+                              float fade, float dt)
+{
+	assert(widget);
+
+	int animate = 0;
+	a3d_bulletbox_t* self = (a3d_bulletbox_t*) widget;
+	animate |= a3d_widget_fade((a3d_widget_t*) self->icon, fade, dt);
+	animate |= a3d_widget_fade((a3d_widget_t*) self->text, fade, dt);
+	return animate;
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -169,6 +181,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	                                         a3d_bulletbox_layout,
 	                                         a3d_bulletbox_drag,
 	                                         a3d_bulletbox_draw,
+	                                         a3d_bulletbox_fade,
 	                                         refresh_fn);
 	if(self == NULL)
 	{

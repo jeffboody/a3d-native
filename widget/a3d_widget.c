@@ -463,6 +463,11 @@ void a3d_widget_draw(a3d_widget_t* self)
 	assert(self);
 	LOGD("debug");
 
+	if(self->fade == 0.0f)
+	{
+		return;
+	}
+
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&self->rect_border,
 	                        &self->rect_clip,
@@ -566,7 +571,7 @@ int a3d_widget_fade(a3d_widget_t* self, float fade, float dt)
 	if(self->fade != fade)
 	{
 		// animate and clamp fade
-		float dfade = 2.0f*dt;
+		float dfade = 3.0f*dt;
 		if(self->fade > fade)
 		{
 			self->fade -= dfade;

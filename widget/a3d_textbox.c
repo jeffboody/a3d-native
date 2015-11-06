@@ -150,7 +150,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	float       aspect = a3d_font_aspectRatio(font);
 	float       size   = a3d_screen_layoutText(widget->screen,
 	                                           self->style_text);
-	int         maxi   = (int) (w/(aspect*size));
+	int         maxi   = (int) (w/(aspect*size)) - 1;
 
 	// maxi does not include null character
 	// but max_len does

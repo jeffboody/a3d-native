@@ -64,8 +64,9 @@ typedef struct
 	int count;
 	int index;
 
-	// GL color
+	// GL properties
 	a3d_vec4f_t color;
+	float       theta;
 
 	// GL data
 	GLuint* id_tex;
@@ -93,5 +94,7 @@ int           a3d_sprite_load(a3d_sprite_t* self,
                               const char* fname);
 void          a3d_sprite_select(a3d_sprite_t* self,
                                 int index);
+void          a3d_sprite_rotate(a3d_sprite_t* self,
+                                float theta);
 
 #endif

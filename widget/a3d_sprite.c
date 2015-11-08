@@ -42,12 +42,12 @@
 
 static const GLfloat VERTEX[] =
 {
-	0.0f, 0.0f, 0.0f, 1.0f,   // top-left
-	0.0f, 1.0f, 0.0f, 1.0f,   // bottom-left
-	1.0f, 1.0f, 0.0f, 1.0f,   // bottom-right
-	1.0f, 1.0f, 0.0f, 1.0f,   // bottom-right
-	1.0f, 0.0f, 0.0f, 1.0f,   // top-right
-	0.0f, 0.0f, 0.0f, 1.0f,   // top-left
+	-0.5f, -0.5f, 0.0f, 1.0f,   // top-left
+	-0.5f,  0.5f, 0.0f, 1.0f,   // bottom-left
+	 0.5f,  0.5f, 0.0f, 1.0f,   // bottom-right
+	 0.5f,  0.5f, 0.0f, 1.0f,   // bottom-right
+	 0.5f, -0.5f, 0.0f, 1.0f,   // top-right
+	-0.5f, -0.5f, 0.0f, 1.0f,   // top-left
 };
 
 static const GLfloat COORDS[] =
@@ -110,8 +110,9 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 		float hh = widget->rect_draw.h;
 		a3d_screen_sizef(screen, &w, &h);
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, w, h, 0.0f, 0.0f, 2.0f);
-		a3d_mat4f_translate(&mvp, 0, x, y, -1.0f);
+		a3d_mat4f_translate(&mvp, 0, x + ww/2.0f, y + hh/2.0f, -1.0f);
 		a3d_mat4f_scale(&mvp, 0, ww, hh, 1.0f);
+		a3d_mat4f_rotate(&mvp, 0, self->theta, 0.0f, 0.0f, 1.0f);
 
 		a3d_spriteShader_t* shader = a3d_screen_spriteShader(screen);
 
@@ -368,8 +369,9 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		goto fail_tex;
 	}
 
-	self->index    = 0;
-	self->count    = count;
+	self->index = 0;
+	self->count = count;
+	self->theta = 0.0f;
 	a3d_vec4f_copy(color_sprite, &self->color);
 
 	glGenBuffers(1, &self->id_vertex);
@@ -456,4 +458,12 @@ void a3d_sprite_select(a3d_sprite_t* self, int index)
 	}
 
 	self->index = index;
+}
+
+void a3d_sprite_rotate(a3d_sprite_t* self,
+                       float theta)
+{
+	assert(self);
+
+	self->theta = theta;
 }

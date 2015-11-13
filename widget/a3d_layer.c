@@ -195,10 +195,10 @@ static int a3d_layer_fade(a3d_widget_t* widget,
 	assert(widget);
 	LOGD("debug");
 
-	// draw back-to-front
+	int             a;
 	int             animate = 0;
 	a3d_layer_t*    self    = (a3d_layer_t*) widget;
-	a3d_listitem_t* iter    = a3d_list_tail(self->list);
+	a3d_listitem_t* iter    = a3d_list_head(self->list);
 	a3d_widget_t*   head    = (a3d_widget_t*)
 	                          a3d_list_peekhead(self->list);
 	while(iter)
@@ -207,13 +207,23 @@ static int a3d_layer_fade(a3d_widget_t* widget,
 		if((self->mode == A3D_LAYER_MODE_LAYERED) ||
 		   (widget == head))
 		{
-			animate |= a3d_widget_fade(widget, fade, dt);
+			a = a3d_widget_fade(widget, fade, dt);
+			iter = a3d_list_next(iter);
 		}
 		else
 		{
-			animate |= a3d_widget_fade(widget, 0.0f, dt);
+			// remove widget if fade-to-zero is complete
+			a = a3d_widget_fade(widget, 0.0f, dt);
+			if(a == 0)
+			{
+				a3d_list_remove(self->list, &iter);
+			}
+			else
+			{
+				iter = a3d_list_next(iter);
+			}
 		}
-		iter = a3d_list_prev(iter);
+		animate |= a;
 	}
 
 	return animate;
@@ -360,5 +370,9 @@ void a3d_layer_bringFront(a3d_layer_t* self,
 	if(item)
 	{
 		a3d_list_move(self->list, item, NULL);
+	}
+	else
+	{
+		a3d_list_push(self->list, (const void*) widget);
 	}
 }

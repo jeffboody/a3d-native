@@ -45,7 +45,7 @@
 	#include <GLES2/gl2.h>
 #elif defined(A3D_GL2)
 	#include <GL/glew.h>
-	#include <GL/gl.h>
+	#include <SDL2/SDL_opengl.h>
 #endif
 
 /***********************************************************

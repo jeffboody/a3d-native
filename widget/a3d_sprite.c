@@ -215,6 +215,10 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 			{
 				tex = texgz_tex_importf(pak->f, size);
 			}
+			else
+			{
+				LOGE("invalid fname=%s", fname);
+			}
 			pak_file_close(&pak);
 		}
 	}

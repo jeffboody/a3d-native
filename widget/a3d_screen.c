@@ -129,10 +129,14 @@ static int a3d_screen_compareTexId(const void* a, const void* b)
 ***********************************************************/
 
 a3d_screen_t* a3d_screen_new(const char* resource,
-                             a3d_font_t* font)
+                             a3d_font_t* font,
+                             void* sound_fx,
+                             a3d_screen_playClickFn playClick)
 {
 	assert(resource);
 	assert(font);
+	assert(sound_fx);
+	assert(playClick);
 	LOGD("debug");
 
 	a3d_screen_t* self = (a3d_screen_t*) malloc(sizeof(a3d_screen_t));
@@ -170,6 +174,8 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->pointer_y0    = 0.0f;
 	self->pointer_t0    = 0.0;
 	self->font          = font;
+	self->sound_fx      = sound_fx;
+	self->playClick     = playClick;
 
 	strncpy(self->resource, resource, 256);
 	self->resource[255] = '\0';
@@ -636,4 +642,12 @@ void a3d_screen_draw(a3d_screen_t* self, float dt)
 	          (GLsizei) self->w,
 	          (GLsizei) self->h);
 	glDisable(GL_SCISSOR_TEST);
+}
+
+void a3d_screen_playClick(a3d_screen_t* self)
+{
+	assert(self);
+
+	a3d_screen_playClickFn playClick = self->playClick;
+	(*playClick)(self->sound_fx);
 }

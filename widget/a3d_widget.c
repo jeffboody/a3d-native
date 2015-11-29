@@ -417,7 +417,13 @@ int a3d_widget_click(a3d_widget_t* self,
 		return 0;
 	}
 
-	return (*click_fn)(self, state, x, y);
+	int clicked = (*click_fn)(self, state, x, y);
+	if(clicked && (state == A3D_WIDGET_POINTER_UP))
+	{
+		a3d_screen_playClick(self->screen);
+	}
+
+	return clicked;
 }
 
 void a3d_widget_drag(a3d_widget_t* self,

@@ -37,6 +37,8 @@
 #define A3D_SCREEN_SCALE_LARGE  4
 #define A3D_SCREEN_SCALE_XLARGE 5
 
+typedef void (*a3d_screen_playClickFn)(void* sound_fx);
+
 typedef struct a3d_screen_s
 {
 	// screen size
@@ -67,6 +69,10 @@ typedef struct a3d_screen_s
 	// font - shared resource
 	a3d_font_t* font;
 
+	// sound fx
+	void* sound_fx;
+	a3d_screen_playClickFn playClick;
+
 	// sprite - shared resource
 	a3d_spriteShader_t* sprite_shader;
 	a3d_list_t*         sprite_list;
@@ -82,7 +88,9 @@ typedef struct a3d_screen_s
 } a3d_screen_t;
 
 a3d_screen_t*       a3d_screen_new(const char* resource,
-                                   a3d_font_t* font);
+                                   a3d_font_t* font,
+                                   void* sound_fx,
+                                   a3d_screen_playClickFn playClick);
 void                a3d_screen_delete(a3d_screen_t** _self);
 void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
 a3d_font_t*         a3d_screen_font(a3d_screen_t* self);
@@ -109,5 +117,6 @@ int                 a3d_screen_pointerMove(a3d_screen_t* self,
                                            float x, float y, double t0);
 void                a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect);
 void                a3d_screen_draw(a3d_screen_t* self, float dt);
+void                a3d_screen_playClick(a3d_screen_t* self);
 
 #endif

@@ -174,6 +174,7 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->pointer_y0    = 0.0f;
 	self->pointer_t0    = 0.0;
 	self->font          = font;
+	self->clicked       = 0;
 	self->sound_fx      = sound_fx;
 	self->playClick     = playClick;
 
@@ -642,12 +643,19 @@ void a3d_screen_draw(a3d_screen_t* self, float dt)
 	          (GLsizei) self->w,
 	          (GLsizei) self->h);
 	glDisable(GL_SCISSOR_TEST);
+
+	// play sound fx
+	if(self->clicked)
+	{
+		a3d_screen_playClickFn playClick = self->playClick;
+		(*playClick)(self->sound_fx);
+		self->clicked = 0;
+	}
 }
 
 void a3d_screen_playClick(a3d_screen_t* self)
 {
 	assert(self);
 
-	a3d_screen_playClickFn playClick = self->playClick;
-	(*playClick)(self->sound_fx);
+	self->clicked = 1;
 }

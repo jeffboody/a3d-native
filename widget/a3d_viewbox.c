@@ -340,6 +340,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	{
 		return NULL;
 	}
+	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
 	a3d_vec4f_t clear =
 	{

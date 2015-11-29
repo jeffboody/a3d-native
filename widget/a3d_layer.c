@@ -319,6 +319,7 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	{
 		return NULL;
 	}
+	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
 	self->list = a3d_list_new();
 	if(self->list == NULL)

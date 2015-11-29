@@ -116,8 +116,8 @@ static int a3d_listbox_click(a3d_widget_t* widget,
 		iter = a3d_list_next(iter);
 	}
 
-	// listboxes are only clicked if a child is clicked
-	return 0;
+	// listboxes are always clicked
+	return 1;
 }
 
 static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self,
@@ -455,6 +455,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	{
 		return NULL;
 	}
+	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
 	self->list = a3d_list_new();
 	if(self->list == NULL)

@@ -70,6 +70,7 @@ typedef struct a3d_screen_s
 	a3d_font_t* font;
 
 	// sound fx
+	int   clicked;
 	void* sound_fx;
 	a3d_screen_playClickFn playClick;
 

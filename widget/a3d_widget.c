@@ -102,6 +102,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->draw_fn        = draw_fn;
 	self->fade_fn        = fade_fn;
 	self->fade           = 0.0f;
+	self->sound_fx       = 1;
 
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -418,7 +419,8 @@ int a3d_widget_click(a3d_widget_t* self,
 	}
 
 	int clicked = (*click_fn)(self, state, x, y);
-	if(clicked && (state == A3D_WIDGET_POINTER_UP))
+	if(clicked && self->sound_fx &&
+	   (state == A3D_WIDGET_POINTER_UP))
 	{
 		a3d_screen_playClick(self->screen);
 	}
@@ -679,4 +681,12 @@ void a3d_widget_refresh(a3d_widget_t* self)
 	{
 		(*refresh_fn)(self);
 	}
+}
+
+void a3d_widget_soundFx(a3d_widget_t* self,
+                        int sound_fx)
+{
+	assert(self);
+
+	self->sound_fx = sound_fx;
 }

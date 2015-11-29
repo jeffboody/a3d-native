@@ -138,6 +138,9 @@ typedef struct a3d_widget_s
 	// fade animation
 	float fade;
 
+	// sound fx for clicks
+	int sound_fx;
+
 	// reflow_fn allows a derived widget to reflow
 	// it's content in a resize (e.g. textbox)
 	// called internally by a3d_widget_layoutSize()
@@ -215,5 +218,7 @@ void          a3d_widget_anchorPt(a3d_rect4f_t* rect,
                                   int anchor,
                                   float* x, float * y);
 void          a3d_widget_refresh(a3d_widget_t* self);
+void          a3d_widget_soundFx(a3d_widget_t* self,
+                                 int sound_fx);
 
 #endif

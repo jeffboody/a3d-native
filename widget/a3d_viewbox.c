@@ -45,6 +45,7 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 	a3d_viewbox_t* self   = (a3d_viewbox_t*) widget;
 	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
 	a3d_widget_t*  body   = self->body;
+	a3d_widget_t*  footer = self->footer;
 
 	float wmax     = 0.0f;
 	float hsum     = 0.0f;
@@ -56,23 +57,47 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 	wmax = bullet_w;
 	hsum = bullet_h;
 
-	// layout separator
+	// layout separator(s)
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
 	                        widget->style_border,
 	                        &h_bo, &v_bo);
-	hsum += 2.0f*v_bo;
-
-	// layout body
-	float h2 = *h - bullet_h - 2.0f*v_bo;
-	if(h2 < 0.0f)
+	if(footer)
 	{
-		h2 = 0.0f;
+		hsum += 4.0f*v_bo;
+	}
+	else
+	{
+		hsum += 2.0f*v_bo;
 	}
 
+	// layout footer
+	if(footer)
+	{
+		float footer_w = *w;
+		float footer_h = *h - hsum;
+		if(footer_h < 0.0f)
+		{
+			footer_h = 0.0f;
+		}
+
+		a3d_widget_layoutSize(footer, &footer_w, &footer_h);
+		if(footer_w > wmax)
+		{
+			wmax = footer_w;
+		}
+
+		hsum += footer_h;
+	}
+
+	// layout body
 	float body_w = *w;
-	float body_h = h2 ;
+	float body_h = *h - hsum ;
+	if(body_h < 0.0f)
+	{
+		body_h = 0.0f;
+	}
 	a3d_widget_layoutSize(body, &body_w, &body_h);
 
 	if(body_w > wmax)
@@ -93,13 +118,17 @@ static int a3d_viewbox_click(a3d_widget_t* widget,
 	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
-	if(a3d_widget_click((a3d_widget_t*) self->bullet,
-	                    state, x, y) == 0)
+	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
+	a3d_widget_t*  body   = (a3d_widget_t*) self->body;
+	a3d_widget_t*  footer = (a3d_widget_t*) self->footer;
+	if(a3d_widget_click(bullet, state, x, y) ||
+	   a3d_widget_click(body, state, x, y)   ||
+	   (footer && a3d_widget_click(footer, state, x, y)))
 	{
-		return a3d_widget_click(self->body,
-		                        state, x, y);
+		return 1;
 	}
 
+	// viewboxes are always clicked
 	return 1;
 }
 
@@ -112,6 +141,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	a3d_viewbox_t* self   = (a3d_viewbox_t*) widget;
 	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
 	a3d_widget_t*  body   = self->body;
+	a3d_widget_t*  footer = self->footer;
 
 	// initialize the layout
 	float x  = 0.0f;
@@ -120,7 +150,8 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	float l  = self->widget.rect_draw.l;
 	float w  = self->widget.rect_draw.w;
 	float h  = self->widget.rect_draw.h;
-	float th = bullet->rect_border.h;
+	float bullet_h = bullet->rect_border.h;
+	float footer_h = 0.0f;
 	a3d_rect4f_t rect_clip;
 	a3d_rect4f_t rect_draw;
 
@@ -128,7 +159,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	rect_draw.t = t;
 	rect_draw.l = l;
 	rect_draw.w = w;
-	rect_draw.h = th;
+	rect_draw.h = bullet_h;
 	a3d_widget_anchorPt(&rect_draw, bullet->anchor, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &self->widget.rect_clip,
@@ -144,14 +175,38 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	                        &h_bo, &v_bo);
 
 	// layout body
-	rect_draw.t = t + th + 2.0f*v_bo;
-	rect_draw.h = h - th - 2.0f*v_bo;
+	if(footer)
+	{
+		footer_h = footer->rect_border.h;
+		rect_draw.t = t + bullet_h + 2.0f*v_bo;
+		rect_draw.h = h - bullet_h - 4.0f*v_bo - footer_h;
+	}
+	else
+	{
+		rect_draw.t = t + bullet_h + 2.0f*v_bo;
+		rect_draw.h = h - bullet_h - 2.0f*v_bo;
+	}
 	a3d_widget_anchorPt(&rect_draw, body->anchor, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &self->widget.rect_clip,
 	                     &rect_clip);
 	a3d_widget_layoutXYClip(body, x, y, &rect_clip,
 	                        dragx, dragy);
+
+	// layout footer
+	if(footer)
+	{
+		rect_draw.t = t + h - footer_h;
+		rect_draw.l = l;
+		rect_draw.w = w;
+		rect_draw.h = footer_h;
+		a3d_widget_anchorPt(&rect_draw, footer->anchor, &x, &y);
+		a3d_rect4f_intersect(&rect_draw,
+		                     &self->widget.rect_clip,
+		                     &rect_clip);
+		a3d_widget_layoutXYClip(footer, x, y, &rect_clip,
+		                        dragx, dragy);
+	}
 }
 
 static void a3d_viewbox_drag(a3d_widget_t* widget,
@@ -167,16 +222,16 @@ static void a3d_viewbox_drag(a3d_widget_t* widget,
 	                x, y, dx, dy, dt);
 	a3d_widget_drag(self->body,
 	                x, y, dx, dy, dt);
+	if(self->footer)
+	{
+		a3d_widget_drag(self->footer,
+		                x, y, dx, dy, dt);
+	}
 }
 
-static void a3d_viewbox_draw(a3d_widget_t* widget)
+static void a3d_viewbox_drawSeparator(a3d_widget_t* widget, float y)
 {
 	assert(widget);
-	LOGD("debug");
-
-	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
-	a3d_widget_draw((a3d_widget_t*) self->bullet);
-	a3d_widget_draw(self->body);
 
 	// clip separator to border
 	a3d_rect4f_t rect_border_clip;
@@ -187,17 +242,9 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 		return;
 	}
 
-	float h_bo = 0.0f;
-	float v_bo = 0.0f;
-	a3d_screen_layoutBorder(widget->screen,
-	                        widget->style_border,
-	                        &h_bo, &v_bo);
-
 	// clip separator
-	a3d_widget_t* bw  = &(self->bullet->widget);
-	float         y   = bw->rect_border.t + bw->rect_border.h + v_bo;
-	float         top = widget->rect_clip.t;
-	float         bot = widget->rect_clip.t + widget->rect_clip.h;
+	float top = widget->rect_clip.t;
+	float bot = widget->rect_clip.t + widget->rect_clip.h;
 	if((y < top) || (y > bot))
 	{
 		return;
@@ -251,6 +298,35 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 	}
 }
 
+static void a3d_viewbox_draw(a3d_widget_t* widget)
+{
+	assert(widget);
+	LOGD("debug");
+
+	// bullet separator y
+	float h_bo = 0.0f;
+	float v_bo = 0.0f;
+	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
+	a3d_screen_layoutBorder(widget->screen,
+	                        widget->style_border,
+	                        &h_bo, &v_bo);
+	a3d_widget_t* w = &(self->bullet->widget);
+	float         y = w->rect_border.t + w->rect_border.h + v_bo;
+
+	a3d_widget_draw((a3d_widget_t*) self->bullet);
+	a3d_widget_draw(self->body);
+	a3d_viewbox_drawSeparator(widget, y);
+	if(self->footer)
+	{
+		a3d_widget_draw(self->footer);
+
+		// footer separator y
+		w = self->footer;
+		y = w->rect_border.t - v_bo;
+		a3d_viewbox_drawSeparator(widget, y);
+	}
+}
+
 static int a3d_viewbox_fade(a3d_widget_t* widget,
                             float fade, float dt)
 {
@@ -262,6 +338,10 @@ static int a3d_viewbox_fade(a3d_widget_t* widget,
 	a3d_widget_t*  bullet  = (a3d_widget_t*) self->bullet;
 	animate |= a3d_widget_fade(bullet, fade, dt);
 	animate |= a3d_widget_fade(self->body, fade, dt);
+	if(self->footer)
+	{
+		animate |= a3d_widget_fade(self->footer, fade, dt);
+	}
 	return animate;
 }
 
@@ -273,6 +353,10 @@ static void a3d_viewbox_refresh(a3d_widget_t* widget)
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_widget_refresh((a3d_widget_t*) self->bullet);
 	a3d_widget_refresh(self->body);
+	if(self->footer)
+	{
+		a3d_widget_refresh(self->footer);
+	}
 }
 
 /***********************************************************
@@ -300,8 +384,10 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                const char* sprite,
                                a3d_widget_click_fn click_fn,
                                void* click_priv,
-                               a3d_widget_t* body)
+                               a3d_widget_t* body,
+                               a3d_widget_t* footer)
 {
+	// footer may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_line);
@@ -372,7 +458,8 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		goto fail_sprite;
 	}
 
-	self->body = body;
+	self->body   = body;
+	self->footer = footer;
 
 	// success
 	return self;

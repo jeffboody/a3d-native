@@ -35,6 +35,7 @@ typedef struct
 
 	a3d_bulletbox_t* bullet;
 	a3d_widget_t*    body;
+	a3d_widget_t*    footer;
 } a3d_viewbox_t;
 
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
@@ -58,7 +59,8 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                const char* sprite,
                                a3d_widget_click_fn click_fn,
                                void* click_priv,
-                               a3d_widget_t* body);
+                               a3d_widget_t* body,
+                               a3d_widget_t* footer);
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);
 void            a3d_viewbox_textPrintf(a3d_viewbox_t* self,
                                        const char* fmt, ...);

@@ -40,11 +40,13 @@ const int A3D_WORKQ_STOP    = 1;
 // force purge a task or workq
 const int A3D_WORKQ_PURGE = -1;
 
-static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id)
+static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id,
+                                          int priority)
 {
 	assert(task);
 	assert((purge_id == 0) || (purge_id == 1));
-	LOGD("debug task=%p, purge_id=%i", task, purge_id);
+	LOGD("debug task=%p, purge_id=%i, priority=%i",
+	     task, purge_id, priority);
 
 	a3d_workqnode_t* self = (a3d_workqnode_t*) malloc(sizeof(a3d_workqnode_t));
 	if(!self)
@@ -53,8 +55,9 @@ static a3d_workqnode_t* a3d_workqnode_new(void* task, int purge_id)
 		return NULL;
 	}
 
-	self->purge_id = purge_id;
 	self->status   = A3D_WORKQ_PENDING;
+	self->priority = priority;
+	self->purge_id = purge_id;
 	self->task     = task;
 
 	return self;
@@ -364,22 +367,25 @@ void a3d_workq_purge(a3d_workq_t* self)
 	pthread_mutex_unlock(&self->mutex);
 }
 
-int a3d_workq_run(a3d_workq_t* self, void* task)
+int a3d_workq_run(a3d_workq_t* self, void* task,
+                  int priority)
 {
 	assert(self);
 	assert(task);
-	LOGD("debug task=%p", task);
+	LOGD("debug task=%p, priority=%i", task, priority);
 
 	pthread_mutex_lock(&self->mutex);
 
 	// find the node containing the task or create a new one
 	int status = A3D_WORKQ_ERROR;
-	a3d_listitem_t* iter;
+	a3d_listitem_t*  iter = NULL;
+	a3d_listitem_t*  pos  = NULL;
+	a3d_workqnode_t* tmp  = NULL;
+	a3d_workqnode_t* node = NULL;
 	if((iter = a3d_list_find(self->queue_complete, task,
 	                         a3d_taskcmp_fn)) != NULL)
 	{
 		// task completed
-		a3d_workqnode_t* node;
 		node = (a3d_workqnode_t*) a3d_list_remove(self->queue_complete,
 		                                          &iter);
 		status = node->status;
@@ -388,7 +394,6 @@ int a3d_workq_run(a3d_workq_t* self, void* task)
 	else if((iter = a3d_list_find(self->queue_active, task,
 	                              a3d_taskcmp_fn)) != NULL)
 	{
-		a3d_workqnode_t* node;
 		node = (a3d_workqnode_t*) a3d_list_peekitem(iter);
 		node->purge_id = self->purge_id;
 		status = A3D_WORKQ_PENDING;
@@ -396,27 +401,103 @@ int a3d_workq_run(a3d_workq_t* self, void* task)
 	else if((iter = a3d_list_find(self->queue_pending, task,
 	                              a3d_taskcmp_fn)) != NULL)
 	{
-		a3d_workqnode_t* node;
 		node = (a3d_workqnode_t*) a3d_list_peekitem(iter);
 		node->purge_id = self->purge_id;
+		if(priority > node->priority)
+		{
+			// move up
+			pos = a3d_list_prev(iter);
+			while(pos)
+			{
+				tmp = (a3d_workqnode_t*) a3d_list_peekitem(pos);
+				if(tmp->priority >= node->priority)
+				{
+					break;
+				}
+				pos = a3d_list_prev(pos);
+			}
+
+			if(pos)
+			{
+				// move after pos
+				a3d_list_moven(self->queue_pending, iter, pos);
+			}
+			else
+			{
+				// move to head of list
+				a3d_list_move(self->queue_pending, iter, NULL);
+			}
+		}
+		else if(priority < node->priority)
+		{
+			// move down
+			pos = a3d_list_next(iter);
+			while(pos)
+			{
+				tmp = (a3d_workqnode_t*) a3d_list_peekitem(pos);
+				if(tmp->priority < node->priority)
+				{
+					break;
+				}
+				pos = a3d_list_next(pos);
+			}
+
+			if(pos)
+			{
+				// move before pos
+				a3d_list_move(self->queue_pending, iter, pos);
+			}
+			else
+			{
+				// move to tail of list
+				a3d_list_moven(self->queue_pending, iter, NULL);
+			}
+		}
+		node->priority = priority;
 		status = A3D_WORKQ_PENDING;
 	}
 	else
 	{
 		// create new node
-		a3d_workqnode_t* node;
-		node = a3d_workqnode_new(task, self->purge_id);
+		node = a3d_workqnode_new(task, self->purge_id, priority);
 		if(node == NULL)
 		{
-			status = A3D_WORKQ_ERROR;
+			goto fail_node;
 		}
 		else
 		{
-			// put it on pending queue
-			if(a3d_list_enqueue(self->queue_pending, (const void*) node) == 0)
+			// find the insert position
+			pos = a3d_list_tail(self->queue_pending);
+			while(pos)
 			{
-				goto fail_enqueue;
+				tmp = (a3d_workqnode_t*) a3d_list_peekitem(pos);
+				if(tmp->priority >= node->priority)
+				{
+					break;
+				}
+				pos = a3d_list_prev(pos);
 			}
+
+			if(pos)
+			{
+				// append after pos
+				if(a3d_list_append(self->queue_pending, pos,
+				                   (const void*) node) == NULL)
+				{
+					goto fail_queue;
+				}
+			}
+			else
+			{
+				// insert at head of queue
+				// first item or highest priority
+				if(a3d_list_insert(self->queue_pending, NULL,
+				                   (const void*) node) == NULL)
+				{
+					goto fail_queue;
+				}
+			}
+
 			status = A3D_WORKQ_PENDING;
 
 			// wake up workq thread
@@ -430,9 +511,11 @@ int a3d_workq_run(a3d_workq_t* self, void* task)
 	return status;
 
 	// failure
-	fail_enqueue:
+	fail_queue:
+		a3d_workqnode_delete(&node);
+	fail_node:
 		pthread_mutex_unlock(&self->mutex);
-	return A3D_WORKQ_ERROR;;
+	return A3D_WORKQ_ERROR;
 }
 
 int a3d_workq_cancel(a3d_workq_t* self, void* task)

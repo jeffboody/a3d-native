@@ -293,7 +293,7 @@ int a3d_cache_request(a3d_cache_t* self,
 	{
 		a3d_list_moven(self->lru, key, a3d_list_tail(self->lru));
 
-		int r = a3d_workq_run(self->loader, (void*) key);
+		int r = a3d_workq_run(self->loader, (void*) key, 0);
 		if(r == A3D_WORKQ_COMPLETE)
 		{
 			int s = (*self->store_fn)(n->data, &n->size);

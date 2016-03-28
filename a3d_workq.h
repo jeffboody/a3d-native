@@ -79,6 +79,7 @@ a3d_workq_t* a3d_workq_new(void* owner, int thread_count,
                            a3d_workqrun_fn run_fn,
                            a3d_workqpurge_fn purge_fn);
 void         a3d_workq_delete(a3d_workq_t** _self);
+void         a3d_workq_reset(a3d_workq_t* self);
 void         a3d_workq_purge(a3d_workq_t* self);
 int          a3d_workq_run(a3d_workq_t* self, void* task,
                            int priority);

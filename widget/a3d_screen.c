@@ -22,6 +22,7 @@
  */
 
 #include "a3d_screen.h"
+#include "a3d_key.h"
 #include "a3d_text.h"
 #include "a3d_widget.h"
 #include "../a3d_shader.h"
@@ -36,6 +37,162 @@
 /***********************************************************
 * private                                                  *
 ***********************************************************/
+
+static const char A3D_SHIFTKEYS[128] =
+{
+	0x00,
+	0x01,
+	0x02,
+	0x03,
+	0x04,
+	0x05,
+	0x06,
+	0x07,
+	0x08,
+	0x09,
+	0x0A,
+	0x0B,
+	0x0C,
+	0x0D,
+	0x0E,
+	0x0F,
+	0x10,
+	0x11,
+	0x12,
+	0x13,
+	0x14,
+	0x15,
+	0x16,
+	0x17,
+	0x18,
+	0x19,
+	0x1A,
+	0x1B,
+	0x1C,
+	0x1D,
+	0x1E,
+	0x1F,
+	0x20,
+	0x21,
+	0x22,
+	0x23,
+	0x24,
+	0x25,
+	0x26,
+	'\"',
+	0x28,
+	0x29,
+	0x2A,
+	0x2B,
+	'<',
+	'_',
+	'>',
+	'?',
+	')',
+	'!',
+	'@',
+	'#',
+	'$',
+	'%',
+	'^',
+	'&',
+	'*',
+	'(',
+	0x3A,
+	':',
+	0x3C,
+	'+',
+	0x3E,
+	0x3F,
+	0x40,
+	0x41,
+	0x42,
+	0x43,
+	0x44,
+	0x45,
+	0x46,
+	0x47,
+	0x48,
+	0x49,
+	0x4A,
+	0x4B,
+	0x4C,
+	0x4D,
+	0x4E,
+	0x4F,
+	0x50,
+	0x51,
+	0x52,
+	0x53,
+	0x54,
+	0x55,
+	0x56,
+	0x57,
+	0x58,
+	0x59,
+	0x5A,
+	'{',
+	'|',
+	'}',
+	0x5E,
+	0x5F,
+	'~',
+	'A',
+	'B',
+	'C',
+	'D',
+	'E',
+	'F',
+	'G',
+	'H',
+	'I',
+	'J',
+	'K',
+	'L',
+	'M',
+	'N',
+	'O',
+	'P',
+	'Q',
+	'R',
+	'S',
+	'T',
+	'U',
+	'V',
+	'W',
+	'X',
+	'Y',
+	'Z',
+	0x7B,
+	0x7C,
+	0x7D,
+	0x7E,
+	0x7F,
+};
+
+static int a3d_shiftkeycode(int keycode, int meta)
+{
+	LOGD("debug keycode=0x%X, meta=0x%X", keycode, meta);
+
+	if((keycode >= 0) && (keycode < 128))
+	{
+		int shiftchar = meta & (A3D_KEY_SHIFT | A3D_KEY_CAPS);
+		int shiftsym  = meta & A3D_KEY_SHIFT;
+		if(shiftchar && (keycode >= 'a') && (keycode <= 'z'))
+		{
+			return A3D_SHIFTKEYS[keycode];
+		}
+		else if(shiftsym)
+		{
+			return A3D_SHIFTKEYS[keycode];
+		}
+	}
+	else if(keycode == A3D_KEY_DELETE)
+	{
+		return A3D_KEY_INSERT;
+	}
+	return keycode;
+}
 
 static const GLfloat COORDS4[] =
 {
@@ -167,6 +324,7 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->h             = 0;
 	self->scale         = A3D_SCREEN_SCALE_MEDIUM;
 	self->top_widget    = NULL;
+	self->focus_widget  = NULL;
 	self->dirty         = 1;
 	self->animate       = 1;
 	self->pointer_state = A3D_WIDGET_POINTER_UP;
@@ -241,6 +399,14 @@ void a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top)
 	self->top_widget = top;
 	self->dirty      = 1;
 	self->animate    = 1;
+}
+
+void a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus)
+{
+	// focus may be NULL
+	assert(self);
+
+	self->focus_widget = focus;
 }
 
 a3d_font_t* a3d_screen_font(a3d_screen_t* self)
@@ -593,6 +759,21 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
 	self->dirty = 1;
 
 	return 1;
+}
+
+int a3d_screen_keyPress(a3d_screen_t* self,
+                        int keycode, int meta)
+{
+	assert(self);
+
+	if(self->focus_widget == NULL)
+	{
+		return 0;
+	}
+
+	keycode = a3d_shiftkeycode(keycode, meta);
+	return a3d_widget_keyPress(self->focus_widget,
+	                           keycode, meta);
 }
 
 void a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect)

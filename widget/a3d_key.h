@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Jeff Boody
+ * Copyright (c) 2016 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,38 +21,34 @@
  *
  */
 
-#ifndef a3d_font_H
-#define a3d_font_H
+#ifndef a3d_key_H
+#define a3d_key_H
 
-#include "../a3d_GL.h"
-#include "../math/a3d_regionf.h"
+// meta key mask
+#define A3D_KEY_ALT     0x00000032
+#define A3D_KEY_ALT_L   0x00000010
+#define A3D_KEY_ALT_R   0x00000020
+#define A3D_KEY_CTRL    0x00007000
+#define A3D_KEY_CTRL_L  0x00002000
+#define A3D_KEY_CTRL_R  0x00004000
+#define A3D_KEY_SHIFT   0x000000C1
+#define A3D_KEY_SHIFT_L 0x00000040
+#define A3D_KEY_SHIFT_R 0x00000080
+#define A3D_KEY_CAPS    0x00100000
 
-typedef struct
-{
-	// font attributes
-	int char_w;
-	int char_h;
-	int width;
-	int height;
-
-	// GL state
-	GLuint prog;
-	GLint  attr_vertex;
-	GLint  attr_coords;
-	GLint  unif_color;
-	GLint  unif_mvp;
-	GLint  unif_sampler;
-	GLuint id_tex;
-} a3d_font_t;
-
-a3d_font_t* a3d_font_new(const char* resource,
-                         const char* fname);
-void        a3d_font_delete(a3d_font_t** _self);
-void        a3d_font_request(a3d_font_t* self,
-                             char c,
-                             a3d_regionf_t* tc,
-                             a3d_regionf_t* vc);
-float       a3d_font_aspectRatio(a3d_font_t* self);
-char        a3d_font_keycodeToChar(int keycode, int meta);
+// special keys
+#define A3D_KEY_ENTER     0x00D
+#define A3D_KEY_ESCAPE    0x01B
+#define A3D_KEY_BACKSPACE 0x008
+#define A3D_KEY_DELETE    0x07F
+#define A3D_KEY_UP        0x100
+#define A3D_KEY_DOWN      0x101
+#define A3D_KEY_LEFT      0x102
+#define A3D_KEY_RIGHT     0x103
+#define A3D_KEY_HOME      0x104
+#define A3D_KEY_END       0x105
+#define A3D_KEY_PGUP      0x106
+#define A3D_KEY_PGDOWN    0x107
+#define A3D_KEY_INSERT    0x108
 
 #endif

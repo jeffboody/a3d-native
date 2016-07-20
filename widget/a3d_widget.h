@@ -79,6 +79,8 @@ typedef void (*a3d_widget_size_fn)(struct a3d_widget_s* widget,
 typedef int  (*a3d_widget_click_fn)(struct a3d_widget_s* widget,
                                     int state,
                                     float x, float y);
+typedef int  (*a3d_widget_keyPress_fn)(struct a3d_widget_s* widget,
+                                       int keycode, int meta);
 typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget,
                                      int dragx, int dragy);
 typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
@@ -155,6 +157,10 @@ typedef struct a3d_widget_s
 	// called internally by a3d_widget_click()
 	a3d_widget_click_fn click_fn;
 
+	// keyPress_fn allows a derived widget to define it's keyPress
+	// behavior called internally by a3d_widget_keyPress()
+	a3d_widget_keyPress_fn keyPress_fn;
+
 	// layout_fn allows a derived widget to layout it's children
 	// called internally by a3d_widget_layoutXYClip
 	a3d_widget_layout_fn layout_fn;
@@ -207,6 +213,11 @@ void          a3d_widget_layoutSize(a3d_widget_t* self,
 int           a3d_widget_click(a3d_widget_t* self,
                                int state,
                                float x, float y);
+void          a3d_widget_keyPressFn(a3d_widget_t* self,
+                                    a3d_widget_keyPress_fn keyPress_fn);
+int           a3d_widget_keyPress(a3d_widget_t* self,
+                               int keycode, int meta);
+int           a3d_widget_hasFocus(a3d_widget_t* self);
 void          a3d_widget_drag(a3d_widget_t* self,
                               float x, float y,
                               float dx, float dy,

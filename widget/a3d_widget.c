@@ -96,6 +96,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->reflow_fn      = reflow_fn;
 	self->size_fn        = size_fn;
 	self->click_fn       = click_fn;
+	self->keyPress_fn    = NULL;
 	self->layout_fn      = layout_fn;
 	self->drag_fn        = drag_fn;
 	self->refresh_fn     = refresh_fn;
@@ -121,6 +122,13 @@ void a3d_widget_delete(a3d_widget_t** _self)
 	if(self)
 	{
 		LOGD("debug");
+
+		// TODO - screen top
+
+		if(a3d_widget_hasFocus(self))
+		{
+			a3d_screen_focus(self->screen, NULL);
+		}
 
 		free(self);
 		*_self = NULL;
@@ -426,6 +434,37 @@ int a3d_widget_click(a3d_widget_t* self,
 	}
 
 	return clicked;
+}
+
+void a3d_widget_keyPressFn(a3d_widget_t* self,
+                           a3d_widget_keyPress_fn keyPress_fn)
+{
+	// keyPress_fn may be NULL
+	assert(self);
+
+	self->keyPress_fn = keyPress_fn;
+}
+
+int a3d_widget_keyPress(a3d_widget_t* self,
+                        int keycode, int meta)
+{
+	assert(self);
+
+	a3d_widget_keyPress_fn keyPress_fn = self->keyPress_fn;
+	if(keyPress_fn == NULL)
+	{
+		return 0;
+	}
+
+	return (*keyPress_fn)(self, keycode, meta);
+}
+
+int a3d_widget_hasFocus(a3d_widget_t* self)
+{
+	assert(self);
+
+	a3d_screen_t* screen = self->screen;
+	return self == screen->focus_widget;
 }
 
 void a3d_widget_drag(a3d_widget_t* self,

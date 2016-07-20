@@ -37,9 +37,16 @@
 #define A3D_TEXT_WRAP_STRETCH 1
 #define A3D_TEXT_WRAP_COUNT   2
 
+typedef void (*a3d_text_enter_fn)(void* priv,
+                                  const char* string);
+
 typedef struct
 {
 	a3d_widget_t widget;
+
+	// text entry callback
+	void*             enter_priv;
+	a3d_text_enter_fn enter_fn;
 
 	// layout/size properties
 	int wrapx;
@@ -74,5 +81,8 @@ void        a3d_text_delete(a3d_text_t** _self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
 void        a3d_text_wrapx(a3d_text_t* self, int wrapx);
+void        a3d_text_enterFn(a3d_text_t* self,
+                             void* enter_priv,
+                             a3d_text_enter_fn enter_fn);
 
 #endif

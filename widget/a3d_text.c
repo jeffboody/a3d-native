@@ -22,14 +22,17 @@
  */
 
 #include "a3d_text.h"
+#include "a3d_key.h"
 #include "a3d_screen.h"
 #include "a3d_font.h"
 #include "../math/a3d_regionf.h"
+#include "../a3d_time.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #define LOG_TAG "a3d"
 #include "../a3d_log.h"
@@ -72,7 +75,15 @@ static void a3d_text_size(a3d_widget_t* widget,
 	}
 	else
 	{
-		*w = r*size*len;
+		if(a3d_widget_hasFocus(widget))
+		{
+			// add the cursor
+			*w = r*size*(len + 1);
+		}
+		else
+		{
+			*w = r*size*len;
+		}
 	}
 	*h = size;
 }
@@ -85,7 +96,17 @@ static void a3d_text_draw(a3d_widget_t* widget)
 	a3d_text_t* self = (a3d_text_t*) widget;
 
 	int len = a3d_text_strlen(self);
-	if(len <= 0)
+	if(a3d_widget_hasFocus(widget))
+	{
+		// add the cursor
+		double period = A3D_USEC;
+		double t      = a3d_utime();
+		if(fmod(t, period) < 0.5*period)
+		{
+			++len;
+		}
+	}
+	else if(len == 0)
 	{
 		return;
 	}
@@ -181,6 +202,80 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 	*_offset += vertex.r;
 }
 
+static int a3d_text_keyPress(a3d_widget_t* widget,
+                             int keycode, int meta)
+{
+	assert(widget);
+
+	a3d_text_t* self = (a3d_text_t*) widget;
+	a3d_text_enter_fn enter_fn = self->enter_fn;
+	if(enter_fn == NULL)
+	{
+		LOGE("enter_fn is NULL");
+		return 0;
+	}
+
+	int len = strlen(self->string);
+	if(keycode == A3D_KEY_ENTER)
+	{
+		(*enter_fn)(self->enter_priv, self->string);
+	}
+	else if(keycode == A3D_KEY_ESCAPE)
+	{
+		return 0;
+	}
+	else if(keycode == A3D_KEY_BACKSPACE)
+	{
+		if(len > 0)
+		{
+			self->string[len - 1] = '\0';
+			len -= 1;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	else
+	{
+		// max_len includes null terminator
+		// but strlen does not
+		if(len < (self->max_len - 1))
+		{
+			self->string[len]     = (char) keycode;
+			self->string[len + 1] = '\0';
+			len += 1;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	int   i;
+	float offset = 0.0f;
+	for(i = 0; i < len; ++i)
+	{
+		a3d_text_addc(self, self->string[i], i, &offset);
+	}
+
+	// add the cursor
+	a3d_text_addc(self, 0x0, len, &offset);
+	++len;
+
+	int vertex_size = 18*len;   // 2 * 3 * xyz
+	int coords_size = 12*len;   // 2 * 3 * uv
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
+	             self->vertex, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
+	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
+	             self->coords, GL_STATIC_DRAW);
+
+	a3d_screen_dirty(widget->screen);
+	return 1;
+}
+
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -249,28 +344,36 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_string;
 	}
 
-	int vertex_size = 18 * (max_len - 1);   // 2 * 3 * xyz
-	self->vertex = (GLfloat*) malloc(sizeof(GLfloat) * vertex_size);
+	// allocate size for string and cursor
+	// where max_len includes cursor character
+	// which is stored in place of the null character
+	int vertex_size = 18*max_len;   // 2*3*xyz
+	self->vertex = (GLfloat*) malloc(sizeof(GLfloat)*vertex_size);
 	if(self->vertex == NULL)
 	{
 		LOGE("malloc failed");
 		goto fail_vertex;
 	}
 
-	int coords_size = 12 * (max_len - 1);   // 2 * 3 * uv
-	self->coords = (GLfloat*) malloc(sizeof(GLfloat) * coords_size);
+	int coords_size = 12*max_len;   // 2*3*uv
+	self->coords = (GLfloat*) malloc(sizeof(GLfloat)*coords_size);
 	if(self->coords == NULL)
 	{
 		LOGE("malloc failed");
 		goto fail_coords;
 	}
 
-	self->wrapx   = A3D_TEXT_WRAP_SHRINK;
-	self->max_len = max_len;
-	self->style   = style_text;
+	self->enter_priv = NULL;
+	self->enter_fn   = NULL;
+	self->wrapx      = A3D_TEXT_WRAP_SHRINK;
+	self->max_len    = max_len;
+	self->style      = style_text;
 	a3d_vec4f_copy(color_text, &self->color);
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);
+
+	// initialize string and cursor
+	a3d_text_printf(self, "%s", "");
 
 	// success
 	return self;
@@ -334,6 +437,10 @@ void a3d_text_printf(a3d_text_t* self,
 		a3d_text_addc(self, self->string[i], i, &offset);
 	}
 
+	// add the cursor
+	a3d_text_addc(self, 0x0, len1, &offset);
+	++len1;
+
 	int vertex_size = 18*len1;   // 2 * 3 * xyz
 	int coords_size = 12*len1;   // 2 * 3 * uv
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
@@ -363,4 +470,33 @@ void a3d_text_wrapx(a3d_text_t* self, int wrapx)
 	}
 
 	self->wrapx = wrapx;
+}
+
+void a3d_text_enterFn(a3d_text_t* self,
+                      void* enter_priv,
+                      a3d_text_enter_fn enter_fn)
+{
+	// enter_fn may be NULL
+	assert(self);
+
+	self->enter_priv = enter_priv;
+	self->enter_fn   = enter_fn;
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	if(enter_fn)
+	{
+		a3d_widget_keyPressFn(widget, a3d_text_keyPress);
+	}
+	else if(a3d_widget_hasFocus(widget))
+	{
+		a3d_screen_focus(widget->screen, NULL);
+		a3d_widget_keyPressFn(widget, NULL);
+	}
+	else
+	{
+		a3d_widget_keyPressFn(widget, NULL);
+	}
+
+	// toggle cursor
+	a3d_screen_dirty(widget->screen);
 }

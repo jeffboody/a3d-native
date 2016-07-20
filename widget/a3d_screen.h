@@ -48,8 +48,9 @@ typedef struct a3d_screen_s
 	// UI scale factor
 	int scale;
 
-	// top level widget
+	// widget(s)
 	a3d_widget_t* top_widget;
+	a3d_widget_t* focus_widget;
 
 	// layout dirty flag
 	int dirty;
@@ -94,6 +95,7 @@ a3d_screen_t*       a3d_screen_new(const char* resource,
                                    a3d_screen_playClickFn playClick);
 void                a3d_screen_delete(a3d_screen_t** _self);
 void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
+void                a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus);
 a3d_font_t*         a3d_screen_font(a3d_screen_t* self);
 a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self);
 GLuint              a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname);
@@ -116,6 +118,8 @@ int                 a3d_screen_pointerUp(a3d_screen_t* self,
                                          float x, float y, double t0);
 int                 a3d_screen_pointerMove(a3d_screen_t* self,
                                            float x, float y, double t0);
+int                 a3d_screen_keyPress(a3d_screen_t* self,
+                                        int keycode, int meta);
 void                a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect);
 void                a3d_screen_draw(a3d_screen_t* self, float dt);
 void                a3d_screen_playClick(a3d_screen_t* self);

@@ -25,8 +25,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include <assert.h>
 #include <stdarg.h>
+
+// Android Systrace
+// open trace with chrome://tracing
+// systrace.py --time=10 -o trace.html gfx sched freq idle load -a <PACKAGE>
+int g_trace_fd = -1;
 
 void a3d_log(const char* func, int line, int type, const char* tag, const char* fmt, ...)
 {
@@ -61,5 +67,41 @@ void a3d_log(const char* func, int line, int type, const char* tag, const char* 
 	#else
 		printf("%s\n", buf);
 		fflush(stdout);
+	#endif
+}
+
+void a3d_trace_init(void)
+{
+	#ifdef ANDROID
+		if(g_trace_fd == -1)
+		{
+			g_trace_fd = open("/sys/kernel/debug/tracing/trace_marker", O_WRONLY);
+		}
+	#endif
+}
+
+void a3d_trace_begin(const char* func, int line)
+{
+	#ifdef ANDROID
+		if(g_trace_fd)
+		{
+			char buf[256];
+			int len = snprintf(buf, 256,
+			                   "B|%d|%s_%i",
+			                   getpid(),
+			                   func, line);
+			write(g_trace_fd, buf, len);
+		}
+	#endif
+}
+
+void a3d_trace_end(void)
+{
+	#ifdef ANDROID
+		if(g_trace_fd)
+		{
+			char c = 'E';
+			write(g_trace_fd, &c, 1);
+		}
 	#endif
 }

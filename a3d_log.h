@@ -54,6 +54,11 @@
 // logging using Android "standard" macros
 void a3d_log(const char* func, int line, int type, const char* tag, const char* fmt, ...);
 
+// tracing using Android Systrace
+void a3d_trace_init(void);
+void a3d_trace_begin(const char* func, int line);
+void a3d_trace_end(void);
+
 #ifndef LOGD
 	#ifdef LOG_DEBUG
 		#define LOGD(...) (a3d_log(__func__, __LINE__, ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__))
@@ -72,6 +77,30 @@ void a3d_log(const char* func, int line, int type, const char* tag, const char* 
 
 #ifndef LOGE
 	#define LOGE(...) (a3d_log(__func__, __LINE__, ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__))
+#endif
+
+#ifndef TRACE_INIT
+	#ifdef TRACE_DEBUG
+		#define TRACE_INIT() (a3d_trace_init())
+	#else
+		#define TRACE_INIT()
+	#endif
+#endif
+
+#ifndef TRACE_BEGIN
+	#ifdef TRACE_DEBUG
+		#define TRACE_BEGIN() (a3d_trace_begin(__func__, __LINE__))
+	#else
+		#define TRACE_BEGIN()
+	#endif
+#endif
+
+#ifndef TRACE_END
+	#ifdef TRACE_DEBUG
+		#define TRACE_END() (a3d_trace_end())
+	#else
+		#define TRACE_END()
+	#endif
 #endif
 
 #endif

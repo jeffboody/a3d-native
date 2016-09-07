@@ -42,8 +42,9 @@ typedef void (*a3d_screen_playClickFn)(void* sound_fx);
 typedef struct a3d_screen_s
 {
 	// screen size
-	int w;
-	int h;
+	int   w;
+	int   h;
+	float density;
 
 	// UI scale factor
 	int scale;
@@ -101,6 +102,7 @@ a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self);
 GLuint              a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname);
 void                a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id);
 void                a3d_screen_resize(a3d_screen_t* self, int w, int h);
+void                a3d_screen_density(a3d_screen_t* self, float density);
 void                a3d_screen_sizei(a3d_screen_t* self, int* w, int* h);
 void                a3d_screen_sizef(a3d_screen_t* self, float* w, float* h);
 void                a3d_screen_rescale(a3d_screen_t* self, int scale);

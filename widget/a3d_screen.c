@@ -322,6 +322,7 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 
 	self->w             = 0;
 	self->h             = 0;
+	self->density       = 1.0f;
 	self->scale         = A3D_SCREEN_SCALE_MEDIUM;
 	self->top_widget    = NULL;
 	self->focus_widget  = NULL;
@@ -511,6 +512,20 @@ void a3d_screen_resize(a3d_screen_t* self, int w, int h)
 	self->dirty = 1;
 }
 
+void a3d_screen_density(a3d_screen_t* self, float density)
+{
+	assert(self);
+	LOGD("debug density=%f");
+
+	if(self->density == density)
+	{
+		return;
+	}
+
+	self->density = density;
+	self->dirty   = 1;
+}
+
 void a3d_screen_sizei(a3d_screen_t* self, int* w, int* h)
 {
 	assert(self);
@@ -562,19 +577,19 @@ float a3d_screen_scalef(a3d_screen_t* self)
 
 	if(self->scale == A3D_SCREEN_SCALE_XSMALL)
 	{
-		return 0.64f;
+		return 0.79f;
 	}
 	else if(self->scale == A3D_SCREEN_SCALE_SMALL)
 	{
-		return 0.8f;
+		return 0.89f;
 	}
 	else if(self->scale == A3D_SCREEN_SCALE_LARGE)
 	{
-		return 1.25f;
+		return 1.13f;
 	}
 	else if(self->scale == A3D_SCREEN_SCALE_XLARGE)
 	{
-		return 1.56f;
+		return 1.27f;
 	}
 	return 1.0f;
 }
@@ -659,9 +674,15 @@ float a3d_screen_layoutText(a3d_screen_t* self, int style)
 	assert(self);
 	LOGD("debug style=%i", style);
 
-	// default font size is 5% of narrow screen dimension
-	float dim = (float) ((self->w < self->h) ? self->w : self->h);
-	float size = 0.05f*dim*a3d_screen_scalef(self);
+	#ifdef ANDROID
+		// default size is 24 px at density 1.0
+		float size = 24.0f*self->density*a3d_screen_scalef(self);
+	#else
+		// default font size is 5% of narrow screen dimension
+		float dim = (float) ((self->w < self->h) ? self->w : self->h);
+		float size = 0.05f*dim*a3d_screen_scalef(self);
+	#endif
+
 	if(style == A3D_TEXT_STYLE_SMALL)
 	{
 		return 0.66f*size;

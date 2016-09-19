@@ -585,6 +585,45 @@ void a3d_mat4f_perspective(a3d_mat4f_t* self, int load,
 		a3d_mat4f_mulm(self, &m);
 }
 
+void a3d_mat4f_perspectiveStereo(a3d_mat4f_t* pmL,
+                                 a3d_mat4f_t* pmR,
+                                 int load,
+                                 GLfloat fovy, GLfloat aspect,
+                                 GLfloat znear, GLfloat zfar,
+                                 GLfloat convergence,
+                                 GLfloat eye_separation)
+{
+	assert(pmL);
+	assert(pmR);
+
+	// http://www.animesh.me/2011/05/rendering-3d-anaglyph-in-opengl.html
+
+	GLfloat tan_fovy2 = tanf(fovy*(M_PI/180.0f)/2.0f);
+	GLfloat es2       = eye_separation/2.0f;
+	GLfloat top       = znear*tan_fovy2;
+	GLfloat bottom    = -top;
+	GLfloat a         = aspect*tan_fovy2*convergence;
+	GLfloat b         = a - es2;
+	GLfloat c         = a + es2;
+	GLfloat d         = znear/convergence;
+	GLfloat left      = -b*d;
+	GLfloat right     =  c*d;
+
+	// left perspective matrix
+	a3d_mat4f_frustum(pmL, load,
+	                  left, right,
+	                  bottom, top,
+	                  znear, zfar);
+
+	// right perspective matrix
+	left  = -c*d;
+	right =  b*d;
+	a3d_mat4f_frustum(pmR, load,
+	                  left, right,
+	                  bottom, top,
+	                  znear, zfar);
+}
+
 void a3d_mat4f_rotate(a3d_mat4f_t* self, int load,
                       GLfloat a,
                       GLfloat x, GLfloat y, GLfloat z)

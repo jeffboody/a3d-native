@@ -82,6 +82,13 @@ void a3d_mat4f_lookat(a3d_mat4f_t* self, int load,
 void a3d_mat4f_perspective(a3d_mat4f_t* self, int load,
                            GLfloat fovy, GLfloat aspect,
                            GLfloat znear, GLfloat zfar);
+void a3d_mat4f_perspectiveStereo(a3d_mat4f_t* pmL,
+                                 a3d_mat4f_t* pmR,
+                                 int load,
+                                 GLfloat fovy, GLfloat aspect,
+                                 GLfloat znear, GLfloat zfar,
+                                 GLfloat convergence,
+                                 GLfloat eye_separation);
 void a3d_mat4f_rotate(a3d_mat4f_t* self, int load,
                       GLfloat a,
                       GLfloat x, GLfloat y, GLfloat z);

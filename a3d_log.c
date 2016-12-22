@@ -28,6 +28,8 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <unistd.h>
+#include <sys/syscall.h>
 
 // Android Systrace
 // open trace with chrome://tracing
@@ -44,14 +46,15 @@ void a3d_log(const char* func, int line, int type, const char* tag, const char* 
 	#ifdef ANDROID
 		snprintf(buf, 256, "%s@%i ", func, line);
 	#else
+		int tid = (int) syscall(SYS_gettid);
 		if(type == ANDROID_LOG_DEBUG)
-			snprintf(buf, 256, "D/%s: %s@%i ", tag, func, line);
+			snprintf(buf, 256, "D/%i/%s: %s@%i ", tid, tag, func, line);
 		else if(type == ANDROID_LOG_INFO)
-			snprintf(buf, 256, "I/%s: %s@%i ", tag, func, line);
+			snprintf(buf, 256, "I/%i/%s: %s@%i ", tid, tag, func, line);
 		else if(type == ANDROID_LOG_WARN)
-			snprintf(buf, 256, "W/%s: %s@%i ", tag, func, line);
+			snprintf(buf, 256, "W/%i/%s: %s@%i ", tid, tag, func, line);
 		else if(type == ANDROID_LOG_ERROR)
-			snprintf(buf, 256, "E/%s: %s@%i ", tag, func, line);
+			snprintf(buf, 256, "E/%i/%s: %s@%i ", tid, tag, func, line);
 	#endif
 
 	int size = (int) strlen(buf);

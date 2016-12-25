@@ -26,6 +26,7 @@
 #include "a3d_screen.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 #define LOG_TAG "a3d"
 #include "../a3d_log.h"
@@ -33,6 +34,88 @@
 /***********************************************************
 * private                                                  *
 ***********************************************************/
+
+static const char* VSHADER =
+	"attribute vec2 vertex;\n"
+	"uniform   mat4 mvp;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	gl_Position = mvp*vec4(vertex, 0.0, 1.0);\n"
+	"}\n";
+
+static const char* FSHADER =
+	"#ifdef GL_ES\n"
+	"precision mediump float;\n"
+	"precision mediump int;\n"
+	"#endif\n"
+	"\n"
+	"uniform vec4 color;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	gl_FragColor = color;\n"
+	"}\n";
+
+static int a3d_widget_shaders(a3d_widget_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
+	if(self->prog == 0)
+	{
+		return 0;
+	}
+
+	self->attr_vertex = glGetAttribLocation(self->prog, "vertex");
+	self->unif_mvp    = glGetUniformLocation(self->prog, "mvp");
+	self->unif_color  = glGetUniformLocation(self->prog, "color");
+
+	return 1;
+}
+
+void a3d_widget_makeRoundRect(GLfloat* vertices, int steps,
+                              float t, float l, float b, float r,
+                              float radius)
+{
+	assert(vertices);
+
+	// top-right
+	int   i;
+	int   idx = 0;
+	float s   = (float) (steps - 1);
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 0.0f + 90.0f*((float) i/s);
+		vertices[idx++] = r + radius*cosf(ang*M_PI/180.0f);
+		vertices[idx++] = t - radius*sinf(ang*M_PI/180.0f);
+	}
+
+	// top-left
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 90.0f + 90.0f*((float) i/s);
+		vertices[idx++] = l + radius*cosf(ang*M_PI/180.0f);
+		vertices[idx++] = t - radius*sinf(ang*M_PI/180.0f);
+	}
+
+	// bottom-left
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 180.0f + 90.0f*((float) i/s);
+		vertices[idx++] = l + radius*cosf(ang*M_PI/180.0f);
+		vertices[idx++] = b - radius*sinf(ang*M_PI/180.0f);
+	}
+
+	// bottom-right
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 270.0f + 90.0f*((float) i/s);
+		vertices[idx++] = r + radius*cosf(ang*M_PI/180.0f);
+		vertices[idx++] = b - radius*sinf(ang*M_PI/180.0f);
+	}
+}
 
 /***********************************************************
 * public                                                   *
@@ -111,7 +194,20 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_vec4f_copy(color_line, &self->color_line);
 	a3d_vec4f_copy(color_fill, &self->color_fill);
 
+	glGenBuffers(1, &self->id_vertex);
+
+	if(a3d_widget_shaders(self) == 0)
+	{
+		goto fail_shaders;
+	}
+
+	// success
 	return self;
+
+	// failure
+	fail_shaders:
+		free(self);
+	return NULL;
 }
 
 void a3d_widget_delete(a3d_widget_t** _self)
@@ -130,6 +226,9 @@ void a3d_widget_delete(a3d_widget_t** _self)
 			a3d_screen_focus(self->screen, NULL);
 		}
 
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &self->id_vertex);
+		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;
 	}
@@ -255,6 +354,21 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	{
 		(*layout_fn)(self, dragx, dragy);
 	}
+
+	// initialize rounded rectangle
+	float b = self->rect_border.t + self->rect_border.h;
+	float r = self->rect_border.l + self->rect_border.w;
+	float radius    = (h_bo == v_bo) ? h_bo : 0.0f;
+	int steps       = A3D_WIDGET_BEZEL;
+	int vertex_size = 4*steps*2;   // corners*steps*xy
+	GLfloat vertices[vertex_size];
+	a3d_widget_makeRoundRect(vertices, steps,
+	                         t + v_bo, l + h_bo,
+	                         b - v_bo, r - v_bo,
+	                         radius);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
+	             vertices, GL_STATIC_DRAW);
 }
 
 void a3d_widget_layoutSize(a3d_widget_t* self,
@@ -535,21 +649,20 @@ void a3d_widget_draw(a3d_widget_t* self)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
-		glUseProgram(screen->prog);
-		glEnableVertexAttribArray(screen->attr_coords);
+		glUseProgram(self->prog);
+		glEnableVertexAttribArray(self->attr_vertex);
 
 		a3d_rect4f_t* r = &self->rect_border;
-		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords4);
-		glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
-		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+		glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+		glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 4*A3D_WIDGET_BEZEL);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(screen->attr_coords);
+		glDisableVertexAttribArray(self->attr_vertex);
 		glUseProgram(0);
 		if(alpha < 1.0f)
 		{
@@ -582,25 +695,24 @@ void a3d_widget_draw(a3d_widget_t* self)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
-		glUseProgram(screen->prog);
-		glEnableVertexAttribArray(screen->attr_coords);
+		glUseProgram(self->prog);
+		glEnableVertexAttribArray(self->attr_vertex);
 
 		float lw = a3d_screen_layoutLine(screen, self->style_line);
 		glLineWidth(lw);
 
 		a3d_rect4f_t* r = &rect_border_clip;
-		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords4);
-		glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
-		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
-		glDrawArrays(GL_LINE_LOOP, 0, 4);
+		glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+		glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
+		glDrawArrays(GL_LINE_LOOP, 0, 4*A3D_WIDGET_BEZEL);
 
 		glLineWidth(1.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(screen->attr_coords);
+		glDisableVertexAttribArray(self->attr_vertex);
 		glUseProgram(0);
 		if(alpha < 1.0f)
 		{

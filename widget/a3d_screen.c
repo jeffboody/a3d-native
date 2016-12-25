@@ -340,13 +340,7 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	strncpy(self->resource, resource, 256);
 	self->resource[255] = '\0';
 
-	int coords_size = 8;   // 4*uv
-	glGenBuffers(1, &self->id_coords4);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords4);
-	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
-	             COORDS4, GL_STATIC_DRAW);
-
-	coords_size = 4;   // 2*uv
+	int coords_size = 4;   // 2*uv
 	glGenBuffers(1, &self->id_coords2);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords2);
 	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
@@ -380,7 +374,6 @@ void a3d_screen_delete(a3d_screen_t** _self)
 		a3d_spriteShader_delete(&self->sprite_shader);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords2);
-		glDeleteBuffers(1, &self->id_coords4);
 		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;

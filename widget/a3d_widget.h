@@ -68,6 +68,9 @@
 #define A3D_WIDGET_POINTER_DOWN 1
 #define A3D_WIDGET_POINTER_MOVE 2
 
+// vertices per corner
+#define A3D_WIDGET_BEZEL 4
+
 struct a3d_screen_s;
 
 // derived class functions
@@ -182,6 +185,13 @@ typedef struct a3d_widget_s
 	// refresh_fn allows a widget to refresh it's external state
 	// called internally by a3d_widget_refresh
 	a3d_widget_refresh_fn refresh_fn;
+
+	// draw state
+	GLuint id_vertex;
+	GLuint prog;
+	GLint  attr_vertex;
+	GLint  unif_mvp;
+	GLint  unif_color;
 } a3d_widget_t;
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,

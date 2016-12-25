@@ -24,6 +24,7 @@
 #include "a3d_widget.h"
 #include "a3d_text.h"
 #include "a3d_screen.h"
+#include "../a3d_shader.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
@@ -652,7 +653,6 @@ void a3d_widget_draw(a3d_widget_t* self)
 		glUseProgram(self->prog);
 		glEnableVertexAttribArray(self->attr_vertex);
 
-		a3d_rect4f_t* r = &self->rect_border;
 		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
 		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
@@ -701,7 +701,6 @@ void a3d_widget_draw(a3d_widget_t* self)
 		float lw = a3d_screen_layoutLine(screen, self->style_line);
 		glLineWidth(lw);
 
-		a3d_rect4f_t* r = &rect_border_clip;
 		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
 		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;

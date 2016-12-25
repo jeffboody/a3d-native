@@ -660,13 +660,13 @@ float a3d_screen_layoutLine(a3d_screen_t* self, int style)
 	// line style requires a mask
 	if(style == A3D_WIDGET_LINE_SMALL)
 	{
-		return 1.0f;
+		return 3.0f;
 	}
 	else if(style == A3D_WIDGET_LINE_LARGE)
 	{
-		return 5.0f;
+		return 9.0f;
 	}
-	return 3.0f;
+	return 6.0f;
 }
 
 float a3d_screen_layoutText(a3d_screen_t* self, int style)

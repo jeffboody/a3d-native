@@ -69,7 +69,7 @@
 #define A3D_WIDGET_POINTER_MOVE 2
 
 // vertices per corner
-#define A3D_WIDGET_BEZEL 4
+#define A3D_WIDGET_BEZEL 8
 
 struct a3d_screen_s;
 
@@ -187,7 +187,8 @@ typedef struct a3d_widget_s
 	a3d_widget_refresh_fn refresh_fn;
 
 	// draw state
-	GLuint id_vertex;
+	GLuint id_vtx_rect;
+	GLuint id_vtx_line;
 	GLuint prog;
 	GLint  attr_vertex;
 	GLint  unif_mvp;

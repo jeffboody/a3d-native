@@ -76,11 +76,12 @@ static int a3d_widget_shaders(a3d_widget_t* self)
 	return 1;
 }
 
-void a3d_widget_makeRoundRect(GLfloat* vertices, int steps,
-                              float t, float l, float b, float r,
-                              float radius)
+static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
+                                     float t, float l,
+                                     float b, float r,
+                                     float radius)
 {
-	assert(vertices);
+	assert(vtx);
 
 	// top-right
 	int   i;
@@ -89,33 +90,93 @@ void a3d_widget_makeRoundRect(GLfloat* vertices, int steps,
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 0.0f + 90.0f*((float) i/s);
-		vertices[idx++] = r + radius*cosf(ang*M_PI/180.0f);
-		vertices[idx++] = t - radius*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = r + radius*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = t - radius*sinf(ang*M_PI/180.0f);
 	}
 
 	// top-left
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 90.0f + 90.0f*((float) i/s);
-		vertices[idx++] = l + radius*cosf(ang*M_PI/180.0f);
-		vertices[idx++] = t - radius*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = l + radius*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = t - radius*sinf(ang*M_PI/180.0f);
 	}
 
 	// bottom-left
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 180.0f + 90.0f*((float) i/s);
-		vertices[idx++] = l + radius*cosf(ang*M_PI/180.0f);
-		vertices[idx++] = b - radius*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = l + radius*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = b - radius*sinf(ang*M_PI/180.0f);
 	}
 
 	// bottom-right
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 270.0f + 90.0f*((float) i/s);
-		vertices[idx++] = r + radius*cosf(ang*M_PI/180.0f);
-		vertices[idx++] = b - radius*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = r + radius*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = b - radius*sinf(ang*M_PI/180.0f);
 	}
+}
+
+static void a3d_widget_makeRoundLines(GLfloat* vtx, int steps,
+                                      float t, float l,
+                                      float b, float r,
+                                      float radius, float lw)
+{
+	assert(vtx);
+
+	float outer = radius;
+	float inner = radius - lw;
+
+	// top-right
+	int   i;
+	int   idx = 0;
+	float s   = (float) (steps - 1);
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 0.0f + 90.0f*((float) i/s);
+		vtx[idx++] = r + inner*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = t - inner*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = r + outer*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = t - outer*sinf(ang*M_PI/180.0f);
+	}
+
+	// top-left
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 90.0f + 90.0f*((float) i/s);
+		vtx[idx++] = l + inner*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = t - inner*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = l + outer*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = t - outer*sinf(ang*M_PI/180.0f);
+	}
+
+	// bottom-left
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 180.0f + 90.0f*((float) i/s);
+		vtx[idx++] = l + inner*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = b - inner*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = l + outer*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = b - outer*sinf(ang*M_PI/180.0f);
+	}
+
+	// bottom-right
+	for(i = 0; i < steps; ++i)
+	{
+		float ang = 270.0f + 90.0f*((float) i/s);
+		vtx[idx++] = r + inner*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = b - inner*sinf(ang*M_PI/180.0f);
+		vtx[idx++] = r + outer*cosf(ang*M_PI/180.0f);
+		vtx[idx++] = b - outer*sinf(ang*M_PI/180.0f);
+	}
+
+	// finish line loop
+	vtx[idx++] = vtx[0];
+	vtx[idx++] = vtx[1];
+	vtx[idx++] = vtx[2];
+	vtx[idx++] = vtx[3];
 }
 
 /***********************************************************
@@ -195,7 +256,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_vec4f_copy(color_line, &self->color_line);
 	a3d_vec4f_copy(color_fill, &self->color_fill);
 
-	glGenBuffers(1, &self->id_vertex);
+	glGenBuffers(1, &self->id_vtx_rect);
+	glGenBuffers(1, &self->id_vtx_line);
 
 	if(a3d_widget_shaders(self) == 0)
 	{
@@ -228,7 +290,8 @@ void a3d_widget_delete(a3d_widget_t** _self)
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &self->id_vertex);
+		glDeleteBuffers(1, &self->id_vtx_line);
+		glDeleteBuffers(1, &self->id_vtx_rect);
 		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;
@@ -359,17 +422,29 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	// initialize rounded rectangle
 	float b = self->rect_border.t + self->rect_border.h;
 	float r = self->rect_border.l + self->rect_border.w;
-	float radius    = (h_bo == v_bo) ? h_bo : 0.0f;
-	int steps       = A3D_WIDGET_BEZEL;
-	int vertex_size = 4*steps*2;   // corners*steps*xy
-	GLfloat vertices[vertex_size];
-	a3d_widget_makeRoundRect(vertices, steps,
+	float radius = (h_bo == v_bo) ? h_bo : 0.0f;
+	int steps    = A3D_WIDGET_BEZEL;
+	int size_rect = 4*steps*2;   // corners*steps*xy
+	GLfloat vtx_rect[size_rect];
+	a3d_widget_makeRoundRect(vtx_rect, steps,
 	                         t + v_bo, l + h_bo,
 	                         b - v_bo, r - v_bo,
 	                         radius);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
-	glBufferData(GL_ARRAY_BUFFER, vertex_size*sizeof(GLfloat),
-	             vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
+	glBufferData(GL_ARRAY_BUFFER, size_rect*sizeof(GLfloat),
+	             vtx_rect, GL_STATIC_DRAW);
+
+	// initialize rounded line
+	float lw = a3d_screen_layoutLine(self->screen, self->style_line);
+	int size_line = 2*4*steps*2 + 2*2;   // edges*corners*steps*xy + edges*xy
+	GLfloat vtx_line[size_line];
+	a3d_widget_makeRoundLines(vtx_line, steps,
+	                         t + v_bo, l + h_bo,
+	                         b - v_bo, r - v_bo,
+	                         radius, lw);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_line);
+	glBufferData(GL_ARRAY_BUFFER, size_line*sizeof(GLfloat),
+	             vtx_line, GL_STATIC_DRAW);
 }
 
 void a3d_widget_layoutSize(a3d_widget_t* self,
@@ -653,7 +728,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 		glUseProgram(self->prog);
 		glEnableVertexAttribArray(self->attr_vertex);
 
-		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
 		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
@@ -698,18 +773,15 @@ void a3d_widget_draw(a3d_widget_t* self)
 		glUseProgram(self->prog);
 		glEnableVertexAttribArray(self->attr_vertex);
 
-		float lw = a3d_screen_layoutLine(screen, self->style_line);
-		glLineWidth(lw);
-
-		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
+		// draw rounded line
+		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_line);
 		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 		glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 		glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
-		glDrawArrays(GL_LINE_LOOP, 0, 4*A3D_WIDGET_BEZEL);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 2*(4*A3D_WIDGET_BEZEL + 1));
 
-		glLineWidth(1.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDisableVertexAttribArray(self->attr_vertex);
 		glUseProgram(0);

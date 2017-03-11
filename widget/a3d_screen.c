@@ -26,6 +26,7 @@
 #include "a3d_text.h"
 #include "a3d_widget.h"
 #include "../a3d_shader.h"
+#include "../a3d_time.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
@@ -332,6 +333,8 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->pointer_x0    = 0.0f;
 	self->pointer_y0    = 0.0f;
 	self->pointer_t0    = 0.0;
+	self->pointer_vx    = 0.0f;
+	self->pointer_vy    = 0.0f;
 	self->font          = font;
 	self->clicked       = 0;
 	self->sound_fx      = sound_fx;
@@ -707,6 +710,8 @@ int a3d_screen_pointerDown(a3d_screen_t* self,
 		self->pointer_x0    = x;
 		self->pointer_y0    = y;
 		self->pointer_t0    = t0;
+		self->pointer_vx    = 0.0f;
+		self->pointer_vy    = 0.0f;
 		return 1;
 	}
 
@@ -744,12 +749,11 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
 		return 0;
 	}
 
-	// reject small motions (~1% of min screen dim)
-	float  dx = x - self->pointer_x0;
-	float  dy = y - self->pointer_y0;
-	double dt = t0 - self->pointer_t0;
+	float dx = x - self->pointer_x0;
+	float dy = y - self->pointer_y0;
 	if(self->pointer_state == A3D_WIDGET_POINTER_DOWN)
 	{
+		// reject small motions
 		float d = sqrtf(dx*dx + dy*dy);
 		float s = 0.2f*a3d_screen_layoutText(self, A3D_TEXT_STYLE_MEDIUM);
 		if(d < s)
@@ -758,19 +762,28 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
 			return 1;
 		}
 
-		// avoid sharp acceleration
-		self->pointer_t0    = t0;
+		// initialize move state
 		self->pointer_state = A3D_WIDGET_POINTER_MOVE;
+		self->pointer_x0    = x;
+		self->pointer_y0    = y;
+		self->pointer_t0    = t0;
+		self->pointer_vx    = 0.0f;
+		self->pointer_vy    = 0.0f;
 		return 1;
 	}
 
-	self->pointer_x0 = x;
-	self->pointer_y0 = y;
-	self->pointer_t0 = t0;
-
-	a3d_widget_drag(self->top_widget,
-	                x, y, dx, dy, dt);
-	self->dirty = 1;
+	// ignore events with less than 8ms time delta
+	float dt = (float) a3d_us2s(t0 - self->pointer_t0);
+	if(dt >= 0.008f)
+	{
+		// update the move state
+		self->pointer_x0 = x;
+		self->pointer_y0 = y;
+		self->pointer_t0 = t0;
+		self->pointer_vx = dx/dt;
+		self->pointer_vy = dy/dt;
+		self->dirty      = 1;
+	}
 
 	return 1;
 }
@@ -816,11 +829,54 @@ void a3d_screen_draw(a3d_screen_t* self, float dt)
 
 	a3d_widget_refresh(top);
 
+	// dragging
+	float w = (float) self->w;
+	float h = (float) self->h;
+	if((self->pointer_vx != 0.0f) ||
+	   (self->pointer_vy != 0.0f))
+	{
+		float x  = self->pointer_x0;
+		float y  = self->pointer_y0;
+		float vx = self->pointer_vx;
+		float vy = self->pointer_vy;
+
+		// clamp the speed to be proportional to the range
+		float range  = 4.0f*sqrtf(w*w + h*h);
+		float speed1 = sqrtf(vx*vx + vy*vy);
+		float drag   = 1.0f*range*dt;
+		if(speed1 > range)
+		{
+			vx *= range/speed1;
+			vy *= range/speed1;
+			speed1 = range;
+		}
+
+		// TODO - change drag to return status for
+		// bump animation and to minimize dirty updates
+		a3d_widget_drag(self->top_widget,
+		                x, y, vx*dt, vy*dt);
+
+		// update the speed
+		if((speed1 > drag) && (speed1 > 0.1f))
+		{
+			float speed2 = speed1 - drag;
+			float coef   = speed2/speed1;
+			self->pointer_vx *= coef;
+			self->pointer_vy *= coef;
+		}
+		else
+		{
+			self->pointer_vx = 0.0f;
+			self->pointer_vy = 0.0f;
+		}
+
+		self->dirty = 1;
+	}
+
 	if(self->dirty)
 	{
-		float        w    = (float) self->w;
-		float        h    = (float) self->h;
 		a3d_rect4f_t clip = { .t = 0.0f, .l = 0.0f, .w = w, .h = h };
+
 		a3d_widget_layoutSize(top, &w, &h);
 		a3d_widget_layoutXYClip(top, 0.0f, 0.0f, &clip, 1, 1);
 		self->dirty = 0;

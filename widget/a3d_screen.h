@@ -64,6 +64,8 @@ typedef struct a3d_screen_s
 	float  pointer_x0;
 	float  pointer_y0;
 	double pointer_t0;
+	float  pointer_vx;
+	float  pointer_vy;
 
 	// resource.pak
 	char resource[256];

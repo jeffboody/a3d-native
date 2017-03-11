@@ -88,8 +88,7 @@ typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget,
                                      int dragx, int dragy);
 typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
                                    float x, float y,
-                                   float dx, float dy,
-                                   double dt);
+                                   float dx, float dy);
 typedef void (*a3d_widget_draw_fn)(struct a3d_widget_s* widget);
 typedef int  (*a3d_widget_fade_fn)(struct a3d_widget_s* widget,
                                    float fade, float dt);
@@ -231,8 +230,7 @@ int           a3d_widget_keyPress(a3d_widget_t* self,
 int           a3d_widget_hasFocus(a3d_widget_t* self);
 void          a3d_widget_drag(a3d_widget_t* self,
                               float x, float y,
-                              float dx, float dy,
-                              double dt);
+                              float dx, float dy);
 void          a3d_widget_draw(a3d_widget_t* self);
 int           a3d_widget_fade(a3d_widget_t* self,
                               float fade, float dt);

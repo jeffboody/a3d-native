@@ -211,21 +211,20 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 
 static void a3d_viewbox_drag(a3d_widget_t* widget,
                              float x, float y,
-                             float dx, float dy,
-                             double dt)
+                             float dx, float dy)
 {
 	assert(widget);
 	LOGD("debug");
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_widget_drag((a3d_widget_t*) self->bullet,
-	                x, y, dx, dy, dt);
+	                x, y, dx, dy);
 	a3d_widget_drag(self->body,
-	                x, y, dx, dy, dt);
+	                x, y, dx, dy);
 	if(self->footer)
 	{
 		a3d_widget_drag(self->footer,
-		                x, y, dx, dy, dt);
+		                x, y, dx, dy);
 	}
 }
 

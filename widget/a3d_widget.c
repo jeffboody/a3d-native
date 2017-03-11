@@ -659,11 +659,10 @@ int a3d_widget_hasFocus(a3d_widget_t* self)
 
 void a3d_widget_drag(a3d_widget_t* self,
                      float x, float y,
-                     float dx, float dy,
-                     double dt)
+                     float dx, float dy)
 {
 	assert(self);
-	LOGD("debug dx=%f, dy=%f, dt=%lf", dx, dy, dt);
+	LOGD("debug dx=%f, dy=%f", dx, dy);
 
 	if((a3d_rect4f_contains(&self->rect_clip, x, y) == 0) ||
 	   (a3d_rect4f_contains(&self->rect_border, x, y) == 0))
@@ -691,7 +690,7 @@ void a3d_widget_drag(a3d_widget_t* self,
 	   ((self->wrapx > A3D_WIDGET_WRAP_SHRINK) ||
 	    (self->wrapy > A3D_WIDGET_WRAP_SHRINK)))
 	{
-		(*drag_fn)(self, x, y, dx, dy, dt);
+		(*drag_fn)(self, x, y, dx, dy);
 	}
 }
 

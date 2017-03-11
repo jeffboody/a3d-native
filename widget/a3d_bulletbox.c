@@ -104,13 +104,12 @@ static void a3d_bulletbox_layout(a3d_widget_t* widget,
 
 static void a3d_bulletbox_drag(a3d_widget_t* widget,
                                float x, float y,
-                               float dx, float dy,
-                               double dt)
+                               float dx, float dy)
 {
 
 	a3d_bulletbox_t* self = (a3d_bulletbox_t*) widget;
-	a3d_widget_drag((a3d_widget_t*) self->icon, x, y, dx, dy, dt);
-	a3d_widget_drag((a3d_widget_t*) self->text, x, y, dx, dy, dt);
+	a3d_widget_drag((a3d_widget_t*) self->icon, x, y, dx, dy);
+	a3d_widget_drag((a3d_widget_t*) self->text, x, y, dx, dy);
 }
 
 static void a3d_bulletbox_draw(a3d_widget_t* widget)

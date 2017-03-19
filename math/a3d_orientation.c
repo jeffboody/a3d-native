@@ -40,7 +40,7 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 	assert(self);
 	LOGD("debug");
 
-	if((self->a_utime == 0.0) || (self->m_utime == 0.0))
+	if((self->a_ts == 0.0) || (self->m_ts == 0.0))
 	{
 		// wait for sensors
 		return;
@@ -127,16 +127,16 @@ void a3d_orientation_reset(a3d_orientation_t* self)
 	assert(self);
 	LOGD("debug");
 
-	self->a_utime    = 0.0;
+	self->a_ts       = 0.0;
 	self->a_ax       = 0.0f;
 	self->a_ay       = 0.0f;
 	self->a_az       = 9.8f;
 	self->a_rotation = 0;
-	self->m_utime    = 0.0;
+	self->m_ts       = 0.0;
 	self->m_mx       = 0.0f;
 	self->m_my       = 1.0f;
 	self->m_mz       = 0.0f;
-	self->g_utime    = 0.0;
+	self->g_ts       = 0.0;
 	self->g_ax       = 0.0f;
 	self->g_ay       = 0.0f;
 	self->g_az       = 0.0f;
@@ -147,17 +147,17 @@ void a3d_orientation_reset(a3d_orientation_t* self)
 }
 
 void a3d_orientation_accelerometer(a3d_orientation_t* self,
-                                   double utime,
+                                   double ts,
                                    float ax,
                                    float ay,
                                    float az,
                                    int rotation)
 {
 	assert(self);
-	LOGD("debug utime=%lf, ax=%f, ay=%f, az=%f, rotation=%i",
-	     utime, ax, ay, az, rotation);
+	LOGD("debug ts=%lf, ax=%f, ay=%f, az=%f, rotation=%i",
+	     ts, ax, ay, az, rotation);
 
-	self->a_utime    = utime;
+	self->a_ts       = ts;
 	self->a_ax       = ax;
 	self->a_ay       = ay;
 	self->a_az       = az;
@@ -167,37 +167,37 @@ void a3d_orientation_accelerometer(a3d_orientation_t* self,
 }
 
 void a3d_orientation_magnetometer(a3d_orientation_t* self,
-                                  double utime,
+                                  double ts,
                                   float mx,
                                   float my,
                                   float mz)
 {
 	assert(self);
-	LOGD("debug utime=%lf, mx=%f, my=%f, mz=%f",
-	     utime, mx, my, mz);
+	LOGD("debug ts=%lf, mx=%f, my=%f, mz=%f",
+	     ts, mx, my, mz);
 
-	self->m_utime = utime;
-	self->m_mx    = mx;
-	self->m_my    = my;
-	self->m_mz    = mz;
+	self->m_ts = ts;
+	self->m_mx = mx;
+	self->m_my = my;
+	self->m_mz = mz;
 
 	a3d_orientation_update(self);
 }
 
 void a3d_orientation_gyroscope(a3d_orientation_t* self,
-                               double utime,
+                               double ts,
                                float ax,
                                float ay,
                                float az)
 {
 	assert(self);
-	LOGD("debug utime=%lf, ax=%f, ay=%f, az=%f",
-	     utime, ax, ay, az);
+	LOGD("debug ts=%lf, ax=%f, ay=%f, az=%f",
+	     ts, ax, ay, az);
 
-	self->g_utime = utime;
-	self->g_ax    = ax;
-	self->g_ay    = ay;
-	self->g_az    = az;
+	self->g_ts = ts;
+	self->g_ax = ax;
+	self->g_ay = ay;
+	self->g_az = az;
 
 	// TODO - update gyro
 }

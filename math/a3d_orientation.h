@@ -31,20 +31,20 @@
 typedef struct
 {
 	// accelerometer
-	double a_utime;
+	double a_ts;
 	float  a_ax;
 	float  a_ay;
 	float  a_az;
 	int    a_rotation;
 
 	// magnetometer
-	double m_utime;
+	double m_ts;
 	float  m_mx;
 	float  m_my;
 	float  m_mz;
 
 	// gyroscope
-	double g_utime;
+	double g_ts;
 	float  g_ax;
 	float  g_ay;
 	float  g_az;
@@ -59,18 +59,18 @@ a3d_orientation_t* a3d_orientation_new(void);
 void               a3d_orientation_delete(a3d_orientation_t** _self);
 void               a3d_orientation_reset(a3d_orientation_t* self);
 void               a3d_orientation_accelerometer(a3d_orientation_t* self,
-                                                 double utime,
+                                                 double ts,
                                                  float ax,
                                                  float ay,
                                                  float az,
                                                  int rotation);
 void               a3d_orientation_magnetometer(a3d_orientation_t* self,
-                                                double utime,
+                                                double ts,
                                                 float mx,
                                                 float my,
                                                 float mz);
 void               a3d_orientation_gyroscope(a3d_orientation_t* self,
-                                             double utime,
+                                             double ts,
                                              float ax,
                                              float ay,
                                              float az);

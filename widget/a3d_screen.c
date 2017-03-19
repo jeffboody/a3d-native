@@ -773,7 +773,7 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
 	}
 
 	// ignore events with less than 8ms time delta
-	float dt = (float) ((t0 - self->pointer_t0)/1000000.0);
+	float dt = (float) (t0 - self->pointer_t0);
 	if(dt >= 0.008f)
 	{
 		// update the move state

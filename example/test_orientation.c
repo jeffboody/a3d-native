@@ -65,19 +65,19 @@ static void reset(void)
 
 static void accelerometer(void)
 {
-	double utime = 1000000.0*a3d_timestamp();
-	a3d_orientation_accelerometer(g_orientation, utime, 0.0f, 0.0f, 9.8f, 0);
+	double ts = a3d_timestamp();
+	a3d_orientation_accelerometer(g_orientation, ts, 0.0f, 0.0f, 9.8f, 0);
 }
 
 static void magnetometer(float a)
 {
 	LOGD("a=%f", a);
 
-	double utime = 1000000.0*a3d_timestamp();
-	float mx = sinf(rad(a));
-	float my = cosf(rad(a));
-	float mz = 0.0f;
-	a3d_orientation_magnetometer(g_orientation, utime, mx, my, mz);
+	double ts = a3d_timestamp();
+	float  mx = sinf(rad(a));
+	float  my = cosf(rad(a));
+	float  mz = 0.0f;
+	a3d_orientation_magnetometer(g_orientation, ts, mx, my, mz);
 }
 
 void test_orientation(void)

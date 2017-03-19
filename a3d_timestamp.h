@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2010 Jeff Boody
+ * Copyright (c) 2009 Jeff Boody
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,12 +21,9 @@
  *
  */
 
-#ifndef a3d_time_H
-#define a3d_time_H
+#ifndef a3d_timestamp_H
+#define a3d_timestamp_H
 
-extern const double A3D_USEC;
-
-double a3d_utime(void);
-double a3d_us2s(double x);
+double a3d_timestamp(void);
 
 #endif

@@ -26,7 +26,7 @@
 #include <assert.h>
 #include "test_orientation.h"
 #include "a3d/math/a3d_orientation.h"
-#include "a3d/a3d_time.h"
+#include "a3d/a3d_timestamp.h"
 
 #define LOG_TAG "test_orientation"
 #include "a3d/a3d_log.h"
@@ -65,7 +65,7 @@ static void reset(void)
 
 static void accelerometer(void)
 {
-	double utime = a3d_utime();
+	double utime = 1000000.0*a3d_timestamp();
 	a3d_orientation_accelerometer(g_orientation, utime, 0.0f, 0.0f, 9.8f, 0);
 }
 
@@ -73,7 +73,7 @@ static void magnetometer(float a)
 {
 	LOGD("a=%f", a);
 
-	double utime = a3d_utime();
+	double utime = 1000000.0*a3d_timestamp();
 	float mx = sinf(rad(a));
 	float my = cosf(rad(a));
 	float mz = 0.0f;

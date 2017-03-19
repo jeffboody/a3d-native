@@ -26,7 +26,7 @@
 #include "a3d_screen.h"
 #include "a3d_font.h"
 #include "../math/a3d_regionf.h"
-#include "../a3d_time.h"
+#include "../a3d_timestamp.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdarg.h>
@@ -99,8 +99,8 @@ static void a3d_text_draw(a3d_widget_t* widget)
 	if(a3d_widget_hasFocus(widget))
 	{
 		// add the cursor
-		double period = A3D_USEC;
-		double t      = a3d_utime();
+		double period = 1.0;
+		double t      = a3d_timestamp();
 		if(fmod(t, period) < 0.5*period)
 		{
 			++len;

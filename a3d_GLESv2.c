@@ -189,7 +189,7 @@ typedef enum
 * function stats                                           *
 ***********************************************************/
 
-#include "a3d_time.h"
+#include "a3d_timestamp.h"
 
 typedef struct
 {
@@ -203,11 +203,11 @@ typedef struct
 
 #define A3D_ENTER(f) \
 	LOGD("debug"); \
-	glstat[A3D_GLID_##f].enter = a3d_utime(); \
+	glstat[A3D_GLID_##f].enter = 1000000.0*a3d_timestamp(); \
 	++glstat[A3D_GLID_##f].count;
 
 #define A3D_EXIT(f) \
-	glstat[A3D_GLID_##f].total += a3d_utime() - glstat[A3D_GLID_##f].enter;
+	glstat[A3D_GLID_##f].total += 1000000.0*a3d_timestamp() - glstat[A3D_GLID_##f].enter;
 
 #define A3D_GLSTAT(f) \
 	{ \
@@ -561,11 +561,11 @@ static void* library = NULL;
 static void a3d_GLES_dump(void)
 {
 	// dump stats
-	double total = a3d_utime() - glstat_enter;
+	double total = 1000000.0*a3d_timestamp() - glstat_enter;
 	LOGI("total=%.0lf usec", total);
 	LOGI("draw=%.0lf usec, %.0lf percent", glstat_draw_total, 100.0 * glstat_draw_total / total);
 	LOGI("frames=%u", glstat_draw_count);
-	LOGI("fps=%.0lf", glstat_draw_count / (total / A3D_USEC));
+	LOGI("fps=%.0lf", glstat_draw_count / (total / 1000000.0));
 	LOGI("|---------------------------------|--------------|--------------|", "fname", "count", "total");
 	LOGI("|             fname               |     count    | total (usec) |");
 	LOGI("|---------------------------------|--------------|--------------|", "fname", "count", "total");
@@ -583,7 +583,7 @@ static void a3d_GLES_dump(void)
 static void a3d_GLES_reset(void)
 {
 	// reset stats
-	glstat_enter = a3d_utime();
+	glstat_enter = 1000000.0*a3d_timestamp();
 	glstat_draw_count = 0;
 	glstat_draw_enter = glstat_enter;
 	glstat_draw_total = 0.0;
@@ -772,13 +772,13 @@ int a3d_GL_unload(void)
 
 void a3d_GL_frame_begin(void)
 {
-	glstat_draw_enter = a3d_utime();
+	glstat_draw_enter = 1000000.0*a3d_timestamp();
 }
 
 void a3d_GL_frame_end(void)
 {
 	++glstat_draw_count;
-	glstat_draw_total += a3d_utime() - glstat_draw_enter;
+	glstat_draw_total += 1000000.0*a3d_timestamp() - glstat_draw_enter;
 
 	if(glstat_draw_count >= 1000)
 	{

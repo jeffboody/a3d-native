@@ -33,7 +33,9 @@
 #ifdef __APPLE__
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_opengl.h>
-	#define A3D_GL2
+	#ifndef A3D_GL2
+		#define A3D_GL2
+	#endif
 #elif defined(A3D_GLESv1_CM)
 	#include <GLES/gl.h>
 #elif defined(A3D_GLESv2_LOAX)

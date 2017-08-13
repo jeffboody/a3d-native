@@ -670,15 +670,8 @@ float a3d_screen_layoutText(a3d_screen_t* self, int style)
 	assert(self);
 	LOGD("debug style=%i", style);
 
-	#ifdef ANDROID
-		// default size is 24 px at density 1.0
-		float size = 24.0f*self->density*a3d_screen_scalef(self);
-	#else
-		// default font size is 5% of narrow screen dimension
-		float dim = (float) ((self->w < self->h) ? self->w : self->h);
-		float size = 0.05f*dim*a3d_screen_scalef(self);
-	#endif
-
+	// default size is 24 px at density 1.0
+	float size = 24.0f*self->density*a3d_screen_scalef(self);
 	if(style == A3D_TEXT_STYLE_SMALL)
 	{
 		return 0.66f*size;

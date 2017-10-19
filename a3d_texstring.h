@@ -27,12 +27,17 @@
 #include "a3d_texfont.h"
 #include "math/a3d_mat4f.h"
 
-extern const int A3D_TEXSTRING_TOP_LEFT;
-extern const int A3D_TEXSTRING_TOP_CENTER;
-extern const int A3D_TEXSTRING_TOP_RIGHT;
-extern const int A3D_TEXSTRING_BOTTOM_LEFT;
-extern const int A3D_TEXSTRING_BOTTOM_CENTER;
-extern const int A3D_TEXSTRING_BOTTOM_RIGHT;
+#define A3D_TEXSTRING_TOP           0x10
+#define A3D_TEXSTRING_BOTTOM        0x20
+#define A3D_TEXSTRING_LEFT          0x01
+#define A3D_TEXSTRING_CENTER        0x02
+#define A3D_TEXSTRING_RIGHT         0x04
+#define A3D_TEXSTRING_TOP_LEFT      0x11
+#define A3D_TEXSTRING_TOP_CENTER    0x12
+#define A3D_TEXSTRING_TOP_RIGHT     0x14
+#define A3D_TEXSTRING_BOTTOM_LEFT   0x21
+#define A3D_TEXSTRING_BOTTOM_CENTER 0x22
+#define A3D_TEXSTRING_BOTTOM_RIGHT  0x24
 
 typedef struct
 {

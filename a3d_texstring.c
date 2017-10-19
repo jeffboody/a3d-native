@@ -35,12 +35,6 @@
 * private                                                  *
 ***********************************************************/
 
-static const int A3D_TEXSTRING_TOP    = 0x10;
-static const int A3D_TEXSTRING_BOTTOM = 0x20;
-static const int A3D_TEXSTRING_LEFT   = 0x01;
-static const int A3D_TEXSTRING_CENTER = 0x02;
-static const int A3D_TEXSTRING_RIGHT  = 0x04;
-
 #if defined(A3D_GLESv2) || defined(A3D_GL2)
 	#include "a3d_shader.h"
 
@@ -108,13 +102,6 @@ static const int A3D_TEXSTRING_RIGHT  = 0x04;
 /***********************************************************
 * public                                                   *
 ***********************************************************/
-
-const int A3D_TEXSTRING_TOP_LEFT      = 0x11;
-const int A3D_TEXSTRING_TOP_CENTER    = 0x12;
-const int A3D_TEXSTRING_TOP_RIGHT     = 0x14;
-const int A3D_TEXSTRING_BOTTOM_LEFT   = 0x21;
-const int A3D_TEXSTRING_BOTTOM_CENTER = 0x22;
-const int A3D_TEXSTRING_BOTTOM_RIGHT  = 0x24;
 
 a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
                                    float size, int justify,

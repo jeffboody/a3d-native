@@ -195,14 +195,6 @@ static int a3d_shiftkeycode(int keycode, int meta)
 	return keycode;
 }
 
-static const GLfloat COORDS4[] =
-{
-	0.0f, 0.0f,   // top-left
-	0.0f, 1.0f,   // bottom-left
-	1.0f, 1.0f,   // bottom-right
-	1.0f, 0.0f,   // top-right
-};
-
 static const GLfloat COORDS2[] =
 {
 	0.0f, 0.0f,   // left

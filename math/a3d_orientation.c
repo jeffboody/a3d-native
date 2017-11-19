@@ -50,30 +50,30 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 	// compute the current rotation matrix
 	a3d_vec3f_t at;
 	a3d_vec3f_t up;
-	a3d_vec3f_t n;
-	a3d_vec3f_t u;
-	a3d_vec3f_t v;
+	a3d_vec3f_t x;
+	a3d_vec3f_t y;
+	a3d_vec3f_t z;
 	a3d_vec3f_load(&up, self->a_ax, self->a_ay, self->a_az);
 	a3d_vec3f_load(&at, self->m_mx, self->m_my, self->m_mz);
-	a3d_vec3f_normalize_copy(&up, &v);
-	a3d_vec3f_cross_copy(&at, &v, &u);
-	a3d_vec3f_normalize(&u);
-	a3d_vec3f_cross_copy(&v, &u, &n);
-	a3d_vec3f_normalize(&n);
+	a3d_vec3f_normalize_copy(&up, &z);
+	a3d_vec3f_cross_copy(&at, &z, &x);
+	a3d_vec3f_normalize(&x);
+	a3d_vec3f_cross_copy(&z, &x, &y);
+	a3d_vec3f_normalize(&y);
 
 	// load the matrix
 	a3d_mat4f_t* m = &self->ring[self->ring_index];
-	m->m00 = u.x;
-	m->m10 = v.x;
-	m->m20 = n.x;
+	m->m00 = x.x;
+	m->m10 = y.x;
+	m->m20 = z.x;
 	m->m30 = 0.0f;
-	m->m01 = u.y;
-	m->m11 = v.y;
-	m->m21 = n.y;
+	m->m01 = x.y;
+	m->m11 = y.y;
+	m->m21 = z.y;
 	m->m31 = 0.0f;
-	m->m02 = u.z;
-	m->m12 = v.z;
-	m->m22 = n.z;
+	m->m02 = x.z;
+	m->m12 = y.z;
+	m->m22 = z.z;
 	m->m32 = 0.0f;
 	m->m03 = 0.0f;
 	m->m13 = 0.0f;
@@ -233,6 +233,25 @@ void a3d_orientation_mat4f(a3d_orientation_t* self,
 	a3d_mat4f_orthonormal(m);
 }
 
+void a3d_orientation_vpn(a3d_orientation_t* self,
+                         float* vx,
+                         float* vy,
+                         float* vz)
+{
+	assert(self);
+	assert(vx);
+	assert(vy);
+	assert(vz);
+
+	// vpn is the negative z-axis of the
+	// transpose/inverse rotation matrix
+	a3d_mat4f_t m;
+	a3d_orientation_mat4f(self, &m);
+	*vx = -m.m02;
+	*vy = -m.m12;
+	*vz = -m.m22;
+}
+
 void a3d_orientation_euler(a3d_orientation_t* self,
                            float* yaw,
                            float* pitch,
@@ -246,18 +265,20 @@ void a3d_orientation_euler(a3d_orientation_t* self,
 	a3d_mat4f_t m;
 	a3d_orientation_mat4f(self, &m);
 
-	a3d_vec3f_t u;
-	a3d_vec3f_t v;
-	a3d_vec3f_t n;
-	a3d_vec3f_load(&u, m.m00, m.m01, m.m02);
-	a3d_vec3f_load(&v, m.m10, m.m11, m.m12);
-	a3d_vec3f_load(&n, m.m20, m.m21, m.m22);
+	a3d_vec3f_t x;
+	a3d_vec3f_t y;
+	a3d_vec3f_t z;
+	a3d_vec3f_load(&x, m.m00, m.m01, m.m02);
+	a3d_vec3f_load(&y, m.m10, m.m11, m.m12);
+	a3d_vec3f_load(&z, m.m20, m.m21, m.m22);
 
+	// TODO - fix euler angles per
+	// https://en.wikipedia.org/wiki/Euler_angles
 	// TODO - euler corner cases
 	// convert to euler angles
-	*yaw   = (180.0f/M_PI)*(atan2f(-n.x, n.y));
-	*pitch = (180.0f/M_PI)*(acosf(n.z));
-	*roll  = (180.0f/M_PI)*(-atan2f(u.z, v.z));
+	*yaw   = (180.0f/M_PI)*(atan2f(-y.x, y.y));
+	*pitch = (180.0f/M_PI)*(acosf(y.z));
+	*roll  = (180.0f/M_PI)*(-atan2f(x.z, z.z));
 
 	// TODO - handle rotation
 	// workaround screen rotations for yaw

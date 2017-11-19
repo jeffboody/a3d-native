@@ -76,6 +76,10 @@ void               a3d_orientation_gyroscope(a3d_orientation_t* self,
                                              float az);
 void               a3d_orientation_mat4f(a3d_orientation_t* self,
                                          a3d_mat4f_t* m);
+void               a3d_orientation_vpn(a3d_orientation_t* self,
+                                       float* vx,
+                                       float* vy,
+                                       float* vz);
 void               a3d_orientation_euler(a3d_orientation_t* self,
                                          float* yaw,
                                          float* pitch,

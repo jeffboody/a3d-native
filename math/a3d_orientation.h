@@ -80,6 +80,9 @@ void               a3d_orientation_vpn(a3d_orientation_t* self,
                                        float* vx,
                                        float* vy,
                                        float* vz);
+void               a3d_orientation_spherical(a3d_orientation_t* self,
+                                             float* theta,
+                                             float* phi);
 void               a3d_orientation_euler(a3d_orientation_t* self,
                                          float* yaw,
                                          float* pitch,

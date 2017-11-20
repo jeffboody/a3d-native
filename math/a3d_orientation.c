@@ -252,6 +252,38 @@ void a3d_orientation_vpn(a3d_orientation_t* self,
 	*vz = -m.m22;
 }
 
+void a3d_orientation_spherical(a3d_orientation_t* self,
+                               float* theta,
+                               float* phi)
+{
+	assert(self);
+	assert(theta);
+	assert(phi);
+
+	a3d_mat4f_t m;
+	a3d_orientation_mat4f(self, &m);
+
+	// load the transpose/inverse vectors
+	a3d_vec3f_t x;
+	a3d_vec3f_t y;
+	a3d_vec3f_t z;
+	a3d_vec3f_load(&x, m.m00, m.m10, m.m20);
+	a3d_vec3f_load(&y, m.m01, m.m11, m.m21);
+	a3d_vec3f_load(&z, m.m02, m.m12, m.m22);
+
+	*theta = (180.0f/M_PI)*atan2f(z.y, z.x);
+	while(*theta < 0.0f)
+	{
+		*theta += 360.0f;
+	}
+	while(*theta >= 360.0f)
+	{
+		*theta -= 360.0f;
+	}
+
+	*phi = (180.0f/M_PI)*asinf(z.z);
+}
+
 void a3d_orientation_euler(a3d_orientation_t* self,
                            float* yaw,
                            float* pitch,

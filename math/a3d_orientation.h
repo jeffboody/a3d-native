@@ -26,7 +26,9 @@
 
 #include "a3d_mat4f.h"
 
-#define A3D_ORIENTATION_COUNT 64
+#define A3D_ORIENTATION_COUNT    64
+#define A3D_ORIENTATION_TRUE     0
+#define A3D_ORIENTATION_MAGNETIC 1
 
 typedef struct
 {
@@ -38,10 +40,14 @@ typedef struct
 	int    a_rotation;
 
 	// magnetometer
+	int    m_north;
 	double m_ts;
 	float  m_mx;
 	float  m_my;
 	float  m_mz;
+	float  m_gfx;
+	float  m_gfy;
+	float  m_gfz;
 
 	// gyroscope
 	double g_ts;
@@ -68,7 +74,10 @@ void               a3d_orientation_magnetometer(a3d_orientation_t* self,
                                                 double ts,
                                                 float mx,
                                                 float my,
-                                                float mz);
+                                                float mz,
+                                                float gfx,
+                                                float gfy,
+                                                float gfz);
 void               a3d_orientation_gyroscope(a3d_orientation_t* self,
                                              double ts,
                                              float ax,

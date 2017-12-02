@@ -61,24 +61,81 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 	a3d_vec3f_cross_copy(&z, &x, &y);
 	a3d_vec3f_normalize(&y);
 
-	// load the matrix
-	a3d_mat4f_t* m = &self->ring[self->ring_index];
-	m->m00 = x.x;
-	m->m10 = y.x;
-	m->m20 = z.x;
-	m->m30 = 0.0f;
-	m->m01 = x.y;
-	m->m11 = y.y;
-	m->m21 = z.y;
-	m->m31 = 0.0f;
-	m->m02 = x.z;
-	m->m12 = y.z;
-	m->m22 = z.z;
-	m->m32 = 0.0f;
-	m->m03 = 0.0f;
-	m->m13 = 0.0f;
-	m->m23 = 0.0f;
-	m->m33 = 1.0f;
+	if(self->m_north == A3D_ORIENTATION_TRUE)
+	{
+		// load the rotation matrix
+		a3d_mat4f_t r;
+		r.m00 = x.x;
+		r.m10 = y.x;
+		r.m20 = z.x;
+		r.m30 = 0.0f;
+		r.m01 = x.y;
+		r.m11 = y.y;
+		r.m21 = z.y;
+		r.m31 = 0.0f;
+		r.m02 = x.z;
+		r.m12 = y.z;
+		r.m22 = z.z;
+		r.m32 = 0.0f;
+		r.m03 = 0.0f;
+		r.m13 = 0.0f;
+		r.m23 = 0.0f;
+		r.m33 = 1.0f;
+
+		// compute the true north rotation matrix
+		a3d_vec3f_load(&z, 0.0f, 0.0f, 1.0f);
+		a3d_vec3f_load(&at, self->m_gfx, self->m_gfy, self->m_gfz);
+		a3d_vec3f_cross_copy(&at, &z, &x);
+		a3d_vec3f_normalize(&x);
+		a3d_vec3f_cross_copy(&z, &x, &y);
+		a3d_vec3f_normalize(&y);
+
+		// load the true north rotation matrix
+		a3d_mat4f_t n;
+		n.m00 = x.x;
+		n.m10 = y.x;
+		n.m20 = z.x;
+		n.m30 = 0.0f;
+		n.m01 = x.y;
+		n.m11 = y.y;
+		n.m21 = z.y;
+		n.m31 = 0.0f;
+		n.m02 = x.z;
+		n.m12 = y.z;
+		n.m22 = z.z;
+		n.m32 = 0.0f;
+		n.m03 = 0.0f;
+		n.m13 = 0.0f;
+		n.m23 = 0.0f;
+		n.m33 = 1.0f;
+
+		// transpose/invert true north rotation matrix
+		a3d_mat4f_transpose(&n);
+
+		// correct for true north
+		a3d_mat4f_t* m = &self->ring[self->ring_index];
+		a3d_mat4f_mulm_copy(&n, &r, m);
+	}
+	else
+	{
+		a3d_mat4f_t* m = &self->ring[self->ring_index];
+		m->m00 = x.x;
+		m->m10 = y.x;
+		m->m20 = z.x;
+		m->m30 = 0.0f;
+		m->m01 = x.y;
+		m->m11 = y.y;
+		m->m21 = z.y;
+		m->m31 = 0.0f;
+		m->m02 = x.z;
+		m->m12 = y.z;
+		m->m22 = z.z;
+		m->m32 = 0.0f;
+		m->m03 = 0.0f;
+		m->m13 = 0.0f;
+		m->m23 = 0.0f;
+		m->m33 = 1.0f;
+	}
 
 	// increment the matrix ring buffer
 	if(self->ring_count < A3D_ORIENTATION_COUNT)
@@ -132,10 +189,14 @@ void a3d_orientation_reset(a3d_orientation_t* self)
 	self->a_ay       = 0.0f;
 	self->a_az       = 9.8f;
 	self->a_rotation = 0;
+	self->m_north    = A3D_ORIENTATION_TRUE;
 	self->m_ts       = 0.0;
 	self->m_mx       = 0.0f;
 	self->m_my       = 1.0f;
 	self->m_mz       = 0.0f;
+	self->m_gfx      = 0.0f;
+	self->m_gfy      = 1.0f;
+	self->m_gfz      = 0.0f;
 	self->g_ts       = 0.0;
 	self->g_ax       = 0.0f;
 	self->g_ay       = 0.0f;
@@ -170,16 +231,22 @@ void a3d_orientation_magnetometer(a3d_orientation_t* self,
                                   double ts,
                                   float mx,
                                   float my,
-                                  float mz)
+                                  float mz,
+                                  float gfx,
+                                  float gfy,
+                                  float gfz)
 {
 	assert(self);
 	LOGD("debug ts=%lf, mx=%f, my=%f, mz=%f",
 	     ts, mx, my, mz);
 
-	self->m_ts = ts;
-	self->m_mx = mx;
-	self->m_my = my;
-	self->m_mz = mz;
+	self->m_ts  = ts;
+	self->m_mx  = mx;
+	self->m_my  = my;
+	self->m_mz  = mz;
+	self->m_gfx = gfx;
+	self->m_gfy = gfy;
+	self->m_gfz = gfz;
 
 	a3d_orientation_update(self);
 }

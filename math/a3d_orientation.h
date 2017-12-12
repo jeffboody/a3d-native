@@ -29,6 +29,7 @@
 #define A3D_ORIENTATION_COUNT    64
 #define A3D_ORIENTATION_TRUE     0
 #define A3D_ORIENTATION_MAGNETIC 1
+#define A3D_ORIENTATION_SAMPLES  400
 
 typedef struct
 {
@@ -59,6 +60,10 @@ typedef struct
 	int         ring_count;
 	int         ring_index;
 	a3d_mat4f_t ring[A3D_ORIENTATION_COUNT];
+
+	// filtered rotation matrix
+	int         samples;
+	a3d_mat4f_t R;
 } a3d_orientation_t;
 
 a3d_orientation_t* a3d_orientation_new(void);

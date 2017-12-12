@@ -43,6 +43,9 @@ void a3d_quaternion_loadaxis(a3d_quaternion_t* self,
                              GLfloat a, GLfloat x, GLfloat y, GLfloat z);
 void a3d_quaternion_loadeuler(a3d_quaternion_t* self,
                               GLfloat rx, GLfloat ry, GLfloat rz);
+void a3d_quaternion_loadaxisangle(a3d_quaternion_t* self,
+                                  GLfloat ax, GLfloat ay, GLfloat az,
+                                  GLfloat angle);
 void a3d_quaternion_rotateq(a3d_quaternion_t* self,
                             const a3d_quaternion_t* q);
 void a3d_quaternion_rotateq_copy(const a3d_quaternion_t* self,

@@ -126,6 +126,24 @@ void a3d_quaternion_loadeuler(a3d_quaternion_t* self,
 	#endif
 }
 
+void a3d_quaternion_loadaxisangle(a3d_quaternion_t* self,
+                                  GLfloat ax, GLfloat ay, GLfloat az,
+                                  GLfloat angle)
+{
+	assert(self);
+
+	// https://developer.android.com/guide/topics/sensors/sensors_motion.html
+	// http://www.flipcode.com/documents/matrfaq.html#Q56
+
+	GLfloat sin_a = sin((M_PI/180.0f)*angle/2.0f);
+	GLfloat cos_a = cos((M_PI/180.0f)*angle/2.0f);
+
+	a3d_quaternion_load(self,
+	                    ax*sin_a, ay*sin_a, az*sin_a,
+	                    cos_a);
+	a3d_quaternion_normalize(self);
+}
+
 void a3d_quaternion_rotateq(a3d_quaternion_t* self,
                             const a3d_quaternion_t* q)
 {

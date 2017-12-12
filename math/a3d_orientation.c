@@ -23,6 +23,7 @@
 
 #include "a3d_orientation.h"
 #include "a3d_mat4f.h"
+#include "a3d_quaternion.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
@@ -61,6 +62,7 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 	a3d_vec3f_cross_copy(&z, &x, &y);
 	a3d_vec3f_normalize(&y);
 
+	a3d_mat4f_t* m;
 	if(self->m_north == A3D_ORIENTATION_TRUE)
 	{
 		// load the rotation matrix
@@ -113,12 +115,12 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 		a3d_mat4f_transpose(&n);
 
 		// correct for true north
-		a3d_mat4f_t* m = &self->ring[self->ring_index];
+		m = &self->ring[self->ring_index];
 		a3d_mat4f_mulm_copy(&n, &r, m);
 	}
 	else
 	{
-		a3d_mat4f_t* m = &self->ring[self->ring_index];
+		m = &self->ring[self->ring_index];
 		m->m00 = x.x;
 		m->m10 = y.x;
 		m->m20 = z.x;
@@ -143,6 +145,22 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 		++self->ring_count;
 	}
 	self->ring_index = (self->ring_index + 1) % A3D_ORIENTATION_COUNT;
+
+	// increment sample count
+	if(self->samples < A3D_ORIENTATION_SAMPLES)
+	{
+		++self->samples;
+	}
+
+	// update the filtered rotation matrix
+	// enforce orthonormal constraint for rotation matrix
+	a3d_mat4f_t r;
+	float s1 = 1.0f/((float) self->samples);
+	float s2 = 1.0f - s1;
+	a3d_mat4f_muls_copy(m, s1, &r);
+	a3d_mat4f_muls(&self->R, s2);
+	a3d_mat4f_addm(&self->R, &r);
+	a3d_mat4f_orthonormal(&self->R);
 }
 
 /***********************************************************
@@ -205,6 +223,9 @@ void a3d_orientation_reset(a3d_orientation_t* self)
 	self->ring_count = 0;
 	self->ring_index = 0;
 	memset(self->ring, 0, sizeof(self->ring));
+
+	self->samples = 0;
+	a3d_mat4f_identity(&self->R);
 }
 
 void a3d_orientation_accelerometer(a3d_orientation_t* self,
@@ -261,12 +282,30 @@ void a3d_orientation_gyroscope(a3d_orientation_t* self,
 	LOGD("debug ts=%lf, ax=%f, ay=%f, az=%f",
 	     ts, ax, ay, az);
 
+	// https://developer.android.com/guide/topics/sensors/sensors_motion.html
+	// http://www.flipcode.com/documents/matrfaq.html#Q56
+
+	// update the filtered estimate
+	if((self->a_ts > 0.0) &&
+	   (self->m_ts > 0.0) &&
+	   (self->g_ts > 0.0))
+	{
+		float dt    = (float) (ts - self->g_ts);
+		float mag   = sqrtf(ax*ax + ay*ay + az*az);
+		float angle = (180.0f/M_PI)*mag*dt;
+
+		a3d_quaternion_t q;
+		a3d_quaternion_loadaxisangle(&q, ax, ay, az, angle);
+		a3d_mat4f_t R;
+		a3d_mat4f_rotateq(&R, 1, &q);
+		a3d_mat4f_transpose(&R);
+		a3d_mat4f_mulm(&self->R, &R);
+	}
+
 	self->g_ts = ts;
 	self->g_ax = ax;
 	self->g_ay = ay;
 	self->g_az = az;
-
-	// TODO - update gyro
 }
 
 void a3d_orientation_mat4f(a3d_orientation_t* self,
@@ -283,21 +322,28 @@ void a3d_orientation_mat4f(a3d_orientation_t* self,
 		return;
 	}
 
-	// See "On Averaging Rotations"
-	// http://www.soest.hawaii.edu/wessel/courses/gg711/pdf/Gramkow_2001_JMIV.pdf
-
-	// compute average rotation matrix
-	// TODO - compute running average
-	int i;
-	a3d_mat4f_copy(&self->ring[0], m);
-	for(i = 1; i < self->ring_count; ++i)
+	if(self->g_ts == 0.0)
 	{
-		a3d_mat4f_addm(m, &self->ring[i]);
-	}
-	a3d_mat4f_muls(m, 1.0f/(GLfloat) self->ring_count);
+		// See "On Averaging Rotations"
+		// http://www.soest.hawaii.edu/wessel/courses/gg711/pdf/Gramkow_2001_JMIV.pdf
 
-	// enforce orthonormal constraint for rotation matrix
-	a3d_mat4f_orthonormal(m);
+		// compute average rotation matrix
+		int i;
+		a3d_mat4f_copy(&self->ring[0], m);
+		for(i = 1; i < self->ring_count; ++i)
+		{
+			a3d_mat4f_addm(m, &self->ring[i]);
+		}
+		a3d_mat4f_muls(m, 1.0f/(GLfloat) self->ring_count);
+
+		// enforce orthonormal constraint for rotation matrix
+		a3d_mat4f_orthonormal(m);
+	}
+	else
+	{
+		// use the filtered estimate
+		a3d_mat4f_copy(&self->R, m);
+	}
 }
 
 void a3d_orientation_vpn(a3d_orientation_t* self,

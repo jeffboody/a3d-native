@@ -239,6 +239,15 @@ void a3d_orientation_accelerometer(a3d_orientation_t* self,
 	LOGD("debug ts=%lf, ax=%f, ay=%f, az=%f, rotation=%i",
 	     ts, ax, ay, az, rotation);
 
+	// reset orientation when rotation changes
+	// because this often times happens when
+	// performing figure 8 motion to calibrate
+	// the compass
+	if(rotation != self->a_rotation)
+	{
+		a3d_orientation_reset(self);
+	}
+
 	self->a_ts       = ts;
 	self->a_ax       = ax;
 	self->a_ay       = ay;

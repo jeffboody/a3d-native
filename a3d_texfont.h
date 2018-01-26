@@ -36,7 +36,8 @@ typedef struct
 
 a3d_texfont_t* a3d_texfont_new(const char* fname);
 void           a3d_texfont_delete(a3d_texfont_t** _self);
-void           a3d_texfont_request(a3d_texfont_t* self, char c,
+void           a3d_texfont_request(a3d_texfont_t* self,
+                                   int mode, char c,
                                    a3d_regionf_t* tc, a3d_regionf_t* vc);
 float          a3d_texfont_aspect_ratio(a3d_texfont_t* self);
 

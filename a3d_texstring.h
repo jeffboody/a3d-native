@@ -39,6 +39,10 @@
 #define A3D_TEXSTRING_BOTTOM_CENTER 0x22
 #define A3D_TEXSTRING_BOTTOM_RIGHT  0x24
 
+// 2D/3D origin
+#define A3D_TEXSTRING_2D 2
+#define A3D_TEXSTRING_3D 3
+
 typedef struct
 {
 	a3d_texfont_t* font;
@@ -46,6 +50,7 @@ typedef struct
 	// rendering properties
 	GLfloat size;
 	int justify;
+	int mode;
 	a3d_vec4f_t color;
 
 	// string data
@@ -74,7 +79,7 @@ typedef struct
 } a3d_texstring_t;
 
 a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
-                                   float size, int justify,
+                                   float size, int justify, int mode,
                                    float r, float g, float b, float a);
 void             a3d_texstring_delete(a3d_texstring_t** _self);
 void             a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...);
@@ -87,5 +92,7 @@ void             a3d_texstring_fill(a3d_texstring_t* self,
 void             a3d_texstring_draw(a3d_texstring_t* self,
                                     float x, float y,
                                     float screen_w, float screen_h);
+void             a3d_texstring_draw3D(a3d_texstring_t* self,
+                                      a3d_mat4f_t* mvp);
 
 #endif

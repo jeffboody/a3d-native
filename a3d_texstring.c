@@ -66,6 +66,10 @@
 		"	vec4 c = color*texture2D(sampler, varying_coords);\n"
 		"	c.rgb = mix(fill.rgb, c.rgb, c.a);\n"
 		"	c.a = max(c.a, fill.a);\n"
+		"	if(c.a == 0.0)\n"
+		"	{\n"
+		"		discard;\n"
+		"	}\n"
 		"	gl_FragColor = c;\n"
 		"}\n";
 
@@ -104,7 +108,7 @@
 ***********************************************************/
 
 a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
-                                   float size, int justify,
+                                   float size, int justify, int mode,
                                    float r, float g, float b, float a)
 {
 	assert(font);
@@ -160,6 +164,7 @@ a3d_texstring_t* a3d_texstring_new(a3d_texfont_t* font, int max_len,
 
 	self->size     = size;
 	self->justify  = justify;
+	self->mode     = mode;
 	a3d_vec4f_load(&self->color, r, g, b, a);
 	self->max_len  = max_len;
 	self->font     = font;
@@ -227,28 +232,55 @@ void a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...)
 	a3d_regionf_t vertex;
 	int len = strlen(self->string);
 	float offset = 0.0f;
+
+	// compute justify offsets
+	float string_w   = (float) len * a3d_texfont_aspect_ratio(self->font);
+	float x_offset = 0;
+	float y_offset = 0;
+	if(self->justify & A3D_TEXSTRING_CENTER)
+	{
+		x_offset = -0.5f * string_w;
+	}
+	else if(self->justify & A3D_TEXSTRING_RIGHT)
+	{
+		x_offset = -string_w;
+	}
+
+	if(self->justify & A3D_TEXSTRING_TOP)
+	{
+		// 2D/3D origin
+		if(self->mode == A3D_TEXSTRING_2D)
+		{
+			y_offset = -1.0f;
+		}
+		else
+		{
+			y_offset = 1.0f;
+		}
+	}
+
 	for(i = 0; i < len; ++i)
 	{
-		a3d_texfont_request(self->font, self->string[i], &coords, &vertex);
+		a3d_texfont_request(self->font, self->mode, self->string[i], &coords, &vertex);
 
-		self->vertex[18*i +  0] = vertex.l + offset;   // tl.xyz
-		self->vertex[18*i +  1] = vertex.t;
+		self->vertex[18*i +  0] = vertex.l + offset + x_offset;   // tl.xyz
+		self->vertex[18*i +  1] = vertex.t + y_offset;
 		self->vertex[18*i +  2] = 0.0f;
-		self->vertex[18*i +  3] = vertex.l + offset;   // bl.xyz
-		self->vertex[18*i +  4] = vertex.b;
+		self->vertex[18*i +  3] = vertex.l + offset + x_offset;   // bl.xyz
+		self->vertex[18*i +  4] = vertex.b + y_offset;
 		self->vertex[18*i +  5] = 0.0f;
-		self->vertex[18*i +  6] = vertex.r + offset;   // br.xyz
-		self->vertex[18*i +  7] = vertex.b;
+		self->vertex[18*i +  6] = vertex.r + offset + x_offset;   // br.xyz
+		self->vertex[18*i +  7] = vertex.b + y_offset;
 		self->vertex[18*i +  8] = 0.0f;
 
-		self->vertex[18*i +  9] = vertex.l + offset;   // tl.xyz
-		self->vertex[18*i + 10] = vertex.t;
+		self->vertex[18*i +  9] = vertex.l + offset + x_offset;   // tl.xyz
+		self->vertex[18*i + 10] = vertex.t + y_offset;
 		self->vertex[18*i + 11] = 0.0f;
-		self->vertex[18*i + 12] = vertex.r + offset;   // br.xyz
-		self->vertex[18*i + 13] = vertex.b;
+		self->vertex[18*i + 12] = vertex.r + offset + x_offset;   // br.xyz
+		self->vertex[18*i + 13] = vertex.b + y_offset;
 		self->vertex[18*i + 14] = 0.0f;
-		self->vertex[18*i + 15] = vertex.r + offset;   // tr.xyz
-		self->vertex[18*i + 16] = vertex.t;
+		self->vertex[18*i + 15] = vertex.r + offset + x_offset;   // tr.xyz
+		self->vertex[18*i + 16] = vertex.t + y_offset;
 		self->vertex[18*i + 17] = 0.0f;
 
 		self->coords[12*i + 0] = coords.l;   // tl.uv
@@ -301,18 +333,11 @@ void a3d_texstring_draw(a3d_texstring_t* self,
                         float screen_w, float screen_h)
 {
 	assert(self);
+	assert(self->mode == A3D_TEXSTRING_2D);
 	LOGD("debug x=%f, y=%f, string=%s", x, y, self->string);
 
 	int len = strlen(self->string);
 	if(len <= 0) return;
-
-	// compute justify offsets
-	float string_w   = (float) len * a3d_texfont_aspect_ratio(self->font) * self->size;
-	float x_offset = 0;
-	float y_offset = 0;
-	if     (self->justify & A3D_TEXSTRING_CENTER) x_offset = -0.5f * string_w;
-	else if(self->justify & A3D_TEXSTRING_RIGHT)  x_offset = -string_w;
-	if     (self->justify & A3D_TEXSTRING_BOTTOM) y_offset = -self->size;
 
 	// draw the string
 	#if defined(A3D_GLESv1_CM)
@@ -332,7 +357,7 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glOrthof(0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-		glTranslatef(x + x_offset, y + y_offset, -1.0f);
+		glTranslatef(x, y, -1.0f);
 		glScalef(self->size, self->size, 1.0f);
 		glDrawArrays(GL_TRIANGLES, 0, 2 * 3 * len);
 		glPopMatrix();
@@ -355,7 +380,7 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glUniform4fv(self->uniform_fill, 1, (GLfloat*) &self->fill);
 		glUniform1i(self->uniform_sampler, 0);
 		a3d_mat4f_ortho(&self->pm, 1, 0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);
-		a3d_mat4f_translate(&self->mvm, 1, x + x_offset, y + y_offset, -1.0f);
+		a3d_mat4f_translate(&self->mvm, 1, x, y, -1.0f);
 		a3d_mat4f_scale(&self->mvm, 0, self->size, self->size, 1.0f);
 		a3d_mat4f_t mvp;
 		a3d_mat4f_mulm_copy(&self->pm, &self->mvm, &mvp);
@@ -366,4 +391,36 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glUseProgram(0);
 		glDisable(GL_BLEND);
 	#endif
+}
+
+void a3d_texstring_draw3D(a3d_texstring_t* self,
+                          a3d_mat4f_t* mvp)
+{
+	assert(self);
+	assert(self->mode == A3D_TEXSTRING_3D);
+	assert(mvp);
+
+	int len = strlen(self->string);
+	if(len <= 0) return;
+
+	// draw the string
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindTexture(GL_TEXTURE_2D, self->font->tex->id);
+	glUseProgram(self->program);
+	glEnableVertexAttribArray(self->attribute_vertex);
+	glEnableVertexAttribArray(self->attribute_coords);
+	glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
+	glVertexAttribPointer(self->attribute_vertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
+	glVertexAttribPointer(self->attribute_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glUniform4fv(self->uniform_color, 1, (GLfloat*) &self->color);
+	glUniform4fv(self->uniform_fill, 1, (GLfloat*) &self->fill);
+	glUniform1i(self->uniform_sampler, 0);
+	glUniformMatrix4fv(self->uniform_mvp, 1, GL_FALSE, (GLfloat*) mvp);
+	glDrawArrays(GL_TRIANGLES, 0, 2 * 3 * len);
+	glDisableVertexAttribArray(self->attribute_coords);
+	glDisableVertexAttribArray(self->attribute_vertex);
+	glUseProgram(0);
+	glDisable(GL_BLEND);
 }

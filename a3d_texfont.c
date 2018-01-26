@@ -21,6 +21,7 @@
  *
  */
 
+#include "a3d_texstring.h"
 #include "a3d_texfont.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -247,7 +248,8 @@ void a3d_texfont_delete(a3d_texfont_t** _self)
 	}
 }
 
-void a3d_texfont_request(a3d_texfont_t* self, char c,
+void a3d_texfont_request(a3d_texfont_t* self,
+                         int mode, char c,
                          a3d_regionf_t* tc, a3d_regionf_t* vc)
 {
 	assert(self);
@@ -273,9 +275,17 @@ void a3d_texfont_request(a3d_texfont_t* self, char c,
 	tc->r = (col+1) * char_w / stride;
 
 	// fill in vertex coords
-	vc->t = 0.0f;
+	if(mode == A3D_TEXSTRING_2D)
+	{
+		vc->t = 0.0f;
+		vc->b = 1.0f;
+	}
+	else
+	{
+		vc->t = 1.0f;
+		vc->b = 0.0f;
+	}
 	vc->l = 0.0f;
-	vc->b = 1.0f;
 	vc->r = char_w / char_h;
 }
 

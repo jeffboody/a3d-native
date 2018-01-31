@@ -23,6 +23,7 @@
 
 #include "a3d_texstring.h"
 #include "a3d_texfont.h"
+#include "../libpak/pak_file.h"
 #include <stdlib.h>
 #include <assert.h>
 
@@ -175,36 +176,63 @@ static const a3d_texfont_index_t INDEX[128] =
 * public                                                   *
 ***********************************************************/
 
-a3d_texfont_t* a3d_texfont_new(const char* fname)
+a3d_texfont_t* a3d_texfont_new(const char* fname,
+                               const char* resource)
 {
+	// resource may be NULL
 	assert(fname);
 	LOGD("debug");
 
-	a3d_texfont_t* self = (a3d_texfont_t*) malloc(sizeof(a3d_texfont_t));
+	a3d_texfont_t* self = (a3d_texfont_t*)
+	                      malloc(sizeof(a3d_texfont_t));
 	if(self == NULL)
 	{
 		LOGE("malloc failed");
 		goto fail_malloc;
 	}
 
-	self->tex = a3d_tex_new(fname);
-	if(self->tex == NULL)
+	// import the texture
+	texgz_tex_t* tex = NULL;
+	if(resource)
 	{
-		// log message already output
-		goto fail_tex;
+		pak_file_t* pak = pak_file_open(resource,
+		                                PAK_FLAG_READ);
+		if(pak)
+		{
+			const char* key = fname;
+			if(fname[0] == '$')
+			{
+				key = &(fname[1]);
+			}
+
+			int size = pak_file_seek(pak, key);
+			if(size > 0)
+			{
+				tex = texgz_tex_importf(pak->f, size);
+			}
+			else
+			{
+				LOGE("invalid fname=%s", fname);
+			}
+			pak_file_close(&pak);
+		}
+	}
+	else
+	{
+		tex = texgz_tex_import(fname);
 	}
 
-	if(a3d_tex_load(self->tex) == A3D_TEX_ERROR)
+	if(tex == NULL)
 	{
-		// log message already output
-		goto fail_load;
+		goto fail_tex;
 	}
+	self->tex = tex;
 
 	self->char_w = self->tex->width / 26;
 	self->char_h = self->tex->height / 4;
 
-	glGenTextures(1, &self->tex->id);
-	glBindTexture(GL_TEXTURE_2D, self->tex->id);
+	glGenTextures(1, &self->id);
+	glBindTexture(GL_TEXTURE_2D, self->id);
 	#if defined(A3D_GLESv1_CM)
 		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterx(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -214,14 +242,11 @@ a3d_texfont_t* a3d_texfont_new(const char* fname)
 	#endif
 	glTexImage2D(GL_TEXTURE_2D, 0, self->tex->format, self->tex->stride, self->tex->vstride,
 	             0, self->tex->format, self->tex->type, self->tex->pixels);
-	a3d_tex_reclaim(self->tex);
 
 	// success
 	return self;
 
 	// failure
-	fail_load:
-		a3d_tex_delete(&self->tex);
 	fail_tex:
 		free(self);
 	fail_malloc:
@@ -239,10 +264,10 @@ void a3d_texfont_delete(a3d_texfont_t** _self)
 		LOGD("debug");
 
 		glBindTexture(GL_TEXTURE_2D, 0);
-		glDeleteTextures(1, &self->tex->id);
-		self->tex->id = 0;
+		glDeleteTextures(1, &self->id);
+		self->id = 0;
 
-		a3d_tex_delete(&self->tex);
+		texgz_tex_delete(&self->tex);
 		free(self);
 		*_self = NULL;
 	}

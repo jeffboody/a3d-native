@@ -345,7 +345,7 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, self->font->tex->id);
+		glBindTexture(GL_TEXTURE_2D, self->font->id);
 		glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
 		glVertexPointer(3, GL_FLOAT, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
@@ -368,7 +368,7 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 	#else
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, self->font->tex->id);
+		glBindTexture(GL_TEXTURE_2D, self->font->id);
 		glUseProgram(self->program);
 		glEnableVertexAttribArray(self->attribute_vertex);
 		glEnableVertexAttribArray(self->attribute_coords);
@@ -406,7 +406,7 @@ void a3d_texstring_draw3D(a3d_texstring_t* self,
 	// draw the string
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glBindTexture(GL_TEXTURE_2D, self->font->tex->id);
+	glBindTexture(GL_TEXTURE_2D, self->font->id);
 	glUseProgram(self->program);
 	glEnableVertexAttribArray(self->attribute_vertex);
 	glEnableVertexAttribArray(self->attribute_coords);

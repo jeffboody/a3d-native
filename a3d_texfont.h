@@ -24,17 +24,21 @@
 #ifndef a3d_texfont_H
 #define a3d_texfont_H
 
-#include "a3d_tex.h"
+#include "../texgz/texgz_tex.h"
 #include "math/a3d_regionf.h"
 
 typedef struct
 {
-	int        char_w;
-	int        char_h;
-	a3d_tex_t* tex;
+	int char_w;
+	int char_h;
+
+	texgz_tex_t* tex;
+
+	GLuint id;
 } a3d_texfont_t;
 
-a3d_texfont_t* a3d_texfont_new(const char* fname);
+a3d_texfont_t* a3d_texfont_new(const char* fname,
+                               const char* resource);
 void           a3d_texfont_delete(a3d_texfont_t** _self);
 void           a3d_texfont_request(a3d_texfont_t* self,
                                    int mode, char c,

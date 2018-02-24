@@ -24,25 +24,39 @@
 #ifndef a3d_texfont_H
 #define a3d_texfont_H
 
-#include "../texgz/texgz_tex.h"
 #include "math/a3d_regionf.h"
 
 typedef struct
 {
-	int char_w;
-	int char_h;
+	int x;
+	int y;
+	int w;
+} a3d_texfontcoords_t;
 
-	texgz_tex_t* tex;
+typedef struct
+{
+	// tex attributes
+	int tex_width;
+	int tex_height;
+
+	// font attributes
+	int   size;
+	int   h;
+	float aspect_ratio_avg;
+	a3d_texfontcoords_t coords[128];
 
 	GLuint id;
 } a3d_texfont_t;
 
-a3d_texfont_t* a3d_texfont_new(const char* fname,
-                               const char* resource);
+a3d_texfont_t* a3d_texfont_new(const char* resource,
+                               const char* texname,
+                               const char* xmlname);
 void           a3d_texfont_delete(a3d_texfont_t** _self);
 void           a3d_texfont_request(a3d_texfont_t* self,
                                    int mode, char c,
-                                   a3d_regionf_t* tc, a3d_regionf_t* vc);
-float          a3d_texfont_aspect_ratio(a3d_texfont_t* self);
+                                   a3d_regionf_t* tc,
+                                   a3d_regionf_t* vc);
+int            a3d_texfont_width(a3d_texfont_t* self, char c);
+int            a3d_texfont_height(a3d_texfont_t* self);
 
 #endif

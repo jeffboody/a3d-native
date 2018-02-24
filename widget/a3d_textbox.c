@@ -145,9 +145,10 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	self->last_w = w;
 	self->last_h = h;
 
+	// TODO - reflow text for variable width font
 	// determine maxi
 	a3d_font_t* font   = a3d_screen_font(widget->screen);
-	float       aspect = a3d_font_aspectRatio(font);
+	float       aspect = a3d_font_aspectRatioAvg(font);
 	float       size   = a3d_screen_layoutText(widget->screen,
 	                                           self->style_text);
 	int         maxi   = (int) (w/(aspect*size)) - 1;

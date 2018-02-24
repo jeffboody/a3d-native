@@ -35,6 +35,28 @@
 * private                                                  *
 ***********************************************************/
 
+static int a3d_texstring_width(a3d_texstring_t* self)
+{
+	assert(self);
+
+	int   width = 0;
+	char* s     = self->string;
+	while(s[0] != '\0')
+	{
+		width += a3d_texfont_width(self->font, s[0]);
+		++s;
+	}
+
+	return width;
+}
+
+static int a3d_texstring_height(a3d_texstring_t* self)
+{
+	assert(self);
+
+	return a3d_texfont_height(self->font);
+}
+
 #if defined(A3D_GLESv2) || defined(A3D_GL2)
 	#include "a3d_shader.h"
 
@@ -63,7 +85,8 @@
 		"\n"
 		"void main()\n"
 		"{\n"
-		"	vec4 c = color*texture2D(sampler, varying_coords);\n"
+		"	float a = texture2D(sampler, varying_coords).r;\n"
+		"	vec4  c = vec4(color.rgb, a*color.a);\n"
 		"	c.rgb = mix(fill.rgb, c.rgb, c.a);\n"
 		"	c.a = max(c.a, fill.a);\n"
 		"	if(c.a == 0.0)\n"
@@ -234,7 +257,9 @@ void a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...)
 	float offset = 0.0f;
 
 	// compute justify offsets
-	float string_w   = (float) len * a3d_texfont_aspect_ratio(self->font);
+	float w        = (float) a3d_texstring_width(self);
+	float h        = (float) a3d_texstring_height(self);
+	float string_w = w/h;
 	float x_offset = 0;
 	float y_offset = 0;
 	if(self->justify & A3D_TEXSTRING_CENTER)

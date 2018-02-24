@@ -27,13 +27,27 @@
 #include "../a3d_GL.h"
 #include "../math/a3d_regionf.h"
 
+// define cursor as ASCII unit separator
+#define A3D_FONT_CURSOR 31
+
 typedef struct
 {
+	int x;
+	int y;
+	int w;
+} a3d_fontcoords_t;
+
+typedef struct
+{
+	// tex attributes
+	int tex_width;
+	int tex_height;
+
 	// font attributes
-	int char_w;
-	int char_h;
-	int width;
-	int height;
+	int   size;
+	int   h;
+	float aspect_ratio_avg;
+	a3d_fontcoords_t coords[128];
 
 	// GL state
 	GLuint prog;
@@ -46,13 +60,15 @@ typedef struct
 } a3d_font_t;
 
 a3d_font_t* a3d_font_new(const char* resource,
-                         const char* fname);
+                         const char* texname,
+                         const char* xmlname);
 void        a3d_font_delete(a3d_font_t** _self);
 void        a3d_font_request(a3d_font_t* self,
                              char c,
                              a3d_regionf_t* tc,
                              a3d_regionf_t* vc);
-float       a3d_font_aspectRatio(a3d_font_t* self);
-char        a3d_font_keycodeToChar(int keycode, int meta);
+float       a3d_font_aspectRatioAvg(a3d_font_t* self);
+int         a3d_font_width(a3d_font_t* self, char c);
+int         a3d_font_height(a3d_font_t* self);
 
 #endif

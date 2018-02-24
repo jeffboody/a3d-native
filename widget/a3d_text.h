@@ -78,6 +78,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_widget_click_fn click_fn,
                          a3d_widget_refresh_fn refresh_fn);
 void        a3d_text_delete(a3d_text_t** _self);
+int         a3d_text_width(a3d_text_t* self, int cursor);
+int         a3d_text_height(a3d_text_t* self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
 void        a3d_text_wrapx(a3d_text_t* self, int wrapx);

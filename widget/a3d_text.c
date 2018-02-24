@@ -65,25 +65,26 @@ static void a3d_text_size(a3d_widget_t* widget,
 
 	a3d_text_t* self = (a3d_text_t*) widget;
 	a3d_font_t* font = a3d_screen_font(widget->screen);
-	int         len  = a3d_text_strlen(self);
 	float       size = a3d_screen_layoutText(widget->screen, self->style);
-	float       r    = a3d_font_aspectRatio(font);
 	if(self->wrapx == A3D_TEXT_WRAP_STRETCH)
 	{
-		int max_len = self->max_len;
-		*w = r*size*max_len;
+		float aspect  = a3d_font_aspectRatioAvg(font);
+		int   max_len = self->max_len;
+		*w = size*aspect*max_len;
 	}
 	else
 	{
+		float width  = (float) 0.0f;
+		float height = (float) a3d_text_height(self);
 		if(a3d_widget_hasFocus(widget))
 		{
-			// add the cursor
-			*w = r*size*(len + 1);
+			width = (float) a3d_text_width(self, 1);
 		}
 		else
 		{
-			*w = r*size*len;
+			width = (float) a3d_text_width(self, 0);
 		}
+		*w = size*(width/height);
 	}
 	*h = size;
 }
@@ -260,7 +261,7 @@ static int a3d_text_keyPress(a3d_widget_t* widget,
 	}
 
 	// add the cursor
-	a3d_text_addc(self, 0x0, len, &offset);
+	a3d_text_addc(self, A3D_FONT_CURSOR, len, &offset);
 	++len;
 
 	int vertex_size = 18*len;   // 2 * 3 * xyz
@@ -408,6 +409,38 @@ void a3d_text_delete(a3d_text_t** _self)
 	}
 }
 
+int a3d_text_width(a3d_text_t* self, int cursor)
+{
+	assert(self);
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_font_t*   font   = a3d_screen_font(widget->screen);
+
+	int   width = 0;
+	char* s     = self->string;
+	while(s[0] != '\0')
+	{
+		width += a3d_font_width(font, s[0]);
+		++s;
+	}
+
+	if(cursor)
+	{
+		width += a3d_font_width(font, A3D_FONT_CURSOR);
+	}
+
+	return width;
+}
+
+int a3d_text_height(a3d_text_t* self)
+{
+	assert(self);
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_font_t*   font   = a3d_screen_font(widget->screen);
+	return a3d_font_height(font);
+}
+
 void a3d_text_printf(a3d_text_t* self,
                      const char* fmt, ...)
 {
@@ -438,7 +471,7 @@ void a3d_text_printf(a3d_text_t* self,
 	}
 
 	// add the cursor
-	a3d_text_addc(self, 0x0, len1, &offset);
+	a3d_text_addc(self, A3D_FONT_CURSOR, len1, &offset);
 	++len1;
 
 	int vertex_size = 18*len1;   // 2 * 3 * xyz

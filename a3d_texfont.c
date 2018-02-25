@@ -102,7 +102,6 @@ static void a3d_texfont_parseStart(void* _self,
 		{
 			const XML_Char* key = atts[idx];
 			const XML_Char* val = atts[idx + 1];
-			LOGI("idx=%i, key=%s, val=%s", idx, key, val);
 			if(strcmp(key, "size") == 0)
 			{
 				self->size = (int) strtol(val, NULL, 0);
@@ -125,7 +124,6 @@ static void a3d_texfont_parseStart(void* _self,
 		{
 			const XML_Char* key = atts[idx];
 			const XML_Char* val = atts[idx + 1];
-			LOGI("idx=%i, key=%s, val=%s", idx, key, val);
 			if(strcmp(key, "c") == 0)
 			{
 				c = (int) strtol(val, NULL, 0);

@@ -138,6 +138,8 @@ typedef struct a3d_widget_s
 	int         style_line;
 	a3d_vec4f_t color_line;
 	a3d_vec4f_t color_fill;
+	a3d_vec4f_t color_fill2;
+	float       tone_y2;
 
 	// fade animation
 	float fade;
@@ -192,6 +194,13 @@ typedef struct a3d_widget_s
 	GLint  attr_vertex;
 	GLint  unif_mvp;
 	GLint  unif_color;
+
+	GLuint prog2;
+	GLint  attr_vertex2;
+	GLint  unif_mvp2;
+	GLint  unif_color2a;
+	GLint  unif_color2b;
+	GLint  unif_y2;
 } a3d_widget_t;
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
@@ -240,5 +249,8 @@ void          a3d_widget_anchorPt(a3d_rect4f_t* rect,
 void          a3d_widget_refresh(a3d_widget_t* self);
 void          a3d_widget_soundFx(a3d_widget_t* self,
                                  int sound_fx);
+void          a3d_widget_twoTone(a3d_widget_t* self,
+                                 a3d_vec4f_t* color_fill2);
+void          a3d_widget_twoToneY(a3d_widget_t* self, float y);
 
 #endif

@@ -58,6 +58,42 @@ static const char* FSHADER =
 	"	gl_FragColor = color;\n"
 	"}\n";
 
+static const char* VSHADER2 =
+	"attribute vec2  vertex;\n"
+	"uniform   mat4  mvp;\n"
+	"\n"
+	"varying   float varying_y;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	varying_y = vertex.y;\n"
+	"	gl_Position = mvp*vec4(vertex, 0.0, 1.0);\n"
+	"}\n";
+
+static const char* FSHADER2 =
+	"#ifdef GL_ES\n"
+	"precision mediump float;\n"
+	"precision mediump int;\n"
+	"#endif\n"
+	"\n"
+	"uniform vec4  colora;\n"
+	"uniform vec4  colorb;\n"
+	"uniform float y;\n"
+	"\n"
+	"varying float varying_y;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	if(varying_y > y)\n"
+	"	{\n"
+	"		gl_FragColor = colora;\n"
+	"	}\n"
+	"	else\n"
+	"	{\n"
+	"		gl_FragColor = colorb;\n"
+	"	}\n"
+	"}\n";
+
 static int a3d_widget_shaders(a3d_widget_t* self)
 {
 	assert(self);
@@ -69,11 +105,28 @@ static int a3d_widget_shaders(a3d_widget_t* self)
 		return 0;
 	}
 
-	self->attr_vertex = glGetAttribLocation(self->prog, "vertex");
-	self->unif_mvp    = glGetUniformLocation(self->prog, "mvp");
-	self->unif_color  = glGetUniformLocation(self->prog, "color");
+	self->prog2 = a3d_shader_make_source(VSHADER2, FSHADER2);
+	if(self->prog2 == 0)
+	{
+		goto fail_prog2;
+	}
 
+	self->attr_vertex  = glGetAttribLocation(self->prog, "vertex");
+	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
+	self->unif_color   = glGetUniformLocation(self->prog, "color");
+	self->attr_vertex2 = glGetAttribLocation(self->prog2, "vertex");
+	self->unif_mvp2    = glGetUniformLocation(self->prog2, "mvp");
+	self->unif_color2a = glGetUniformLocation(self->prog2, "colora");
+	self->unif_color2b = glGetUniformLocation(self->prog2, "colorb");
+	self->unif_y2      = glGetUniformLocation(self->prog2, "y");
+
+	// success
 	return 1;
+
+	// failure
+	fail_prog2:
+		glDeleteProgram(self->prog);
+	return 0;
 }
 
 static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
@@ -255,6 +308,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_copy(color_line, &self->color_line);
 	a3d_vec4f_copy(color_fill, &self->color_fill);
+	a3d_vec4f_load(&self->color_fill2, 0.0f, 0.0f, 0.0f, 0.0f);
+	self->tone_y2 = 0.0f;
 
 	glGenBuffers(1, &self->id_vtx_rect);
 	glGenBuffers(1, &self->id_vtx_line);
@@ -292,6 +347,7 @@ void a3d_widget_delete(a3d_widget_t** _self)
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_vtx_line);
 		glDeleteBuffers(1, &self->id_vtx_rect);
+		glDeleteProgram(self->prog2);
 		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;
@@ -724,19 +780,42 @@ void a3d_widget_draw(a3d_widget_t* self)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
-		glUseProgram(self->prog);
-		glEnableVertexAttribArray(self->attr_vertex);
 
-		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
-		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		a3d_mat4f_t mvp;
+		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
-		glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
+
+		if(self->tone_y2 == 0.0f)
+		{
+			glEnableVertexAttribArray(self->attr_vertex);
+			glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glUseProgram(self->prog);
+			glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
+			glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+		}
+		else
+		{
+			a3d_vec4f_t* c2     = &self->color_fill2;
+			float        alpha2 = self->fade*c2->a;
+			glEnableVertexAttribArray(self->attr_vertex2);
+			glVertexAttribPointer(self->attr_vertex2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glUseProgram(self->prog2);
+			glUniform4f(self->unif_color2a, c->r, c->g, c->b, alpha);
+			glUniform4f(self->unif_color2b, c2->r, c2->g, c2->b, alpha2);
+			glUniform1f(self->unif_y2, self->tone_y2);
+			glUniformMatrix4fv(self->unif_mvp2, 1, GL_FALSE, (GLfloat*) &mvp);
+		}
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4*A3D_WIDGET_BEZEL);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(self->attr_vertex);
+		if(self->tone_y2 == 0.0f)
+		{
+			glDisableVertexAttribArray(self->attr_vertex);
+		}
+		else
+		{
+			glDisableVertexAttribArray(self->attr_vertex2);
+		}
 		glUseProgram(0);
 		if(alpha < 1.0f)
 		{
@@ -910,4 +989,20 @@ void a3d_widget_soundFx(a3d_widget_t* self,
 	assert(self);
 
 	self->sound_fx = sound_fx;
+}
+
+void a3d_widget_twoTone(a3d_widget_t* self,
+                        a3d_vec4f_t* color_fill2)
+{
+	assert(self);
+	assert(color_fill2);
+
+	a3d_vec4f_copy(color_fill2, &self->color_fill2);
+}
+
+void a3d_widget_twoToneY(a3d_widget_t* self, float y)
+{
+	assert(self);
+
+	self->tone_y2 = y;
 }

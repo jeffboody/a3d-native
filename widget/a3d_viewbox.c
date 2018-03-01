@@ -232,6 +232,8 @@ static void a3d_viewbox_drawSeparator(a3d_widget_t* widget, float y)
 {
 	assert(widget);
 
+	a3d_widget_twoToneY(widget, y);
+
 	// clip separator to border
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&widget->rect_border,
@@ -371,6 +373,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int style_border,
                                int style_line,
                                a3d_vec4f_t* color_fill,
+                               a3d_vec4f_t* color_fill2,
                                a3d_vec4f_t* color_line,
                                int text_anchor,
                                int text_style_border,
@@ -389,6 +392,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	// footer may be NULL
 	assert(screen);
 	assert(color_fill);
+	assert(color_fill2);
 	assert(color_line);
 	assert(text_color_fill);
 	assert(text_color_line);
@@ -426,6 +430,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		return NULL;
 	}
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
+	a3d_widget_twoTone((a3d_widget_t*) self, color_fill2);
 
 	a3d_vec4f_t clear =
 	{

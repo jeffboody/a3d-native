@@ -279,12 +279,14 @@ static int a3d_screen_compareTexId(const void* a, const void* b)
 ***********************************************************/
 
 a3d_screen_t* a3d_screen_new(const char* resource,
-                             a3d_font_t* font,
+                             a3d_font_t* font_regular,
+                             a3d_font_t* font_bold,
                              void* sound_fx,
                              a3d_screen_playClickFn playClick)
 {
 	assert(resource);
-	assert(font);
+	assert(font_regular);
+	assert(font_bold);
 	assert(sound_fx);
 	assert(playClick);
 	LOGD("debug");
@@ -327,7 +329,8 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->pointer_t0    = 0.0;
 	self->pointer_vx    = 0.0f;
 	self->pointer_vy    = 0.0f;
-	self->font          = font;
+	self->font[0]       = font_regular;
+	self->font[1]       = font_bold;
 	self->clicked       = 0;
 	self->sound_fx      = sound_fx;
 	self->playClick     = playClick;
@@ -398,12 +401,12 @@ void a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus)
 	self->focus_widget = focus;
 }
 
-a3d_font_t* a3d_screen_font(a3d_screen_t* self)
+a3d_font_t* a3d_screen_font(a3d_screen_t* self, int type)
 {
 	assert(self);
 	LOGD("debug");
 
-	return self->font;
+	return self->font[type];
 }
 
 a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self)

@@ -64,7 +64,8 @@ static void a3d_text_size(a3d_widget_t* widget,
 	LOGD("debug");
 
 	a3d_text_t* self = (a3d_text_t*) widget;
-	a3d_font_t* font = a3d_screen_font(widget->screen);
+	a3d_font_t* font = a3d_screen_font(widget->screen,
+	                                   self->font_type);
 	float       size = a3d_screen_layoutText(widget->screen, self->style);
 	if(self->wrapx == A3D_TEXT_WRAP_STRETCH)
 	{
@@ -122,7 +123,8 @@ static void a3d_text_draw(a3d_widget_t* widget)
 		float       x    = widget->rect_draw.l;
 		float       y    = widget->rect_draw.t;
 		float       size = widget->rect_draw.h;
-		a3d_font_t* font = a3d_screen_font(widget->screen);
+		a3d_font_t* font = a3d_screen_font(widget->screen,
+		                                   self->font_type);
 		a3d_screen_sizef(widget->screen, &w, &h);
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, w, h, 0.0f, 0.0f, 2.0f);
 		a3d_mat4f_translate(&mvp, 0, x, y, -1.0f);
@@ -155,7 +157,8 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 
 	float         offset = *_offset;
 	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen);
+	a3d_font_t*   font   = a3d_screen_font(widget->screen,
+	                                       self->font_type);
 
 	a3d_regionf_t coords;
 	a3d_regionf_t vertex;
@@ -367,6 +370,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	self->enter_priv = NULL;
 	self->enter_fn   = NULL;
 	self->wrapx      = A3D_TEXT_WRAP_SHRINK;
+	self->font_type  = A3D_SCREEN_FONT_REGULAR;
 	self->max_len    = max_len;
 	self->style      = style_text;
 	a3d_vec4f_copy(color_text, &self->color);
@@ -414,7 +418,8 @@ int a3d_text_width(a3d_text_t* self, int cursor)
 	assert(self);
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen);
+	a3d_font_t*   font   = a3d_screen_font(widget->screen,
+	                                       self->font_type);
 
 	int   width = 0;
 	char* s     = self->string;
@@ -437,7 +442,8 @@ int a3d_text_height(a3d_text_t* self)
 	assert(self);
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen);
+	a3d_font_t*   font   = a3d_screen_font(widget->screen,
+	                                       self->font_type);
 	return a3d_font_height(font);
 }
 
@@ -532,4 +538,11 @@ void a3d_text_enterFn(a3d_text_t* self,
 
 	// toggle cursor
 	a3d_screen_dirty(widget->screen);
+}
+
+void a3d_text_font(a3d_text_t* self, int font_type)
+{
+	assert(self);
+
+	self->font_type = font_type;
 }

@@ -53,6 +53,7 @@ typedef struct
 
 	// text properties
 	// max_len includes null terminator
+	int         font_type;
 	int         max_len;
 	char*       string;
 	int         style;
@@ -86,5 +87,6 @@ void        a3d_text_wrapx(a3d_text_t* self, int wrapx);
 void        a3d_text_enterFn(a3d_text_t* self,
                              void* enter_priv,
                              a3d_text_enter_fn enter_fn);
+void        a3d_text_font(a3d_text_t* self, int font_type);
 
 #endif

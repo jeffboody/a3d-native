@@ -456,6 +456,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		goto fail_bullet;
 	}
 	a3d_widget_priv((a3d_widget_t*) self->bullet, click_priv);
+	a3d_text_font(self->bullet->text, A3D_SCREEN_FONT_BOLD);
 
 	if(a3d_bulletbox_spriteLoad(self->bullet, 0, sprite) == 0)
 	{

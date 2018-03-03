@@ -37,6 +37,9 @@
 #define A3D_SCREEN_SCALE_LARGE  4
 #define A3D_SCREEN_SCALE_XLARGE 5
 
+#define A3D_SCREEN_FONT_REGULAR 0
+#define A3D_SCREEN_FONT_BOLD    1
+
 typedef void (*a3d_screen_playClickFn)(void* sound_fx);
 
 typedef struct a3d_screen_s
@@ -71,7 +74,7 @@ typedef struct a3d_screen_s
 	char resource[256];
 
 	// font - shared resource
-	a3d_font_t* font;
+	a3d_font_t* font[2];
 
 	// sound fx
 	int   clicked;
@@ -92,13 +95,14 @@ typedef struct a3d_screen_s
 } a3d_screen_t;
 
 a3d_screen_t*       a3d_screen_new(const char* resource,
-                                   a3d_font_t* font,
+                                   a3d_font_t* font_regular,
+                                   a3d_font_t* font_bold,
                                    void* sound_fx,
                                    a3d_screen_playClickFn playClick);
 void                a3d_screen_delete(a3d_screen_t** _self);
 void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
 void                a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus);
-a3d_font_t*         a3d_screen_font(a3d_screen_t* self);
+a3d_font_t*         a3d_screen_font(a3d_screen_t* self, int type);
 a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self);
 GLuint              a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname);
 void                a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id);

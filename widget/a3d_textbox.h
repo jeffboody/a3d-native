@@ -48,6 +48,7 @@ typedef struct
 	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_line;
 	a3d_vec4f_t color_text;
+	int         font_type;
 	int         max_len;
 } a3d_textbox_t;
 
@@ -75,5 +76,7 @@ void           a3d_textbox_delete(a3d_textbox_t** _self);
 void           a3d_textbox_clear(a3d_textbox_t* self);
 void           a3d_textbox_printf(a3d_textbox_t* self,
                                   const char* fmt, ...);
+void           a3d_textbox_font(a3d_textbox_t* self,
+                                int font_type);
 
 #endif

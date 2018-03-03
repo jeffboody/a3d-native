@@ -61,6 +61,7 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 		return;
 	}
 	a3d_text_wrapx(text, self->text_wrapx);
+	a3d_text_font(text, self->font_type);
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
 	if(a3d_list_enqueue(listbox->list, (const void*) text) == 0)
@@ -147,7 +148,8 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 	// TODO - reflow text for variable width font
 	// determine maxi
-	a3d_font_t* font   = a3d_screen_font(widget->screen);
+	a3d_font_t* font   = a3d_screen_font(widget->screen,
+	                                     self->font_type);
 	float       aspect = a3d_font_aspectRatioAvg(font);
 	float       size   = a3d_screen_layoutText(widget->screen,
 	                                           self->style_text);
@@ -336,6 +338,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->style_border = text_style_border;
 	self->style_line   = text_style_line;
 	self->style_text   = text_style_text;
+	self->font_type    = A3D_SCREEN_FONT_REGULAR;
 	self->max_len      = text_max_len;
 
 	a3d_vec4f_copy(text_color_fill, &self->color_fill);
@@ -427,4 +430,12 @@ void a3d_textbox_printf(a3d_textbox_t* self,
 	// failure
 	fail_enqueue:
 		free(string);
+}
+
+void a3d_textbox_font(a3d_textbox_t* self,
+                      int font_type)
+{
+	assert(self);
+
+	self->font_type = font_type;
 }

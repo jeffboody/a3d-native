@@ -515,7 +515,8 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	float sh;
 	a3d_screen_sizef(self->screen, &sw, &sh);
 
-	a3d_font_t* font = a3d_screen_font(self->screen);
+	a3d_font_t* font = a3d_screen_font(self->screen,
+	                                   A3D_SCREEN_FONT_REGULAR);
 	float ar = a3d_font_aspectRatioAvg(font);
 	float th = 0.0f;
 	if((self->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&

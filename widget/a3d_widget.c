@@ -877,35 +877,41 @@ int a3d_widget_fade(a3d_widget_t* self, float fade, float dt)
 	assert(self);
 
 	int animate = 0;
-	if(self->fade != fade)
-	{
-		// animate and clamp fade
-		float dfade = 3.0f*dt;
-		if(self->fade > fade)
+
+	// disable fade by default
+	#if 1
+		self->fade = fade;
+	#else
+		if(self->fade != fade)
 		{
-			self->fade -= dfade;
-			if(self->fade < fade)
-			{
-				self->fade = fade;
-			}
-			else
-			{
-				animate = 1;
-			}
-		}
-		else
-		{
-			self->fade += dfade;
+			// animate and clamp fade
+			float dfade = 3.0f*dt;
 			if(self->fade > fade)
 			{
-				self->fade = fade;
+				self->fade -= dfade;
+				if(self->fade < fade)
+				{
+					self->fade = fade;
+				}
+				else
+				{
+					animate = 1;
+				}
 			}
 			else
 			{
-				animate = 1;
+				self->fade += dfade;
+				if(self->fade > fade)
+				{
+					self->fade = fade;
+				}
+				else
+				{
+					animate = 1;
+				}
 			}
 		}
-	}
+	#endif
 
 	a3d_widget_fade_fn fade_fn = self->fade_fn;
 	if(fade_fn)

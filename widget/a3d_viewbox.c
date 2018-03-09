@@ -316,16 +316,16 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 
 	a3d_widget_draw((a3d_widget_t*) self->bullet);
 	a3d_widget_draw(self->body);
-	a3d_viewbox_drawSeparator(widget, y);
 	if(self->footer)
 	{
 		a3d_widget_draw(self->footer);
 
 		// footer separator y
 		w = self->footer;
-		y = w->rect_border.t - v_bo;
-		a3d_viewbox_drawSeparator(widget, y);
+		int y2 = w->rect_border.t - v_bo;
+		a3d_viewbox_drawSeparator(widget, y2);
 	}
+	a3d_viewbox_drawSeparator(widget, y);
 }
 
 static int a3d_viewbox_fade(a3d_widget_t* widget,

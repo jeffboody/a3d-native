@@ -33,9 +33,10 @@
 #define A3D_TEXT_STYLE_MEDIUM 1
 #define A3D_TEXT_STYLE_LARGE  2
 
-#define A3D_TEXT_WRAP_SHRINK  0
-#define A3D_TEXT_WRAP_STRETCH 1
-#define A3D_TEXT_WRAP_COUNT   2
+#define A3D_TEXT_WRAP_SHRINK         0
+#define A3D_TEXT_WRAP_STRETCH        1
+#define A3D_TEXT_WRAP_STRETCH_PARENT 2
+#define A3D_TEXT_WRAP_COUNT          3
 
 typedef void (*a3d_text_enter_fn)(void* priv,
                                   const char* string);

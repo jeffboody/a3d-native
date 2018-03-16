@@ -73,6 +73,10 @@ static void a3d_text_size(a3d_widget_t* widget,
 		int   max_len = self->max_len;
 		*w = size*aspect*max_len;
 	}
+	else if(self->wrapx == A3D_TEXT_WRAP_STRETCH_PARENT)
+	{
+		// ignore
+	}
 	else
 	{
 		float width  = (float) 0.0f;

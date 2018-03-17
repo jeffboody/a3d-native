@@ -26,6 +26,7 @@
 #include "../a3d_shader.h"
 #include "../math/a3d_regionf.h"
 #include "../../texgz/texgz_tex.h"
+#include "../../texgz/texgz_png.h"
 #include "../../libpak/pak_file.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -72,6 +73,22 @@ static const char* VSHADER =
 	"	gl_Position = mvp*vertex;\n"
 	"}\n";
 
+static const char* FSHADER_ALPHA =
+	"#ifdef GL_ES\n"
+	"precision mediump float;\n"
+	"precision mediump int;\n"
+	"#endif\n"
+	"\n"
+	"uniform sampler2D sampler;\n"
+	"uniform vec4      color;\n"
+	"varying vec2      varying_coords;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	float a = texture2D(sampler, varying_coords).a;\n"
+	"	gl_FragColor = vec4(color.rgb, a*color.a);\n"
+	"}\n";
+
 static const char* FSHADER =
 	"#ifdef GL_ES\n"
 	"precision mediump float;\n"
@@ -114,14 +131,16 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 		a3d_mat4f_scale(&mvp, 0, ww, hh, 1.0f);
 		a3d_mat4f_rotate(&mvp, 0, self->theta, 0.0f, 0.0f, 1.0f);
 
-		a3d_spriteShader_t* shader = a3d_screen_spriteShader(screen);
+		int index  = self->index;
+		int format = self->format[index];
+		a3d_spriteShader_t* shader = a3d_screen_spriteShader(screen, format);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glUseProgram(shader->prog);
 		glEnableVertexAttribArray(shader->attr_vertex);
 		glEnableVertexAttribArray(shader->attr_coords);
-		glBindTexture(GL_TEXTURE_2D, self->id_tex[self->index]);
+		glBindTexture(GL_TEXTURE_2D, self->id_tex[index]);
 		glBindBuffer(GL_ARRAY_BUFFER, self->id_vertex);
 		glVertexAttribPointer(shader->attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindBuffer(GL_ARRAY_BUFFER, self->id_coords);
@@ -143,7 +162,7 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 * public                                                   *
 ***********************************************************/
 
-a3d_spriteShader_t* a3d_spriteShader_new(void)
+a3d_spriteShader_t* a3d_spriteShader_new(int format)
 {
 	LOGD("debug");
 
@@ -154,7 +173,15 @@ a3d_spriteShader_t* a3d_spriteShader_new(void)
 		return 0;
 	}
 
-	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
+	if(format == A3D_SPRITESHADER_ALPHA)
+	{
+		self->prog = a3d_shader_make_source(VSHADER, FSHADER_ALPHA);
+	}
+	else
+	{
+		self->prog = a3d_shader_make_source(VSHADER, FSHADER);
+	}
+
 	if(self->prog == 0)
 	{
 		goto fail_prog;
@@ -213,7 +240,7 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 			int size = pak_file_seek(pak, key);
 			if(size > 0)
 			{
-				tex = texgz_tex_importf(pak->f, size);
+				tex = texgz_png_importf(pak->f);
 			}
 			else
 			{
@@ -224,7 +251,7 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 	}
 	else
 	{
-		tex = texgz_tex_import(fname);
+		tex = texgz_png_import(fname);
 	}
 
 	if(tex == NULL)
@@ -243,6 +270,14 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 	             tex->stride, tex->vstride,
 	             0, tex->format, tex->type,
 	             tex->pixels);
+	if(tex->format == TEXGZ_ALPHA)
+	{
+		self->format = A3D_SPRITESHADER_ALPHA;
+	}
+	else
+	{
+		self->format = A3D_SPRITESHADER_COLOR;
+	}
 
 	// no longer needed
 	texgz_tex_delete(&tex);
@@ -366,6 +401,13 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
+	self->format = (int*) calloc(count, sizeof(int));
+	if(self->format == NULL)
+	{
+		LOGE("malloc failed");
+		goto fail_format;
+	}
+
 	self->id_tex = (GLuint*) calloc(count, sizeof(GLuint));
 	if(self->id_tex == NULL)
 	{
@@ -393,6 +435,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	// failure
 	fail_tex:
+		free(self->format);
+	fail_format:
 		a3d_widget_delete((a3d_widget_t**) &self);
 	return NULL;
 }
@@ -414,6 +458,7 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 			a3d_screen_spriteTexUnmap(screen, &(self->id_tex[i]));
 		}
 		free(self->id_tex);
+		free(self->format);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords);
@@ -445,7 +490,8 @@ int a3d_sprite_load(a3d_sprite_t* self, int index, const char* fname)
 	}
 
 	// map the new tex
-	self->id_tex[index] = a3d_screen_spriteTexMap(screen, fname);
+	self->id_tex[index] = a3d_screen_spriteTexMap(screen, fname,
+	                                              &self->format[index]);
 	return self->id_tex[index] > 0;
 }
 

@@ -303,10 +303,16 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 		goto fail_shaders;
 	}
 
-	self->sprite_shader = a3d_spriteShader_new();
-	if(self->sprite_shader == NULL)
+	self->sprite_shader_alpha = a3d_spriteShader_new(A3D_SPRITESHADER_ALPHA);
+	if(self->sprite_shader_alpha == NULL)
 	{
-		goto fail_sprite_shader;
+		goto fail_sprite_shader_alpha;
+	}
+
+	self->sprite_shader_color = a3d_spriteShader_new(A3D_SPRITESHADER_COLOR);
+	if(self->sprite_shader_color == NULL)
+	{
+		goto fail_sprite_shader_color;
 	}
 
 	self->sprite_list = a3d_list_new();
@@ -349,8 +355,10 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 
 	// failure
 	fail_sprite_list:
-		a3d_spriteShader_delete(&self->sprite_shader);
-	fail_sprite_shader:
+		a3d_spriteShader_delete(&self->sprite_shader_color);
+	fail_sprite_shader_color:
+		a3d_spriteShader_delete(&self->sprite_shader_alpha);
+	fail_sprite_shader_alpha:
 		glDeleteProgram(self->prog);
 	fail_shaders:
 		free(self);
@@ -369,7 +377,8 @@ void a3d_screen_delete(a3d_screen_t** _self)
 		// all sprites should have been unmapped already
 		a3d_list_delete(&self->sprite_list);
 
-		a3d_spriteShader_delete(&self->sprite_shader);
+		a3d_spriteShader_delete(&self->sprite_shader_color);
+		a3d_spriteShader_delete(&self->sprite_shader_alpha);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->id_coords2);
 		glDeleteProgram(self->prog);
@@ -409,18 +418,27 @@ a3d_font_t* a3d_screen_font(a3d_screen_t* self, int type)
 	return self->font[type];
 }
 
-a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self)
+a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self, int format)
 {
 	assert(self);
 	LOGD("debug");
 
-	return self->sprite_shader;
+	if(format == A3D_SPRITESHADER_ALPHA)
+	{
+		return self->sprite_shader_alpha;
+	}
+	else
+	{
+		return self->sprite_shader_color;
+	}
 }
 
-GLuint a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname)
+GLuint a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname,
+                               int* format)
 {
 	assert(self);
 	assert(fname);
+	assert(format);
 	LOGD("debug fname=%s", fname);
 
 	a3d_spriteTex_t* t    = NULL;
@@ -447,6 +465,7 @@ GLuint a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname)
 
 	// success
 	a3d_spriteTex_incRef(t);
+	*format = t->format;
 	return t->id_tex;
 
 	// failure

@@ -30,6 +30,9 @@
 
 struct a3d_screen_s;
 
+#define A3D_SPRITESHADER_ALPHA 0
+#define A3D_SPRITESHADER_COLOR 1
+
 typedef struct
 {
 	GLuint prog;
@@ -40,13 +43,14 @@ typedef struct
 	GLint  unif_sampler;
 } a3d_spriteShader_t;
 
-a3d_spriteShader_t* a3d_spriteShader_new(void);
+a3d_spriteShader_t* a3d_spriteShader_new(int format);
 void                a3d_spriteShader_delete(a3d_spriteShader_t** _self);
 
 typedef struct
 {
 	int    ref_count;
 	char   fname[256];
+	int    format;
 	GLuint id_tex;
 } a3d_spriteTex_t;
 
@@ -69,6 +73,7 @@ typedef struct
 	float       theta;
 
 	// GL data
+	int*    format;
 	GLuint* id_tex;
 	GLuint  id_vertex;
 	GLuint  id_coords;

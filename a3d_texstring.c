@@ -85,7 +85,7 @@ static int a3d_texstring_height(a3d_texstring_t* self)
 		"\n"
 		"void main()\n"
 		"{\n"
-		"	float a = texture2D(sampler, varying_coords).r;\n"
+		"	float a = texture2D(sampler, varying_coords).a;\n"
 		"	vec4  c = vec4(color.rgb, a*color.a);\n"
 		"	c.rgb = mix(fill.rgb, c.rgb, c.a);\n"
 		"	c.a = max(c.a, fill.a);\n"

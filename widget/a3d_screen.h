@@ -82,7 +82,8 @@ typedef struct a3d_screen_s
 	a3d_screen_playClickFn playClick;
 
 	// sprite - shared resource
-	a3d_spriteShader_t* sprite_shader;
+	a3d_spriteShader_t* sprite_shader_alpha;
+	a3d_spriteShader_t* sprite_shader_color;
 	a3d_list_t*         sprite_list;
 
 	// fill/line state
@@ -103,8 +104,9 @@ void                a3d_screen_delete(a3d_screen_t** _self);
 void                a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top);
 void                a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus);
 a3d_font_t*         a3d_screen_font(a3d_screen_t* self, int type);
-a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self);
-GLuint              a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname);
+a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self, int format);
+GLuint              a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname,
+                                            int* format);
 void                a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id);
 void                a3d_screen_resize(a3d_screen_t* self, int w, int h);
 void                a3d_screen_density(a3d_screen_t* self, float density);

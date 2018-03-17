@@ -113,13 +113,13 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 
 	a3d_bulletbox_t* bullet = &(self->bullet);
 	if(a3d_bulletbox_spriteLoad(bullet, 0,
-	                            "$ic_radio_button_unchecked_white_24dp.texz") == 0)
+	                            "$ic_radio_button_unchecked_white_24dp.png") == 0)
 	{
 		goto fail_sprite;
 	}
 
 	if(a3d_bulletbox_spriteLoad(bullet, 1,
-	                            "$ic_radio_button_checked_white_24dp.texz") == 0)
+	                            "$ic_radio_button_checked_white_24dp.png") == 0)
 	{
 		goto fail_sprite;
 	}

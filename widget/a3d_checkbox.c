@@ -121,13 +121,13 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 
 	a3d_bulletbox_t* bullet = &(self->bullet);
 	if(a3d_bulletbox_spriteLoad(bullet, 0,
-	                            "$ic_check_box_outline_blank_white_24dp.png") == 0)
+	                            "$ic_check_box_outline_blank_white_24dp.texz") == 0)
 	{
 		goto fail_sprite;
 	}
 
 	if(a3d_bulletbox_spriteLoad(bullet, 1,
-	                            "$ic_check_box_white_24dp.png") == 0)
+	                            "$ic_check_box_white_24dp.texz") == 0)
 	{
 		goto fail_sprite;
 	}

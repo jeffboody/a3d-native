@@ -26,7 +26,6 @@
 #include "../a3d_shader.h"
 #include "../math/a3d_regionf.h"
 #include "../../texgz/texgz_tex.h"
-#include "../../texgz/texgz_png.h"
 #include "../../libpak/pak_file.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -240,7 +239,7 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 			int size = pak_file_seek(pak, key);
 			if(size > 0)
 			{
-				tex = texgz_png_importf(pak->f);
+				tex = texgz_tex_importf(pak->f, size);
 			}
 			else
 			{
@@ -251,7 +250,7 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 	}
 	else
 	{
-		tex = texgz_png_import(fname);
+		tex = texgz_tex_import(fname);
 	}
 
 	if(tex == NULL)

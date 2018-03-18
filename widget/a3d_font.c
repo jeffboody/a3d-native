@@ -24,7 +24,6 @@
 #include "a3d_font.h"
 #include "../a3d_shader.h"
 #include "../../texgz/texgz_tex.h"
-#include "../../texgz/texgz_png.h"
 #include "../../libpak/pak_file.h"
 #include "../../libexpat/expat/lib/expat.h"
 #include <stdlib.h>
@@ -126,7 +125,7 @@ static texgz_tex_t* a3d_font_loadTex(a3d_font_t* self,
 		goto fail_seek;
 	}
 
-	texgz_tex_t* tex = texgz_png_importf(pak->f);
+	texgz_tex_t* tex = texgz_tex_importf(pak->f, size);
 	if(tex == NULL)
 	{
 		goto fail_tex;

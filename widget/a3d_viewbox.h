@@ -65,5 +65,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);
 void            a3d_viewbox_textPrintf(a3d_viewbox_t* self,
                                        const char* fmt, ...);
+void            a3d_viewbox_font(a3d_viewbox_t* self, int font_type);
 
 #endif

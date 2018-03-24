@@ -60,5 +60,6 @@ void            a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
                                          const char* fmt, ...);
 void            a3d_bulletbox_textWrapx(a3d_bulletbox_t* self,
                                         int wrapx);
+void            a3d_bulletbox_font(a3d_bulletbox_t* self, int font_type);
 
 #endif

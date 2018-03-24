@@ -508,3 +508,10 @@ void a3d_viewbox_textPrintf(a3d_viewbox_t* self,
 
 	a3d_bulletbox_textPrintf(self->bullet, "%s", string);
 }
+
+void a3d_viewbox_font(a3d_viewbox_t* self, int font_type)
+{
+	assert(self);
+
+	a3d_bulletbox_font(self->bullet, font_type);
+}

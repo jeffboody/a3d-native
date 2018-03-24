@@ -312,3 +312,10 @@ void a3d_bulletbox_textWrapx(a3d_bulletbox_t* self,
 
 	a3d_text_wrapx(self->text, wrapx);
 }
+
+void a3d_bulletbox_font(a3d_bulletbox_t* self, int font_type)
+{
+	assert(self);
+
+	a3d_text_font(self->text, font_type);
+}

@@ -24,6 +24,7 @@
 #ifndef a3d_texfont_H
 #define a3d_texfont_H
 
+#include "../texgz/texgz_tex.h"
 #include "math/a3d_regionf.h"
 
 typedef struct
@@ -35,9 +36,7 @@ typedef struct
 
 typedef struct
 {
-	// tex attributes
-	int tex_width;
-	int tex_height;
+	texgz_tex_t* tex;
 
 	// font attributes
 	int   size;
@@ -54,9 +53,14 @@ a3d_texfont_t* a3d_texfont_new(const char* resource,
 void           a3d_texfont_delete(a3d_texfont_t** _self);
 void           a3d_texfont_request(a3d_texfont_t* self,
                                    int mode, char c,
+                                   a3d_regionf_t* pc,
                                    a3d_regionf_t* tc,
                                    a3d_regionf_t* vc);
 int            a3d_texfont_width(a3d_texfont_t* self, char c);
 int            a3d_texfont_height(a3d_texfont_t* self);
+int            a3d_texfont_measure(a3d_texfont_t* self,
+                                   const char* s);
+texgz_tex_t*   a3d_texfont_render(a3d_texfont_t* self,
+                                  const char* s);
 
 #endif

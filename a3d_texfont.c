@@ -23,7 +23,6 @@
 
 #include "a3d_texstring.h"
 #include "a3d_texfont.h"
-#include "../texgz/texgz_tex.h"
 #include "../libpak/pak_file.h"
 #include "../libexpat/expat/lib/expat.h"
 #include <stdlib.h>
@@ -263,10 +262,10 @@ static int a3d_texfont_loadCoords(a3d_texfont_t* self,
 
 	// validate xml
 	// check height
-	if(self->h > self->tex_height)
+	if(self->h > self->tex->height)
 	{
 		LOGE("invalid h=%i, tex_height=%i",
-		     self->h, self->tex_height);
+		     self->h, self->tex->height);
 		return 0;
 	}
 
@@ -282,8 +281,8 @@ static int a3d_texfont_loadCoords(a3d_texfont_t* self,
 	int c;
 	for(c = 31; c <= 126; ++c)
 	{
-		int W = self->tex_width;
-		int H = self->tex_height;
+		int W = self->tex->width;
+		int H = self->tex->height;
 		int w = self->coords[c].w;
 		int h = self->h;
 		int t = self->coords[c].y;
@@ -327,13 +326,11 @@ a3d_texfont_t* a3d_texfont_new(const char* resource,
 		return NULL;
 	}
 
-	texgz_tex_t* tex = a3d_texfont_loadTex(self, resource, texname);
-	if(tex == NULL)
+	self->tex = a3d_texfont_loadTex(self, resource, texname);
+	if(self->tex == NULL)
 	{
 		goto fail_tex;
 	}
-	self->tex_width  = tex->width;
-	self->tex_height = tex->height;
 
 	if(a3d_texfont_loadCoords(self, resource, xmlname) == 0)
 	{
@@ -360,16 +357,17 @@ a3d_texfont_t* a3d_texfont_new(const char* resource,
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	#endif
-	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->stride, tex->vstride,
-	             0, tex->format, tex->type, tex->pixels);
-	texgz_tex_delete(&tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, self->tex->format,
+	             self->tex->stride, self->tex->vstride,
+	             0, self->tex->format, self->tex->type,
+	             self->tex->pixels);
 
 	// success
 	return self;
 
 	// failure
 	fail_coords:
-		texgz_tex_delete(&tex);
+		texgz_tex_delete(&self->tex);
 	fail_tex:
 		free(self);
 	return NULL;
@@ -387,6 +385,7 @@ void a3d_texfont_delete(a3d_texfont_t** _self)
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDeleteTextures(1, &self->id);
+		texgz_tex_delete(&self->tex);
 		free(self);
 		*_self = NULL;
 	}
@@ -394,34 +393,38 @@ void a3d_texfont_delete(a3d_texfont_t** _self)
 
 void a3d_texfont_request(a3d_texfont_t* self,
                          int mode, char c,
+                         a3d_regionf_t* pc,
                          a3d_regionf_t* tc,
                          a3d_regionf_t* vc)
 {
 	assert(self);
+	assert(pc);
 	assert(tc);
 	assert(vc);
 	LOGD("debug");
 
 	// check for a ascii/cursor character
-	if((c < 31) && (c > 126))
+	if((c < 31) || (c > 126))
 	{
 		c = A3D_TEXFONT_CURSOR;
 	}
 
 	float w = (float) self->coords[(int) c].w;
 	float h = (float) self->h;
-	float W = (float) (self->tex_width  - 1);
-	float H = (float) (self->tex_height - 1);
+	float W = (float) (self->tex->width  - 1);
+	float H = (float) (self->tex->height - 1);
+
+	// fill in the pixel coords
+	pc->t = (float) self->coords[(int) c].y;
+	pc->l = (float) self->coords[(int) c].x;
+	pc->b = pc->t + h - 1.0f;
+	pc->r = pc->l + w - 1.0f;
 
 	// fill in tex coords
-	tc->t = (float) self->coords[(int) c].y;
-	tc->l = (float) self->coords[(int) c].x;
-	tc->b = tc->t + h - 1.0f;
-	tc->r = tc->l + w - 1.0f;
-	tc->t /= H;
-	tc->l /= W;
-	tc->b /= H;
-	tc->r /= W;
+	tc->t = pc->t/H;
+	tc->l = pc->l/W;
+	tc->b = pc->b/H;
+	tc->r = pc->r/W;
 
 	// fill in vertex coords
 	if(mode == A3D_TEXSTRING_2D)
@@ -455,4 +458,75 @@ int a3d_texfont_height(a3d_texfont_t* self)
 	assert(self);
 
 	return self->h;
+}
+
+int a3d_texfont_measure(a3d_texfont_t* self,
+                        const char* s)
+{
+	assert(self);
+	assert(s);
+
+	int width = 0;
+	while(s[0] != '\0')
+	{
+		width += a3d_texfont_width(self, s[0]);
+		++s;
+	}
+	return width;
+}
+
+texgz_tex_t* a3d_texfont_render(a3d_texfont_t* self,
+                                const char* s)
+{
+	assert(self);
+	assert(s);
+
+	int width  = a3d_texfont_measure(self, s);
+	int height = a3d_texfont_height(self);
+	texgz_tex_t* tex = texgz_tex_new(width, height,
+	                                 width, height,
+	                                 TEXGZ_UNSIGNED_BYTE,
+	                                 TEXGZ_ALPHA,
+	                                 NULL);
+	if(tex == NULL)
+	{
+		return NULL;
+	}
+
+	// blit characters
+	int xs = 0;
+	int ys = 0;
+	int xd = 0;
+	int yd = 0;
+	a3d_regionf_t pc;
+	a3d_regionf_t tc;
+	a3d_regionf_t vc;
+	while(s[0] != '\0')
+	{
+		a3d_texfont_request(self,
+		                    A3D_TEXSTRING_2D, s[0],
+		                    &pc, &tc, &vc);
+
+		xs    = pc.l;
+		ys    = pc.t;
+		width = a3d_texfont_width(self, s[0]);
+
+		if(texgz_tex_blit(self->tex, tex,
+                          width, height,
+                          xs, ys, xd, yd) == 0)
+		{
+			goto fail_blit;
+		}
+
+		xd += width;
+		++s;
+	}
+
+	// success
+	return tex;
+
+	// failure
+	fail_blit:
+		texgz_tex_delete(&tex);
+	return NULL;
 }

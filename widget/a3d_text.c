@@ -164,50 +164,50 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 	a3d_font_t*   font   = a3d_screen_font(widget->screen,
 	                                       self->font_type);
 
-	a3d_regionf_t coords;
-	a3d_regionf_t vertex;
+	a3d_regionf_t tc;
+	a3d_regionf_t vc;
 	a3d_font_request(font, c,
-	                 &coords, &vertex);
+	                 &tc, &vc);
 
 	// compute vertex/coords for glDrawArrays
 	// quad vertex/coords order
 	// bl.xyz/uv, tl.xyz/uv, br.xyz/uv, tr.xyz/uv
-	self->vertex[18*i +  0] = vertex.l + offset;   // tl.xyz
-	self->vertex[18*i +  1] = vertex.t;
+	self->vertex[18*i +  0] = vc.l + offset;   // tl.xyz
+	self->vertex[18*i +  1] = vc.t;
 	self->vertex[18*i +  2] = 0.0f;
-	self->vertex[18*i +  3] = vertex.l + offset;   // bl.xyz
-	self->vertex[18*i +  4] = vertex.b;
+	self->vertex[18*i +  3] = vc.l + offset;   // bl.xyz
+	self->vertex[18*i +  4] = vc.b;
 	self->vertex[18*i +  5] = 0.0f;
-	self->vertex[18*i +  6] = vertex.r + offset;   // br.xyz
-	self->vertex[18*i +  7] = vertex.b;
+	self->vertex[18*i +  6] = vc.r + offset;   // br.xyz
+	self->vertex[18*i +  7] = vc.b;
 	self->vertex[18*i +  8] = 0.0f;
 
-	self->vertex[18*i +  9] = vertex.l + offset;   // tl.xyz
-	self->vertex[18*i + 10] = vertex.t;
+	self->vertex[18*i +  9] = vc.l + offset;   // tl.xyz
+	self->vertex[18*i + 10] = vc.t;
 	self->vertex[18*i + 11] = 0.0f;
-	self->vertex[18*i + 12] = vertex.r + offset;   // br.xyz
-	self->vertex[18*i + 13] = vertex.b;
+	self->vertex[18*i + 12] = vc.r + offset;   // br.xyz
+	self->vertex[18*i + 13] = vc.b;
 	self->vertex[18*i + 14] = 0.0f;
-	self->vertex[18*i + 15] = vertex.r + offset;   // tr.xyz
-	self->vertex[18*i + 16] = vertex.t;
+	self->vertex[18*i + 15] = vc.r + offset;   // tr.xyz
+	self->vertex[18*i + 16] = vc.t;
 	self->vertex[18*i + 17] = 0.0f;
 
-	self->coords[12*i + 0] = coords.l;   // tl.uv
-	self->coords[12*i + 1] = coords.t;
-	self->coords[12*i + 2] = coords.l;   // bl.uv
-	self->coords[12*i + 3] = coords.b;
-	self->coords[12*i + 4] = coords.r;   // br.uv
-	self->coords[12*i + 5] = coords.b;
+	self->coords[12*i + 0] = tc.l;   // tl.uv
+	self->coords[12*i + 1] = tc.t;
+	self->coords[12*i + 2] = tc.l;   // bl.uv
+	self->coords[12*i + 3] = tc.b;
+	self->coords[12*i + 4] = tc.r;   // br.uv
+	self->coords[12*i + 5] = tc.b;
 
-	self->coords[12*i +  6] = coords.l;   // tl.uv
-	self->coords[12*i +  7] = coords.t;
-	self->coords[12*i +  8] = coords.r;   // br.uv
-	self->coords[12*i +  9] = coords.b;
-	self->coords[12*i + 10] = coords.r;   // tr.uv
-	self->coords[12*i + 11] = coords.t;
+	self->coords[12*i +  6] = tc.l;   // tl.uv
+	self->coords[12*i +  7] = tc.t;
+	self->coords[12*i +  8] = tc.r;   // br.uv
+	self->coords[12*i +  9] = tc.b;
+	self->coords[12*i + 10] = tc.r;   // tr.uv
+	self->coords[12*i + 11] = tc.t;
 
 	// next character offset
-	*_offset += vertex.r;
+	*_offset += vc.r;
 }
 
 static int a3d_text_keyPress(a3d_widget_t* widget,

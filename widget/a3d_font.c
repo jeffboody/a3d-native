@@ -463,7 +463,7 @@ void a3d_font_request(a3d_font_t* self,
 	LOGD("debug");
 
 	// check for a ascii/cursor character
-	if((c < 31) && (c > 126))
+	if((c < 31) || (c > 126))
 	{
 		c = A3D_FONT_CURSOR;
 	}

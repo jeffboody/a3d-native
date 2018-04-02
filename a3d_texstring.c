@@ -247,12 +247,13 @@ void a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...)
 
 	LOGD("debug %s", self->string);
 
-	// compute vertex/coords for glDrawArrays
+	// compute pixel/vertex/coords for glDrawArrays
 	// quad vertex/coords order
 	// bl.xyz/uv, tl.xyz/uv, br.xyz/uv, tr.xyz/uv
 	int i;
-	a3d_regionf_t coords;
-	a3d_regionf_t vertex;
+	a3d_regionf_t pc;
+	a3d_regionf_t tc;
+	a3d_regionf_t vc;
 	int len = strlen(self->string);
 	float offset = 0.0f;
 
@@ -286,44 +287,45 @@ void a3d_texstring_printf(a3d_texstring_t* self, const char* fmt, ...)
 
 	for(i = 0; i < len; ++i)
 	{
-		a3d_texfont_request(self->font, self->mode, self->string[i], &coords, &vertex);
+		a3d_texfont_request(self->font, self->mode, self->string[i],
+		                    &pc, &tc, &vc);
 
-		self->vertex[18*i +  0] = vertex.l + offset + x_offset;   // tl.xyz
-		self->vertex[18*i +  1] = vertex.t + y_offset;
+		self->vertex[18*i +  0] = vc.l + offset + x_offset;   // tl.xyz
+		self->vertex[18*i +  1] = vc.t + y_offset;
 		self->vertex[18*i +  2] = 0.0f;
-		self->vertex[18*i +  3] = vertex.l + offset + x_offset;   // bl.xyz
-		self->vertex[18*i +  4] = vertex.b + y_offset;
+		self->vertex[18*i +  3] = vc.l + offset + x_offset;   // bl.xyz
+		self->vertex[18*i +  4] = vc.b + y_offset;
 		self->vertex[18*i +  5] = 0.0f;
-		self->vertex[18*i +  6] = vertex.r + offset + x_offset;   // br.xyz
-		self->vertex[18*i +  7] = vertex.b + y_offset;
+		self->vertex[18*i +  6] = vc.r + offset + x_offset;   // br.xyz
+		self->vertex[18*i +  7] = vc.b + y_offset;
 		self->vertex[18*i +  8] = 0.0f;
 
-		self->vertex[18*i +  9] = vertex.l + offset + x_offset;   // tl.xyz
-		self->vertex[18*i + 10] = vertex.t + y_offset;
+		self->vertex[18*i +  9] = vc.l + offset + x_offset;   // tl.xyz
+		self->vertex[18*i + 10] = vc.t + y_offset;
 		self->vertex[18*i + 11] = 0.0f;
-		self->vertex[18*i + 12] = vertex.r + offset + x_offset;   // br.xyz
-		self->vertex[18*i + 13] = vertex.b + y_offset;
+		self->vertex[18*i + 12] = vc.r + offset + x_offset;   // br.xyz
+		self->vertex[18*i + 13] = vc.b + y_offset;
 		self->vertex[18*i + 14] = 0.0f;
-		self->vertex[18*i + 15] = vertex.r + offset + x_offset;   // tr.xyz
-		self->vertex[18*i + 16] = vertex.t + y_offset;
+		self->vertex[18*i + 15] = vc.r + offset + x_offset;   // tr.xyz
+		self->vertex[18*i + 16] = vc.t + y_offset;
 		self->vertex[18*i + 17] = 0.0f;
 
-		self->coords[12*i + 0] = coords.l;   // tl.uv
-		self->coords[12*i + 1] = coords.t;
-		self->coords[12*i + 2] = coords.l;   // bl.uv
-		self->coords[12*i + 3] = coords.b;
-		self->coords[12*i + 4] = coords.r;   // br.uv
-		self->coords[12*i + 5] = coords.b;
+		self->coords[12*i + 0] = tc.l;   // tl.uv
+		self->coords[12*i + 1] = tc.t;
+		self->coords[12*i + 2] = tc.l;   // bl.uv
+		self->coords[12*i + 3] = tc.b;
+		self->coords[12*i + 4] = tc.r;   // br.uv
+		self->coords[12*i + 5] = tc.b;
 
-		self->coords[12*i +  6] = coords.l;   // tl.uv
-		self->coords[12*i +  7] = coords.t;
-		self->coords[12*i +  8] = coords.r;   // br.uv
-		self->coords[12*i +  9] = coords.b;
-		self->coords[12*i + 10] = coords.r;   // tr.uv
-		self->coords[12*i + 11] = coords.t;
+		self->coords[12*i +  6] = tc.l;   // tl.uv
+		self->coords[12*i +  7] = tc.t;
+		self->coords[12*i +  8] = tc.r;   // br.uv
+		self->coords[12*i +  9] = tc.b;
+		self->coords[12*i + 10] = tc.r;   // tr.uv
+		self->coords[12*i + 11] = tc.t;
 
 		// next character offset
-		offset += vertex.r;
+		offset += vc.r;
 	}
 	int vertex_size = 18 * len;   // 2 * 3 * xyz
 	int coords_size = 12 * len;   // 2 * 3 * uv

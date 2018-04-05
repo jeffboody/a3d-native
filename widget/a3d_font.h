@@ -70,5 +70,7 @@ void        a3d_font_request(a3d_font_t* self,
 float       a3d_font_aspectRatioAvg(a3d_font_t* self);
 int         a3d_font_width(a3d_font_t* self, char c);
 int         a3d_font_height(a3d_font_t* self);
+int         a3d_font_measure(a3d_font_t* self,
+                             const char* s);
 
 #endif

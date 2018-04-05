@@ -515,3 +515,17 @@ int a3d_font_height(a3d_font_t* self)
 
 	return self->h;
 }
+
+int a3d_font_measure(a3d_font_t* self, const char* s)
+{
+	assert(self);
+	assert(s);
+
+	int width = 0;
+	while(s[0] != '\0')
+	{
+		width += a3d_font_width(self, s[0]);
+		++s;
+	}
+	return width;
+}

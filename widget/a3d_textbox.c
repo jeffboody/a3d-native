@@ -146,23 +146,12 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	self->last_w = w;
 	self->last_h = h;
 
-	// TODO - reflow text for variable width font
-	// determine maxi
+	// reflow text for variable width font
 	a3d_font_t* font   = a3d_screen_font(widget->screen,
 	                                     self->font_type);
-	float       aspect = a3d_font_aspectRatioAvg(font);
 	float       size   = a3d_screen_layoutText(widget->screen,
 	                                           self->style_text);
-	int         maxi   = (int) (w/(aspect*size)) - 1;
-
-	// maxi does not include null character
-	// but max_len does
-	// limit to max_len
-	if((maxi >= self->max_len) ||
-	   (maxi == 0))
-	{
-		maxi = self->max_len - 1;
-	}
+	float       height = (float) a3d_font_height(font);
 
 	// clear the text
 	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
@@ -177,6 +166,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	// initialize parser
 	char tok[256];
 	char dst[256];
+	char tmp[256];
 	int  srci = 0;
 	int  toki = 0;
 	int  dsti = 0;
@@ -196,11 +186,13 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 			{
 				if(dsti > 0)
 				{
+					// print current line and line break
 					a3d_textbox_printText(self, dst);
 					a3d_textbox_printText(self, "");
 				}
 				else
 				{
+					// print line break
 					a3d_textbox_printText(self, "");
 				}
 				dsti = 0;
@@ -209,23 +201,33 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 			if(dsti == 0)
 			{
+				// start a new line
 				strncpy(dst, tok, 256);
 				dst[255] = '\0';
 				dsti = toki;
 			}
 			else
 			{
-				if(dsti + toki + 1 <= maxi)
+				// measure width of "dst tok"
+				snprintf(tmp, 256, "%s %s", dst, tok);
+				tmp[255] = '\0';
+				float width = (float) a3d_font_measure(font, tmp);
+				int   len   = strlen(tmp);
+
+				if((size*(width/height) <= w) &&
+				   (len < self->max_len))
 				{
-					strcat(dst, " ");
-					strcat(dst, tok);
+					// append to current line
+					snprintf(dst, 256, "%s", tmp);
 					dst[255] = '\0';
 					dsti += toki + 1;
 				}
 				else
 				{
+					// print the current line
 					a3d_textbox_printText(self, dst);
 
+					// start a new line
 					strncpy(dst, tok, 256);
 					dst[255] = '\0';
 					dsti = toki;
@@ -240,6 +242,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 	if(dsti > 0)
 	{
+		// print the last line
 		a3d_textbox_printText(self, dst);
 	}
 }

@@ -470,6 +470,57 @@ void a3d_mat4f_orthonormal_copy(const a3d_mat4f_t* self, a3d_mat4f_t* copy)
  * quaternion operations
  */
 
+void a3d_mat4f_quaternion(const a3d_mat4f_t* self,
+                          a3d_quaternion_t* q)
+{
+	assert(self);
+	assert(q);
+
+	// http://www.flipcode.com/documents/matrfaq.html#Q55
+	// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
+
+	float s;
+	float w;
+	float x;
+	float y;
+	float z;
+	float tr = self->m00 + self->m11 + self->m22;
+	if(tr > 0.0f)
+	{
+		s = sqrtf(tr + 1.0f)*2.0f;
+		w = 0.25f*s;
+		x = (self->m21 - self->m12)/s;
+		y = (self->m02 - self->m20)/s;
+		z = (self->m10 - self->m01)/s;
+	}
+	else if((self->m00 > self->m11) &&
+	        (self->m00 > self->m22))
+	{
+		s = sqrtf(1.0f + self->m00 - self->m11 - self->m22)*2.0f;
+		w = (self->m21 - self->m12)/s;
+		x = 0.25f*s;
+		y = (self->m01 + self->m10)/s;
+		z = (self->m02 + self->m20)/s;
+	}
+	else if(self->m11 > self->m22)
+	{
+		s = sqrtf(1.0f + self->m11 - self->m00 - self->m22)*2.0f;
+		w = (self->m02 - self->m20)/s;
+		x = (self->m01 + self->m10)/s;
+		y = 0.25f*s;
+		z = (self->m12 + self->m21)/s;
+	}
+	else
+	{
+		s = sqrtf(1.0f + self->m22 - self->m00 - self->m11)*2.0f;
+		w = (self->m10 - self->m01)/s;
+		x = (self->m02 + self->m20)/s;
+		y = (self->m12 + self->m21)/s;
+		z = 0.25f*s;
+	}
+	a3d_quaternion_load(q, x, y, z, w);
+}
+
 void a3d_mat4f_rotateq(a3d_mat4f_t* self, int load,
                        const a3d_quaternion_t* q)
 {
@@ -490,9 +541,9 @@ void a3d_mat4f_rotateq(a3d_mat4f_t* self, int load,
 	// requires normalized quaternions
 	a3d_mat4f_t m =
 	{
-		1.0f - 2.0f*(y2 + z2), 2.0f*(xy - zw), 2.0f*(xz + yw), 0.0f,
-		2.0f*(xy + zw), 1.0f - 2.0f*(x2 + z2), 2.0f*(yz - xw), 0.0f,
-		2.0f*(xz - yw), 2.0f*(yz + xw), 1.0f - 2.0f*(x2 + y2), 0.0f,
+		1.0f - 2.0f*(y2 + z2), 2.0f*(xy + zw), 2.0f*(xz - yw), 0.0f,
+		2.0f*(xy - zw), 1.0f - 2.0f*(x2 + z2), 2.0f*(yz + xw), 0.0f,
+		2.0f*(xz + yw), 2.0f*(yz - xw), 1.0f - 2.0f*(x2 + y2), 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f,
 	};
 

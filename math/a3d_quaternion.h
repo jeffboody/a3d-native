@@ -46,10 +46,21 @@ void a3d_quaternion_loadeuler(a3d_quaternion_t* self,
 void a3d_quaternion_loadaxisangle(a3d_quaternion_t* self,
                                   GLfloat ax, GLfloat ay, GLfloat az,
                                   GLfloat angle);
+void a3d_quaternion_copy(const a3d_quaternion_t* self,
+                         a3d_quaternion_t* q);
+void a3d_quaternion_identity(a3d_quaternion_t* self);
+void a3d_quaternion_inverse(a3d_quaternion_t* self);
+void a3d_quaternion_inverse_copy(const a3d_quaternion_t* self,
+                                 a3d_quaternion_t* q);
 void a3d_quaternion_rotateq(a3d_quaternion_t* self,
                             const a3d_quaternion_t* q);
 void a3d_quaternion_rotateq_copy(const a3d_quaternion_t* self,
                                  const a3d_quaternion_t* q,
                                  a3d_quaternion_t* copy);
+void a3d_quaternion_slerp(const a3d_quaternion_t* a,
+                          const a3d_quaternion_t* b,
+                          float t, a3d_quaternion_t* c);
+float a3d_quaternion_compare(const a3d_quaternion_t* a,
+                             const a3d_quaternion_t* b);
 
 #endif

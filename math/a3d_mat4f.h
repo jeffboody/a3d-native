@@ -71,6 +71,8 @@ void a3d_mat4f_orthonormal(a3d_mat4f_t* self);
 void a3d_mat4f_orthonormal_copy(const a3d_mat4f_t* self, a3d_mat4f_t* copy);
 
 // quaternion operations
+void a3d_mat4f_quaternion(const a3d_mat4f_t* self,
+                          a3d_quaternion_t* q);
 void a3d_mat4f_rotateq(a3d_mat4f_t* self, int load,
                        const a3d_quaternion_t* q);
 

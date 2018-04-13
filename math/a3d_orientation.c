@@ -22,8 +22,6 @@
  */
 
 #include "a3d_orientation.h"
-#include "a3d_mat4f.h"
-#include "a3d_quaternion.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
@@ -36,7 +34,7 @@
 * private                                                  *
 ***********************************************************/
 
-static void a3d_orientation_update(a3d_orientation_t* self)
+static void a3d_orientation_update(a3d_orientation_t* self, int slerp)
 {
 	assert(self);
 	LOGD("debug");
@@ -62,7 +60,7 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 	a3d_vec3f_cross_copy(&z, &x, &y);
 	a3d_vec3f_normalize(&y);
 
-	a3d_mat4f_t* m;
+	a3d_mat4f_t m;
 	if(self->m_north == A3D_ORIENTATION_TRUE)
 	{
 		// load the rotation matrix
@@ -95,15 +93,15 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 		// load the true north rotation matrix
 		a3d_mat4f_t n;
 		n.m00 = x.x;
-		n.m10 = y.x;
-		n.m20 = z.x;
+		n.m10 = x.y;
+		n.m20 = x.z;
 		n.m30 = 0.0f;
-		n.m01 = x.y;
+		n.m01 = y.x;
 		n.m11 = y.y;
-		n.m21 = z.y;
+		n.m21 = y.z;
 		n.m31 = 0.0f;
-		n.m02 = x.z;
-		n.m12 = y.z;
+		n.m02 = z.x;
+		n.m12 = z.y;
 		n.m22 = z.z;
 		n.m32 = 0.0f;
 		n.m03 = 0.0f;
@@ -111,56 +109,54 @@ static void a3d_orientation_update(a3d_orientation_t* self)
 		n.m23 = 0.0f;
 		n.m33 = 1.0f;
 
-		// transpose/invert true north rotation matrix
-		a3d_mat4f_transpose(&n);
-
 		// correct for true north
-		m = &self->ring[self->ring_index];
-		a3d_mat4f_mulm_copy(&n, &r, m);
+		a3d_mat4f_mulm_copy(&n, &r, &m);
 	}
 	else
 	{
-		m = &self->ring[self->ring_index];
-		m->m00 = x.x;
-		m->m10 = y.x;
-		m->m20 = z.x;
-		m->m30 = 0.0f;
-		m->m01 = x.y;
-		m->m11 = y.y;
-		m->m21 = z.y;
-		m->m31 = 0.0f;
-		m->m02 = x.z;
-		m->m12 = y.z;
-		m->m22 = z.z;
-		m->m32 = 0.0f;
-		m->m03 = 0.0f;
-		m->m13 = 0.0f;
-		m->m23 = 0.0f;
-		m->m33 = 1.0f;
+		m.m00 = x.x;
+		m.m10 = y.x;
+		m.m20 = z.x;
+		m.m30 = 0.0f;
+		m.m01 = x.y;
+		m.m11 = y.y;
+		m.m21 = z.y;
+		m.m31 = 0.0f;
+		m.m02 = x.z;
+		m.m12 = y.z;
+		m.m22 = z.z;
+		m.m32 = 0.0f;
+		m.m03 = 0.0f;
+		m.m13 = 0.0f;
+		m.m23 = 0.0f;
+		m.m33 = 1.0f;
 	}
 
-	// increment the matrix ring buffer
-	if(self->ring_count < A3D_ORIENTATION_COUNT)
+	// convert matrix to quaternion
+	a3d_quaternion_t q;
+	a3d_quaternion_t out;
+	a3d_mat4f_quaternion(&m, &q);
+
+	if(slerp)
 	{
-		++self->ring_count;
-	}
-	self->ring_index = (self->ring_index + 1) % A3D_ORIENTATION_COUNT;
+		// derive slerp from err
+		float err = a3d_quaternion_compare(&q, &self->Q);
+		float t   = 0.001f + err*err;
 
-	// increment sample count
-	if(self->samples < A3D_ORIENTATION_SAMPLES)
+		// clamp the slerp
+		if(t > 0.004f)
+		{
+			t = 0.004f;
+		}
+
+		// update the filtered rotation quaternion
+		a3d_quaternion_slerp(&self->Q, &q, t, &out);
+		a3d_quaternion_copy(&out, &self->Q);
+	}
+	else
 	{
-		++self->samples;
+		a3d_quaternion_copy(&q, &self->Q);
 	}
-
-	// update the filtered rotation matrix
-	// enforce orthonormal constraint for rotation matrix
-	a3d_mat4f_t r;
-	float s1 = 1.0f/((float) self->samples);
-	float s2 = 1.0f - s1;
-	a3d_mat4f_muls_copy(m, s1, &r);
-	a3d_mat4f_muls(&self->R, s2);
-	a3d_mat4f_addm(&self->R, &r);
-	a3d_mat4f_orthonormal(&self->R);
 }
 
 /***********************************************************
@@ -220,12 +216,7 @@ void a3d_orientation_reset(a3d_orientation_t* self)
 	self->g_ay       = 0.0f;
 	self->g_az       = 0.0f;
 
-	self->ring_count = 0;
-	self->ring_index = 0;
-	memset(self->ring, 0, sizeof(self->ring));
-
-	self->samples = 0;
-	a3d_mat4f_identity(&self->R);
+	a3d_quaternion_identity(&self->Q);
 }
 
 void a3d_orientation_accelerometer(a3d_orientation_t* self,
@@ -248,13 +239,20 @@ void a3d_orientation_accelerometer(a3d_orientation_t* self,
 		a3d_orientation_reset(self);
 	}
 
+	// don't slerp for the first rotation
+	int slerp = 1;
+	if((self->a_ts == 0.0) && (self->m_ts > 0.0))
+	{
+		slerp = 0;
+	}
+
 	self->a_ts       = ts;
 	self->a_ax       = ax;
 	self->a_ay       = ay;
 	self->a_az       = az;
 	self->a_rotation = rotation;
 
-	a3d_orientation_update(self);
+	a3d_orientation_update(self, slerp);
 }
 
 void a3d_orientation_magnetometer(a3d_orientation_t* self,
@@ -270,6 +268,13 @@ void a3d_orientation_magnetometer(a3d_orientation_t* self,
 	LOGD("debug ts=%lf, mx=%f, my=%f, mz=%f",
 	     ts, mx, my, mz);
 
+	// don't slerp for the first rotation
+	int slerp = 1;
+	if((self->m_ts == 0.0) && (self->a_ts > 0.0))
+	{
+		slerp = 0;
+	}
+
 	self->m_ts  = ts;
 	self->m_mx  = mx;
 	self->m_my  = my;
@@ -278,7 +283,7 @@ void a3d_orientation_magnetometer(a3d_orientation_t* self,
 	self->m_gfy = gfy;
 	self->m_gfz = gfz;
 
-	a3d_orientation_update(self);
+	a3d_orientation_update(self, slerp);
 }
 
 void a3d_orientation_gyroscope(a3d_orientation_t* self,
@@ -303,12 +308,10 @@ void a3d_orientation_gyroscope(a3d_orientation_t* self,
 		float mag   = sqrtf(ax*ax + ay*ay + az*az);
 		float angle = (180.0f/M_PI)*mag*dt;
 
+
 		a3d_quaternion_t q;
 		a3d_quaternion_loadaxisangle(&q, ax, ay, az, angle);
-		a3d_mat4f_t R;
-		a3d_mat4f_rotateq(&R, 1, &q);
-		a3d_mat4f_transpose(&R);
-		a3d_mat4f_mulm(&self->R, &R);
+		a3d_quaternion_rotateq(&self->Q, &q);
 	}
 
 	self->g_ts = ts;
@@ -324,35 +327,7 @@ void a3d_orientation_mat4f(a3d_orientation_t* self,
 	assert(m);
 	LOGD("debug");
 
-	// verify that orientation exists
-	if(self->ring_count == 0)
-	{
-		a3d_mat4f_identity(m);
-		return;
-	}
-
-	if(self->g_ts == 0.0)
-	{
-		// See "On Averaging Rotations"
-		// http://www.soest.hawaii.edu/wessel/courses/gg711/pdf/Gramkow_2001_JMIV.pdf
-
-		// compute average rotation matrix
-		int i;
-		a3d_mat4f_copy(&self->ring[0], m);
-		for(i = 1; i < self->ring_count; ++i)
-		{
-			a3d_mat4f_addm(m, &self->ring[i]);
-		}
-		a3d_mat4f_muls(m, 1.0f/(GLfloat) self->ring_count);
-
-		// enforce orthonormal constraint for rotation matrix
-		a3d_mat4f_orthonormal(m);
-	}
-	else
-	{
-		// use the filtered estimate
-		a3d_mat4f_copy(&self->R, m);
-	}
+	a3d_mat4f_rotateq(m, 1, &self->Q);
 }
 
 void a3d_orientation_vpn(a3d_orientation_t* self,

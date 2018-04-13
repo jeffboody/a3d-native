@@ -144,6 +144,41 @@ void a3d_quaternion_loadaxisangle(a3d_quaternion_t* self,
 	a3d_quaternion_normalize(self);
 }
 
+void a3d_quaternion_copy(const a3d_quaternion_t* self,
+                         a3d_quaternion_t* q)
+{
+	assert(self);
+	assert(q);
+
+	a3d_quaternion_load(q, self->v.x, self->v.y,
+	                    self->v.z, self->s);
+}
+
+void a3d_quaternion_identity(a3d_quaternion_t* self)
+{
+	assert(self);
+
+	a3d_quaternion_load(self, 0.0f, 0.0f, 0.0f, 1.0f);
+}
+
+void a3d_quaternion_inverse(a3d_quaternion_t* self)
+{
+	assert(self);
+
+	a3d_quaternion_load(self, -self->v.x, -self->v.y,
+	                    -self->v.z, self->s);
+}
+
+void a3d_quaternion_inverse_copy(const a3d_quaternion_t* self,
+                                 a3d_quaternion_t* q)
+{
+	assert(self);
+	assert(q);
+
+	a3d_quaternion_load(q, -self->v.x, -self->v.y,
+	                    -self->v.z, self->s);
+}
+
 void a3d_quaternion_rotateq(a3d_quaternion_t* self,
                             const a3d_quaternion_t* q)
 {
@@ -219,4 +254,66 @@ void a3d_quaternion_rotateq_copy(const a3d_quaternion_t* self,
 		a3d_quaternion_load(copy, a.x, a.y, a.z, s);
 		a3d_quaternion_normalize(copy);
 	#endif
+}
+
+void a3d_quaternion_slerp(const a3d_quaternion_t* a,
+                          const a3d_quaternion_t* b,
+                          float t, a3d_quaternion_t* c)
+{
+	assert(a);
+	assert(b);
+	assert(c);
+
+	// https://en.wikipedia.org/wiki/Slerp
+
+	a3d_quaternion_t aa;
+	a3d_quaternion_t bb;
+	a3d_quaternion_normalize_copy(a, &aa);
+	a3d_quaternion_normalize_copy(b, &bb);
+	float dot = a3d_vec4f_dot((const a3d_vec4f_t*) &aa,
+	                          (const a3d_vec4f_t*) &bb);
+	if(dot < 0.0f)
+	{
+		a3d_vec4f_muls((a3d_vec4f_t*) &bb, -1.0f);
+		dot = -dot;
+	}
+
+	const float thresh = 0.9995f;
+	if(dot > thresh)
+	{
+		// linearly interpolate and normalize the result
+		a3d_vec4f_subv_copy((const a3d_vec4f_t*) &bb,
+		                    (const a3d_vec4f_t*) &aa,
+		                    (a3d_vec4f_t*) c);
+		a3d_vec4f_muls((a3d_vec4f_t*) c, t);
+		a3d_vec4f_addv((a3d_vec4f_t*) c,
+		               (const a3d_vec4f_t*) &aa);
+		a3d_quaternion_normalize(c);
+		return;
+	}
+
+	// interpolate between quaternions
+	float theta_0 = acosf(dot);
+	float theta   = theta_0*t;
+	float s0      = cosf(theta) - dot*sinf(theta)/sin(theta_0);
+	float s1      = sinf(theta)/sinf(theta_0);
+	a3d_vec4f_muls((a3d_vec4f_t*) &aa, s0);
+	a3d_vec4f_muls((a3d_vec4f_t*) &bb, s1);
+	a3d_vec4f_addv_copy((const a3d_vec4f_t*) &aa,
+	                    (const a3d_vec4f_t*) &bb,
+	                    (a3d_vec4f_t*) c);
+	a3d_quaternion_normalize(c);
+}
+
+float a3d_quaternion_compare(const a3d_quaternion_t* a,
+                             const a3d_quaternion_t* b)
+{
+	assert(a);
+	assert(b);
+
+	float ds = b->s   - a->s;
+	float dx = b->v.x - a->v.x;
+	float dy = b->v.y - a->v.y;
+	float dz = b->v.z - a->v.z;
+	return sqrtf(ds*ds + dx*dx + dy*dy + dz*dz);
 }

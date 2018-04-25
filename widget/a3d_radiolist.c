@@ -158,17 +158,23 @@ void a3d_radiolist_delete(a3d_radiolist_t** _self)
 	{
 		LOGD("debug");
 
-		a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
-		a3d_listitem_t* iter    = a3d_list_head(listbox->list);
-		while(iter)
-		{
-			a3d_radiobox_t* rb;
-			rb = (a3d_radiobox_t*) a3d_list_remove(listbox->list, &iter);
-			a3d_radiobox_delete(&rb);
-		}
-
+		a3d_radiolist_clear(self);
 		a3d_listbox_delete((a3d_listbox_t**) _self);
 		*_self = NULL;
+	}
+}
+
+void a3d_radiolist_clear(a3d_radiolist_t* self)
+{
+	assert(self);
+
+	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
+	a3d_listitem_t* iter    = a3d_list_head(listbox->list);
+	while(iter)
+	{
+		a3d_radiobox_t* rb;
+		rb = (a3d_radiobox_t*) a3d_list_remove(listbox->list, &iter);
+		a3d_radiobox_delete(&rb);
 	}
 }
 

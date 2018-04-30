@@ -136,9 +136,12 @@ typedef struct a3d_widget_s
 	// decorations
 	int         style_border;
 	int         style_line;
+	int         scroll_bar;
 	a3d_vec4f_t color_line;
 	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_fill2;
+	a3d_vec4f_t color_scroll0;
+	a3d_vec4f_t color_scroll1;
 	float       tone_y2;
 
 	// fade animation
@@ -201,6 +204,15 @@ typedef struct a3d_widget_s
 	GLint  unif_color2a;
 	GLint  unif_color2b;
 	GLint  unif_y2;
+
+	GLuint scroll_id_vtx_rect;
+	GLuint scroll_prog;
+	GLint  scroll_attr_vertex;
+	GLint  scroll_unif_mvp;
+	GLint  scroll_unif_color0;
+	GLint  scroll_unif_color1;
+	GLint  scroll_unif_a;
+	GLint  scroll_unif_b;
 } a3d_widget_t;
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
@@ -252,5 +264,8 @@ void          a3d_widget_soundFx(a3d_widget_t* self,
 void          a3d_widget_twoTone(a3d_widget_t* self,
                                  a3d_vec4f_t* color_fill2);
 void          a3d_widget_twoToneY(a3d_widget_t* self, float y);
+void          a3d_widget_scrollbar(a3d_widget_t* self,
+                                   a3d_vec4f_t* color_scroll0,
+                                   a3d_vec4f_t* color_scroll1);
 
 #endif

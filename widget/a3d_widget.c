@@ -94,6 +94,44 @@ static const char* FSHADER2 =
 	"	}\n"
 	"}\n";
 
+static const char* VSHADER_SCROLL =
+	"attribute vec4  xyuv;\n"
+	"uniform   mat4  mvp;\n"
+	"\n"
+	"varying   float varying_v;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	varying_v = xyuv.w;\n"
+	"	gl_Position = mvp*vec4(xyuv.xy, 0.0, 1.0);\n"
+	"}\n";
+
+static const char* FSHADER_SCROLL =
+	"#ifdef GL_ES\n"
+	"precision mediump float;\n"
+	"precision mediump int;\n"
+	"#endif\n"
+	"\n"
+	"uniform vec4  color0;\n"
+	"uniform vec4  color1;\n"
+	"uniform float a;\n"
+	"uniform float b;\n"
+	"\n"
+	"varying float varying_v;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	if((varying_v < a) ||\n"
+	"	   (varying_v > b))\n"
+	"	{\n"
+	"		gl_FragColor = color0;\n"
+	"	}\n"
+	"	else\n"
+	"	{\n"
+	"		gl_FragColor = color1;\n"
+	"	}\n"
+	"}\n";
+
 static int a3d_widget_shaders(a3d_widget_t* self)
 {
 	assert(self);
@@ -111,6 +149,13 @@ static int a3d_widget_shaders(a3d_widget_t* self)
 		goto fail_prog2;
 	}
 
+	self->scroll_prog = a3d_shader_make_source(VSHADER_SCROLL,
+	                                           FSHADER_SCROLL);
+	if(self->scroll_prog == 0)
+	{
+		goto fail_scroll_prog;
+	}
+
 	self->attr_vertex  = glGetAttribLocation(self->prog, "vertex");
 	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
 	self->unif_color   = glGetUniformLocation(self->prog, "color");
@@ -119,11 +164,19 @@ static int a3d_widget_shaders(a3d_widget_t* self)
 	self->unif_color2a = glGetUniformLocation(self->prog2, "colora");
 	self->unif_color2b = glGetUniformLocation(self->prog2, "colorb");
 	self->unif_y2      = glGetUniformLocation(self->prog2, "y");
+	self->scroll_attr_vertex = glGetAttribLocation(self->scroll_prog, "xyuv");
+	self->scroll_unif_mvp    = glGetUniformLocation(self->scroll_prog, "mvp");
+	self->scroll_unif_color0 = glGetUniformLocation(self->scroll_prog, "color0");
+	self->scroll_unif_color1 = glGetUniformLocation(self->scroll_prog, "color1");
+	self->scroll_unif_a      = glGetUniformLocation(self->scroll_prog, "a");
+	self->scroll_unif_b      = glGetUniformLocation(self->scroll_prog, "b");
 
 	// success
 	return 1;
 
 	// failure
+	fail_scroll_prog:
+		glDeleteProgram(self->prog2);
 	fail_prog2:
 		glDeleteProgram(self->prog);
 	return 0;
@@ -291,6 +344,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->stretch_factor = stretch_factor;
 	self->style_border   = style_border;
 	self->style_line     = style_line;
+	self->scroll_bar     = 0;
 	self->reflow_fn      = reflow_fn;
 	self->size_fn        = size_fn;
 	self->click_fn       = click_fn;
@@ -308,11 +362,14 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_copy(color_line, &self->color_line);
 	a3d_vec4f_copy(color_fill, &self->color_fill);
-	a3d_vec4f_load(&self->color_fill2, 0.0f, 0.0f, 0.0f, 0.0f);
-	self->tone_y2 = 0.0f;
+	a3d_vec4f_load(&self->color_fill2,  0.0f, 0.0f, 0.0f, 0.0f);
+	a3d_vec4f_load(&self->color_scroll0, 0.0f, 0.0f, 0.0f, 0.0f);
+	a3d_vec4f_load(&self->color_scroll1, 0.0f, 0.0f, 0.0f, 0.0f);
+	self->tone_y2    = 0.0f;
 
 	glGenBuffers(1, &self->id_vtx_rect);
 	glGenBuffers(1, &self->id_vtx_line);
+	glGenBuffers(1, &self->scroll_id_vtx_rect);
 
 	if(a3d_widget_shaders(self) == 0)
 	{
@@ -345,8 +402,10 @@ void a3d_widget_delete(a3d_widget_t** _self)
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &self->scroll_id_vtx_rect);
 		glDeleteBuffers(1, &self->id_vtx_line);
 		glDeleteBuffers(1, &self->id_vtx_rect);
+		glDeleteProgram(self->scroll_prog);
 		glDeleteProgram(self->prog2);
 		glDeleteProgram(self->prog);
 		free(self);
@@ -489,6 +548,39 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
 	glBufferData(GL_ARRAY_BUFFER, size_rect*sizeof(GLfloat),
 	             vtx_rect, GL_STATIC_DRAW);
+
+	a3d_rect4f_t rect_border_clip;
+	if(a3d_rect4f_intersect(&self->rect_border,
+	                        &self->rect_clip,
+	                        &rect_border_clip))
+	{
+		if(self->scroll_bar)
+		{
+			float h_bo = 0.0f;
+			float v_bo = 0.0f;
+			a3d_screen_layoutBorder(self->screen,
+			                        A3D_WIDGET_BORDER_MEDIUM,
+			                        &h_bo, &v_bo);
+
+			float w  = h_bo;
+			float t  = rect_border_clip.t;
+			float l  = rect_border_clip.l + rect_border_clip.w - w;
+			float h  = rect_border_clip.h;
+			float b  = t + h;
+			float r  = l + w;
+			int   sz = 16;   // 4*xyuv
+			GLfloat xyuv[] =
+			{
+				l, t, 0.0f, 0.0f,   // top-left
+				l, b, 0.0f, 1.0f,   // bottom-left
+				r, t, 1.0f, 0.0f,   // top-right
+				r, b, 1.0f, 1.0f,   // bottom-right
+			};
+			glBindBuffer(GL_ARRAY_BUFFER, self->scroll_id_vtx_rect);
+			glBufferData(GL_ARRAY_BUFFER, sz*sizeof(GLfloat),
+			             xyuv, GL_STATIC_DRAW);
+		}
+	}
 
 	// initialize rounded line
 	float lw = a3d_screen_layoutLine(self->screen, self->style_line);
@@ -825,16 +917,73 @@ void a3d_widget_draw(a3d_widget_t* self)
 	}
 
 	// draw the contents
-	a3d_widget_draw_fn draw_fn = self->draw_fn;
-	if(draw_fn)
+	a3d_rect4f_t rect_draw_clip;
+	if(a3d_rect4f_intersect(&self->rect_draw,
+	                        &self->rect_clip,
+	                        &rect_draw_clip))
 	{
-		a3d_rect4f_t rect_draw_clip;
-		if(a3d_rect4f_intersect(&self->rect_draw,
-		                        &self->rect_clip,
-		                        &rect_draw_clip))
+		a3d_widget_draw_fn draw_fn = self->draw_fn;
+		if(draw_fn)
 		{
 			a3d_screen_scissor(screen, &rect_draw_clip);
 			(*draw_fn)(self);
+		}
+
+		// draw the scroll bar
+		float s = rect_draw_clip.h/self->rect_draw.h;
+		if(self->scroll_bar && (s < 1.0f))
+		{
+			// clamp the start/end points
+			float a = -self->drag_dy/self->rect_draw.h;
+			float b = a + s;
+			if(a < 0.0f)
+			{
+				a = 0.0f;
+			}
+			else if(a > 1.0f)
+			{
+				a = 1.0f;
+			}
+
+			if(b < 0.0f)
+			{
+				b = 0.0f;
+			}
+			else if(b > 1.0f)
+			{
+				b = 1.0f;
+			}
+
+			a3d_vec4f_t* c0 = &self->color_scroll0;
+			a3d_vec4f_t* c1 = &self->color_scroll1;
+			a3d_screen_scissor(screen, &rect_border_clip);
+			if((c0->a < 1.0f) || (c1->a < 1.0f))
+			{
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			}
+
+			a3d_mat4f_t mvp;
+			glBindBuffer(GL_ARRAY_BUFFER, self->scroll_id_vtx_rect);
+			a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
+
+			glEnableVertexAttribArray(self->scroll_attr_vertex);
+			glVertexAttribPointer(self->scroll_attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
+			glUseProgram(self->scroll_prog);
+			glUniform4f(self->scroll_unif_color0, c0->r, c0->g, c0->b, c0->a);
+			glUniform4f(self->scroll_unif_color1, c1->r, c1->g, c1->b, c1->a);
+			glUniform1f(self->scroll_unif_a, a);
+			glUniform1f(self->scroll_unif_b, b);
+			glUniformMatrix4fv(self->scroll_unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glDisableVertexAttribArray(self->scroll_attr_vertex);
+			glUseProgram(0);
+			if((c0->a < 1.0f) || (c1->a < 1.0f))
+			{
+				glDisable(GL_BLEND);
+			}
 		}
 	}
 
@@ -1012,4 +1161,17 @@ void a3d_widget_twoToneY(a3d_widget_t* self, float y)
 	assert(self);
 
 	self->tone_y2 = y;
+}
+
+void a3d_widget_scrollbar(a3d_widget_t* self,
+                          a3d_vec4f_t* color_scroll0,
+                          a3d_vec4f_t* color_scroll1)
+{
+	assert(self);
+	assert(color_scroll0);
+	assert(color_scroll1);
+
+	self->scroll_bar = 1;
+	a3d_vec4f_copy(color_scroll0, &self->color_scroll0);
+	a3d_vec4f_copy(color_scroll1, &self->color_scroll1);
 }

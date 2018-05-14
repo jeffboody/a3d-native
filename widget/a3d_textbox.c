@@ -135,6 +135,15 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 	a3d_textbox_t* self = (a3d_textbox_t*) widget;
 
+	// subtract the text_style_border which is added when
+	// printing text lines
+	float h_bo = 0.0f;
+	float v_bo = 0.0f;
+	a3d_screen_layoutBorder(widget->screen,
+	                        self->style_border,
+	                        &h_bo, &v_bo);
+	w = w - 2.0f*h_bo;
+
 	// reflow text when changes occur
 	if((self->dirty  == 0) &&
 	   (self->last_w == w) &&

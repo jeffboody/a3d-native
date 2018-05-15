@@ -1175,3 +1175,11 @@ void a3d_widget_scrollbar(a3d_widget_t* self,
 	a3d_vec4f_copy(color_scroll0, &self->color_scroll0);
 	a3d_vec4f_copy(color_scroll1, &self->color_scroll1);
 }
+
+void a3d_widget_scrollTop(a3d_widget_t* self)
+{
+	assert(self);
+
+	self->drag_dx = 0.0f;
+	self->drag_dy = 0.0f;
+}

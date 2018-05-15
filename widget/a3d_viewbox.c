@@ -515,3 +515,10 @@ void a3d_viewbox_font(a3d_viewbox_t* self, int font_type)
 
 	a3d_bulletbox_font(self->bullet, font_type);
 }
+
+void a3d_viewbox_scrollTop(a3d_viewbox_t* self)
+{
+	assert(self);
+
+	a3d_widget_scrollTop(self->body);
+}

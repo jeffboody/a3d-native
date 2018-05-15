@@ -267,5 +267,6 @@ void          a3d_widget_twoToneY(a3d_widget_t* self, float y);
 void          a3d_widget_scrollbar(a3d_widget_t* self,
                                    a3d_vec4f_t* color_scroll0,
                                    a3d_vec4f_t* color_scroll1);
+void          a3d_widget_scrollTop(a3d_widget_t* self);
 
 #endif

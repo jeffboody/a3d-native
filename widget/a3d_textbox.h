@@ -78,5 +78,7 @@ void           a3d_textbox_printf(a3d_textbox_t* self,
                                   const char* fmt, ...);
 void           a3d_textbox_font(a3d_textbox_t* self,
                                 int font_type);
+void           a3d_textbox_clickFn(a3d_textbox_t* self,
+                                   a3d_widget_click_fn click_fn);
 
 #endif

@@ -335,9 +335,6 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	// soundFx is disabled by listbox
-	a3d_widget_soundFx((a3d_widget_t*) self, 1);
-
 	self->strings = a3d_list_new();
 	if(self->strings == NULL)
 	{
@@ -453,4 +450,18 @@ void a3d_textbox_font(a3d_textbox_t* self,
 	assert(self);
 
 	self->font_type = font_type;
+}
+
+void a3d_textbox_clickFn(a3d_textbox_t* self,
+                         a3d_widget_click_fn click_fn)
+{
+	// click_fn may be NULL
+	assert(self);
+
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	widget->click_fn = click_fn;
+
+	// enable sound effects since textbox derives from listbox
+	a3d_widget_soundFx((a3d_widget_t*) self,
+	                   click_fn ? 1 : 0);
 }

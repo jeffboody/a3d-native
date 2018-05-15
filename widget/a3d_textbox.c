@@ -335,6 +335,9 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
+	// soundFx is disabled by listbox
+	a3d_widget_soundFx((a3d_widget_t*) self, 1);
+
 	self->strings = a3d_list_new();
 	if(self->strings == NULL)
 	{

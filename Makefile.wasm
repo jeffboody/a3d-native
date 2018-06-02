@@ -1,0 +1,20 @@
+TARGET   = liba3d.bc
+A3D      = a3d_log a3d_texfont a3d_GL a3d_list a3d_unit a3d_timestamp a3d_glsm a3d_shader a3d_texstring a3d_workq a3d_cache
+A3D_MATH = a3d_mat3f a3d_mat4f a3d_regionf a3d_stack4f a3d_vec2f a3d_vec3f a3d_vec4f a3d_quaternion a3d_orientation a3d_sphere a3d_plane a3d_fplane a3d_ray a3d_rect4f
+A3D_WGT  = a3d_screen a3d_layer a3d_listbox a3d_text a3d_textbox a3d_widget a3d_font a3d_radiolist a3d_radiobox a3d_checkbox a3d_viewbox a3d_bulletbox a3d_sprite a3d_hline
+SOURCE   = $(A3D:%=%.bc) $(A3D_MATH:%=math/%.bc) $(A3D_WGT:%=widget/%.bc)
+OBJECTS  = $(SOURCE:.c=.bc)
+HFILES   = $(CLASSES:%=%.h)
+FLAGS    = -O2 -Wall -DA3D_GLESv2
+EMCC     = emcc
+
+all: $(TARGET)
+
+$(TARGET): $(OBJECTS)
+	$(EMCC) $(OBJECTS) $(FLAGS) -o $(TARGET)
+
+clean:
+	rm -f $(OBJECTS) *~ \#*\# $(TARGET)
+
+%.bc: %.c $(HFILES)
+	$(EMCC) $(FLAGS) $< -o $@

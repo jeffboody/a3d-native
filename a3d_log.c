@@ -46,7 +46,11 @@ void a3d_log(const char* func, int line, int type, const char* tag, const char* 
 	#ifdef ANDROID
 		snprintf(buf, 256, "%s@%i ", func, line);
 	#else
-		int tid = (int) syscall(SYS_gettid);
+		#ifdef __EMSCRIPTEN__
+			int tid = 0;
+		#else
+			int tid = (int) syscall(SYS_gettid);
+		#endif
 		if(type == ANDROID_LOG_DEBUG)
 			snprintf(buf, 256, "D/%i/%s: %s@%i ", tid, tag, func, line);
 		else if(type == ANDROID_LOG_INFO)

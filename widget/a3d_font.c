@@ -417,6 +417,8 @@ a3d_font_t* a3d_font_new(const char* resource,
 	glBindTexture(GL_TEXTURE_2D, self->id_tex);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexImage2D(GL_TEXTURE_2D, 0, tex->format, tex->stride, tex->vstride,
 	             0, tex->format, tex->type, tex->pixels);
 	texgz_tex_delete(&tex);

@@ -271,6 +271,19 @@ void a3d_list_delete(a3d_list_t** _self)
 	}
 }
 
+void a3d_list_discard(a3d_list_t* self)
+{
+	assert(self);
+
+	// discard all items in the list without freeing
+	// this is useful when the list just holds references
+	a3d_listitem_t* iter = a3d_list_head(self);
+	while(iter)
+	{
+		a3d_list_remove(self, &iter);
+	}
+}
+
 int a3d_list_push(a3d_list_t* self, const void* data)
 {
 	// data can be null

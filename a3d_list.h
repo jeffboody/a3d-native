@@ -50,6 +50,7 @@ typedef struct
 
 a3d_list_t*     a3d_list_new(void);
 void            a3d_list_delete(a3d_list_t** _self);
+void            a3d_list_discard(a3d_list_t* self);
 int             a3d_list_push(a3d_list_t* self,
                               const void* data);
 const void*     a3d_list_pop(a3d_list_t* self);

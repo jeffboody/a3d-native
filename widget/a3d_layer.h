@@ -51,6 +51,7 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            a3d_vec4f_t* color_line,
                            int mode);
 void         a3d_layer_delete(a3d_layer_t** _self);
+void         a3d_layer_clear(a3d_layer_t* self);
 void         a3d_layer_bringFront(a3d_layer_t* self,
                                   a3d_widget_t* widget);
 

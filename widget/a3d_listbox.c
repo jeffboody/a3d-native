@@ -493,6 +493,13 @@ void a3d_listbox_delete(a3d_listbox_t** _self)
 	}
 }
 
+void a3d_listbox_clear(a3d_listbox_t* self)
+{
+	assert(self);
+
+	a3d_list_discard(self->list);
+}
+
 void a3d_listbox_scrollTop(a3d_listbox_t* self)
 {
 	assert(self);

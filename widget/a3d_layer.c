@@ -357,6 +357,13 @@ void a3d_layer_delete(a3d_layer_t** _self)
 	}
 }
 
+void a3d_layer_clear(a3d_layer_t* self)
+{
+	assert(self);
+
+	a3d_list_discard(self->list);
+}
+
 void a3d_layer_bringFront(a3d_layer_t* self,
                           a3d_widget_t* widget)
 {

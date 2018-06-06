@@ -29,10 +29,19 @@
 #endif
 
 #ifdef __APPLE__
-	#include <SDL2/SDL.h>
-	#include <SDL2/SDL_opengl.h>
-	#ifndef A3D_GL2
-		#define A3D_GL2
+	#include "TargetConditionals.h"
+	#if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+		#define __IPHONEOS__
+		#include "SDL_opengles2.h"
+		#ifndef A3D_GLESv2
+			#define A3D_GLESv2
+		#endif
+	#else
+		#include <SDL2/SDL.h>
+		#include <SDL2/SDL_opengl.h>
+		#ifndef A3D_GL2
+			#define A3D_GL2
+		#endif
 	#endif
 #elif defined(A3D_GLESv2_LOAX)
 	#define A3D_GLESv2

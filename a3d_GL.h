@@ -24,9 +24,7 @@
 #ifndef a3d_GL_H
 #define a3d_GL_H
 
-#if defined(A3D_GLESv1_CM_TRACE)
-	#define A3D_GLESv1_CM
-#elif defined(A3D_GLESv2_TRACE)
+#if defined(A3D_GLESv2_TRACE)
 	#define A3D_GLESv2
 #endif
 
@@ -36,8 +34,6 @@
 	#ifndef A3D_GL2
 		#define A3D_GL2
 	#endif
-#elif defined(A3D_GLESv1_CM)
-	#include <GLES/gl.h>
 #elif defined(A3D_GLESv2_LOAX)
 	#define A3D_GLESv2
 	#include <loax/gl2.h>
@@ -64,7 +60,7 @@ GLenum a3d_GL_geterror(const char* func, int line, const char* tag);
 * control functions                                        *
 ***********************************************************/
 
-#if defined(A3D_GLESv1_CM) || defined(A3D_GLESv2)
+#if defined(A3D_GLESv2)
 	int  a3d_GL_load(void);
 	int  a3d_GL_unload(void);
 	void a3d_GL_frame_begin(void);

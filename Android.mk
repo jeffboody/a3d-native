@@ -14,16 +14,8 @@ LOCAL_SRC_FILES := a3d/a3d_log.c a3d/a3d_glsm.c a3d/a3d_unit.c a3d/a3d_timestamp
 LOCAL_LDLIBS := -Llibs/armeabi
 LOCAL_SHARED_LIBRARIES := libpak libtexgz libexpat
 
-ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM_TRACE)
-	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv1_CM.c
-endif
-
 ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv2_TRACE)
 	LOCAL_SRC_FILES := $(LOCAL_SRC_FILES) a3d/a3d_GLESv2.c a3d/a3d_shader.c
-endif
-
-ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv1_CM)
-	LOCAL_LDLIBS += -lGLESv1_CM
 endif
 
 ifeq ($(A3D_CLIENT_VERSION),A3D_GLESv2)

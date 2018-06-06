@@ -367,57 +367,30 @@ void a3d_texstring_draw(a3d_texstring_t* self,
 	if(len <= 0) return;
 
 	// draw the string
-	#if defined(A3D_GLESv1_CM)
-		glEnable(GL_TEXTURE_2D);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, self->font->id);
-		glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
-		glVertexPointer(3, GL_FLOAT, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
-		glTexCoordPointer(2, GL_FLOAT, 0, 0);
-		glPushMatrix();
-		glColor4f(self->color.x, self->color.y, self->color.z, 1.0f);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrthof(0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glTranslatef(x, y, -1.0f);
-		glScalef(self->size, self->size, 1.0f);
-		glDrawArrays(GL_TRIANGLES, 0, 2 * 3 * len);
-		glPopMatrix();
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glDisable(GL_BLEND);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_TEXTURE_2D);
-	#else
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBindTexture(GL_TEXTURE_2D, self->font->id);
-		glUseProgram(self->program);
-		glEnableVertexAttribArray(self->attribute_vertex);
-		glEnableVertexAttribArray(self->attribute_coords);
-		glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
-		glVertexAttribPointer(self->attribute_vertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
-		glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
-		glVertexAttribPointer(self->attribute_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		glUniform4fv(self->uniform_color, 1, (GLfloat*) &self->color);
-		glUniform4fv(self->uniform_fill, 1, (GLfloat*) &self->fill);
-		glUniform1i(self->uniform_sampler, 0);
-		a3d_mat4f_ortho(&self->pm, 1, 0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);
-		a3d_mat4f_translate(&self->mvm, 1, x, y, -1.0f);
-		a3d_mat4f_scale(&self->mvm, 0, self->size, self->size, 1.0f);
-		a3d_mat4f_t mvp;
-		a3d_mat4f_mulm_copy(&self->pm, &self->mvm, &mvp);
-		glUniformMatrix4fv(self->uniform_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glDrawArrays(GL_TRIANGLES, 0, 2 * 3 * len);
-		glDisableVertexAttribArray(self->attribute_coords);
-		glDisableVertexAttribArray(self->attribute_vertex);
-		glUseProgram(0);
-		glDisable(GL_BLEND);
-	#endif
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBindTexture(GL_TEXTURE_2D, self->font->id);
+	glUseProgram(self->program);
+	glEnableVertexAttribArray(self->attribute_vertex);
+	glEnableVertexAttribArray(self->attribute_coords);
+	glBindBuffer(GL_ARRAY_BUFFER, self->vertex_id);
+	glVertexAttribPointer(self->attribute_vertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, self->coords_id);
+	glVertexAttribPointer(self->attribute_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glUniform4fv(self->uniform_color, 1, (GLfloat*) &self->color);
+	glUniform4fv(self->uniform_fill, 1, (GLfloat*) &self->fill);
+	glUniform1i(self->uniform_sampler, 0);
+	a3d_mat4f_ortho(&self->pm, 1, 0.0f, screen_w, screen_h, 0.0f, 0.0f, 2.0f);
+	a3d_mat4f_translate(&self->mvm, 1, x, y, -1.0f);
+	a3d_mat4f_scale(&self->mvm, 0, self->size, self->size, 1.0f);
+	a3d_mat4f_t mvp;
+	a3d_mat4f_mulm_copy(&self->pm, &self->mvm, &mvp);
+	glUniformMatrix4fv(self->uniform_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+	glDrawArrays(GL_TRIANGLES, 0, 2 * 3 * len);
+	glDisableVertexAttribArray(self->attribute_coords);
+	glDisableVertexAttribArray(self->attribute_vertex);
+	glUseProgram(0);
+	glDisable(GL_BLEND);
 }
 
 void a3d_texstring_draw3D(a3d_texstring_t* self,

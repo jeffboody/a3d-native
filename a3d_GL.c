@@ -35,12 +35,6 @@ GLenum a3d_GL_geterror(const char* func, int line, const char* tag)
 		a3d_log(func, line, ANDROID_LOG_ERROR, tag, "GL error is GL_INVALID_VALUE");
 	else if(e == GL_INVALID_OPERATION)
 		a3d_log(func, line, ANDROID_LOG_ERROR, tag, "GL error is GL_INVALID_OPERATION");
-	#if defined(A3D_GLESv1_CM)
-		else if(e == GL_STACK_OVERFLOW)
-			a3d_log(func, line, ANDROID_LOG_ERROR, tag, "GL error is GL_STACK_OVERFLOW");
-		else if(e == GL_STACK_UNDERFLOW)
-			a3d_log(func, line, ANDROID_LOG_ERROR, tag, "GL error is GL_STACK_UNDERFLOW");
-	#endif
 	else if(e == GL_OUT_OF_MEMORY)
 		a3d_log(func, line, ANDROID_LOG_ERROR, tag, "GL error is GL_OUT_OF_MEMORY");
 	else

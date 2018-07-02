@@ -174,6 +174,7 @@ a3d_orientation_t* a3d_orientation_new(void)
 		return NULL;
 	}
 
+	self->m_north = A3D_ORIENTATION_TRUE;
 	a3d_orientation_reset(self);
 
 	return self;
@@ -203,7 +204,6 @@ void a3d_orientation_reset(a3d_orientation_t* self)
 	self->a_ay       = 0.0f;
 	self->a_az       = 9.8f;
 	self->a_rotation = 0;
-	self->m_north    = A3D_ORIENTATION_TRUE;
 	self->m_ts       = 0.0;
 	self->m_mx       = 0.0f;
 	self->m_my       = 1.0f;

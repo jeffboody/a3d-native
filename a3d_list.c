@@ -284,6 +284,119 @@ void a3d_list_discard(a3d_list_t* self)
 	}
 }
 
+int a3d_list_size(const a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+	return self->size;
+}
+
+int a3d_list_empty(const a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->size == 0;
+}
+
+const void* a3d_list_peekhead(const a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return (self->size == 0) ? NULL : self->head->data;
+}
+
+const void* a3d_list_peektail(const a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return (self->size == 0) ? NULL : self->tail->data;
+}
+
+const void* a3d_list_peekitem(a3d_listitem_t* item)
+{
+	assert(item);
+	LOGD("debug");
+
+	return item->data;
+}
+
+a3d_listitem_t* a3d_list_head(const a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->head;
+}
+
+a3d_listitem_t* a3d_list_tail(const a3d_list_t* self)
+{
+	assert(self);
+	LOGD("debug");
+
+	return self->tail;
+}
+
+a3d_listitem_t* a3d_list_next(a3d_listitem_t* item)
+{
+	assert(item);
+	LOGD("debug");
+
+	return item->next;
+}
+
+a3d_listitem_t* a3d_list_prev(a3d_listitem_t* item)
+{
+	assert(item);
+	LOGD("debug");
+
+	return item->prev;
+}
+
+a3d_listitem_t* a3d_list_find(const a3d_list_t* self,
+                              const void* data,
+                              a3d_listcmp_fn compare)
+{
+	// data can be NULL
+	assert(self);
+	assert(compare);
+	LOGD("debug");
+
+	a3d_listitem_t* item = self->head;
+	while(item)
+	{
+		if((*compare)(item->data, data) == 0)
+		{
+			break;
+		}
+		item = item->next;
+	}
+	return item;
+}
+
+a3d_listitem_t* a3d_list_findn(const a3d_list_t* self,
+                               const void* data,
+                               a3d_listcmp_fn compare)
+{
+	// data can be NULL
+	assert(self);
+	assert(compare);
+	LOGD("debug");
+
+	a3d_listitem_t* item = self->tail;
+	while(item)
+	{
+		if((*compare)(item->data, data) == 0)
+		{
+			break;
+		}
+		item = item->prev;
+	}
+	return item;
+}
+
 int a3d_list_push(a3d_list_t* self, const void* data)
 {
 	// data can be null
@@ -318,119 +431,6 @@ const void* a3d_list_dequeue(a3d_list_t* self)
 	LOGD("debug");
 
 	return a3d_list_pop(self);
-}
-
-int a3d_list_size(a3d_list_t* self)
-{
-	assert(self);
-	LOGD("debug");
-	return self->size;
-}
-
-int a3d_list_empty(a3d_list_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	return self->size == 0;
-}
-
-const void* a3d_list_peekhead(a3d_list_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	return (self->size == 0) ? NULL : self->head->data;
-}
-
-const void* a3d_list_peektail(a3d_list_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	return (self->size == 0) ? NULL : self->tail->data;
-}
-
-const void* a3d_list_peekitem(a3d_listitem_t* item)
-{
-	assert(item);
-	LOGD("debug");
-
-	return item->data;
-}
-
-a3d_listitem_t* a3d_list_head(a3d_list_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	return self->head;
-}
-
-a3d_listitem_t* a3d_list_tail(a3d_list_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	return self->tail;
-}
-
-a3d_listitem_t* a3d_list_next(a3d_listitem_t* item)
-{
-	assert(item);
-	LOGD("debug");
-
-	return item->next;
-}
-
-a3d_listitem_t* a3d_list_prev(a3d_listitem_t* item)
-{
-	assert(item);
-	LOGD("debug");
-
-	return item->prev;
-}
-
-a3d_listitem_t* a3d_list_find(a3d_list_t* self,
-                              const void* data,
-                              a3d_listcmp_fn compare)
-{
-	// data can be NULL
-	assert(self);
-	assert(compare);
-	LOGD("debug");
-
-	a3d_listitem_t* item = self->head;
-	while(item)
-	{
-		if((*compare)(item->data, data) == 0)
-		{
-			break;
-		}
-		item = item->next;
-	}
-	return item;
-}
-
-a3d_listitem_t* a3d_list_findn(a3d_list_t* self,
-                               const void* data,
-                               a3d_listcmp_fn compare)
-{
-	// data can be NULL
-	assert(self);
-	assert(compare);
-	LOGD("debug");
-
-	a3d_listitem_t* item = self->tail;
-	while(item)
-	{
-		if((*compare)(item->data, data) == 0)
-		{
-			break;
-		}
-		item = item->prev;
-	}
-	return item;
 }
 
 a3d_listitem_t* a3d_list_insert(a3d_list_t* self,

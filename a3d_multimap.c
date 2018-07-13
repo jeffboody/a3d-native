@@ -492,7 +492,7 @@ a3d_multimapNode_removeNode(a3d_multimapNode_t* self,
 
 	if(self == NULL)
 	{
-		multimap->head = NULL;
+		a3d_multimapNode_delete(&multimap->head);
 		return;
 	}
 

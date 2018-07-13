@@ -168,6 +168,24 @@ a3d_multimapIter_nextDown(a3d_multimapIter_t* self)
 	return a3d_multimapIter_nextUp(self);
 }
 
+static a3d_multimapIter_t*
+a3d_multimapIter_nextItem(a3d_multimapIter_t* self)
+{
+	assert(self);
+
+	// check if there are more items in node
+	if(self->item)
+	{
+		self->item = a3d_list_next(self->item);
+		if(self->item)
+		{
+			return self;
+		}
+	}
+
+	return NULL;
+}
+
 /***********************************************************
 * private - multimapNode                                   *
 ***********************************************************/
@@ -236,9 +254,11 @@ static void a3d_multimapNode_discard(a3d_multimapNode_t** _self)
 
 static const a3d_list_t*
 a3d_multimapNode_find(a3d_multimapNode_t* self,
+                      a3d_multimapIter_t* iter,
                       int idx, const char* key)
 {
 	assert(self);
+	assert(iter);
 	assert(key);
 
 	int len = strlen(key);
@@ -254,23 +274,34 @@ a3d_multimapNode_find(a3d_multimapNode_t* self,
 	{
 		if(c == '\0')
 		{
+			if(self->list)
+			{
+				iter->node = self;
+				iter->item = a3d_list_head(self->list);
+			}
 			return self->list;
 		}
 		else if((c >= 'a') &&
 		        (c <= 'z'))
 		{
+			iter->key[iter->key_len++] = c - 'a' + 'A';
+			iter->key[iter->key_len]   = '\0';
 			c = c - 'a' + 10;
 			break;
 		}
 		else if((c >= 'A') &&
 		        (c <= 'Z'))
 		{
+			iter->key[iter->key_len++] = c;
+			iter->key[iter->key_len]   = '\0';
 			c = c - 'A' + 10;
 			break;
 		}
 		else if((c >= '0') &&
 		        (c <= '9'))
 		{
+			iter->key[iter->key_len++] = c;
+			iter->key[iter->key_len]   = '\0';
 			c = c - '0';
 			break;
 		}
@@ -282,7 +313,7 @@ a3d_multimapNode_find(a3d_multimapNode_t* self,
 	a3d_multimapNode_t* node = self->nodes[(int) c];
 	if(node)
 	{
-		return a3d_multimapNode_find(node, idx, key);
+		return a3d_multimapNode_find(node, iter, idx, key);
 	}
 
 	// not found
@@ -606,6 +637,13 @@ a3d_multimapIter_t* a3d_multimap_next(a3d_multimapIter_t* iter)
 	return a3d_multimapIter_nextDown(iter);
 }
 
+a3d_multimapIter_t* a3d_multimap_nextItem(a3d_multimapIter_t* iter)
+{
+	assert(iter);
+
+	return a3d_multimapIter_nextItem(iter);
+}
+
 const void* a3d_multimap_val(const a3d_multimapIter_t* iter)
 {
 	assert(iter);
@@ -621,23 +659,33 @@ const char* a3d_multimap_key(const a3d_multimapIter_t* iter)
 }
 
 const a3d_list_t* a3d_multimap_find(const a3d_multimap_t* self,
+                                    a3d_multimapIter_t* iter,
                                     const char* key)
 {
 	assert(self);
+	assert(iter);
 	assert(key);
+
+	// initialize iter
+	iter->key_len = 0;
+	iter->key[0]  = '\0';
+	iter->node    = NULL;
+	iter->item    = NULL;
 
 	if(self->head)
 	{
-		return a3d_multimapNode_find(self->head, 0, key);
+		return a3d_multimapNode_find(self->head, iter, 0, key);
 	}
 
 	return NULL;
 }
 
 const a3d_list_t* a3d_multimap_findf(const a3d_multimap_t* self,
+                                     a3d_multimapIter_t* iter,
                                      const char* fmt, ...)
 {
 	assert(self);
+	assert(iter);
 	assert(fmt);
 
 	char key[A3D_MULTIMAP_KEY_LEN];
@@ -646,7 +694,7 @@ const a3d_list_t* a3d_multimap_findf(const a3d_multimap_t* self,
 	vsnprintf(key, A3D_MULTIMAP_KEY_LEN, fmt, argptr);
 	va_end(argptr);
 
-	return a3d_multimap_find(self, key);
+	return a3d_multimap_find(self, iter, key);
 }
 
 int a3d_multimap_add(a3d_multimap_t* self,

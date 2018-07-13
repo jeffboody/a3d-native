@@ -71,11 +71,14 @@ int                 a3d_multimap_empty(const a3d_multimap_t* self);
 a3d_multimapIter_t* a3d_multimap_head(const a3d_multimap_t* self,
                                       a3d_multimapIter_t* iter);
 a3d_multimapIter_t* a3d_multimap_next(a3d_multimapIter_t* iter);
+a3d_multimapIter_t* a3d_multimap_nextItem(a3d_multimapIter_t* iter);
 const void*         a3d_multimap_val(const a3d_multimapIter_t* iter);
 const char*         a3d_multimap_key(const a3d_multimapIter_t* iter);
 const a3d_list_t*   a3d_multimap_find(const a3d_multimap_t* self,
+                                      a3d_multimapIter_t* iter,
                                       const char* key);
 const a3d_list_t*   a3d_multimap_findf(const a3d_multimap_t* self,
+                                       a3d_multimapIter_t* iter,
                                        const char* fmt, ...);
 int                 a3d_multimap_add(a3d_multimap_t* self,
                                      a3d_multimapIter_t* iter,

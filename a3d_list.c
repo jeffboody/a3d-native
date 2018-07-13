@@ -499,8 +499,8 @@ const void* a3d_list_replace(a3d_list_t* self,
 const void* a3d_list_remove(a3d_list_t* self,
                             a3d_listitem_t** _item)
 {
-	// _item can be NULL
 	assert(self);
+	assert(_item);
 	LOGD("debug");
 
 	return a3d_listitem_delete(_item, self);

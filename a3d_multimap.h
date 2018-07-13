@@ -78,9 +78,11 @@ const a3d_list_t*   a3d_multimap_find(const a3d_multimap_t* self,
 const a3d_list_t*   a3d_multimap_findf(const a3d_multimap_t* self,
                                        const char* fmt, ...);
 int                 a3d_multimap_add(a3d_multimap_t* self,
+                                     a3d_multimapIter_t* iter,
                                      const void* val,
                                      const char* key);
 int                 a3d_multimap_addf(a3d_multimap_t* self,
+                                      a3d_multimapIter_t* iter,
                                       const void* val,
                                       const char* fmt, ...);
 const void*         a3d_multimap_remove(a3d_multimap_t* self,

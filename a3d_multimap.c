@@ -291,12 +291,13 @@ a3d_multimapNode_find(a3d_multimapNode_t* self,
 
 static int a3d_multimapNode_add(a3d_multimapNode_t* self,
                                 a3d_multimapCmp_fn compare,
+                                a3d_multimapIter_t* iter,
                                 const void* val,
                                 int idx, const char* key)
 {
-	// val may be NULL
-	// compare may be NULL
+	// compare, val may be NULL
 	assert(self);
+	assert(iter);
 	assert(key);
 
 	// add at end or traverse to 0-9, A-Z
@@ -318,16 +319,20 @@ static int a3d_multimapNode_add(a3d_multimapNode_t* self,
 			}
 
 			// insert sorted
+			a3d_listitem_t* item;
 			if(compare)
 			{
-				a3d_listitem_t* iter = a3d_list_head(self->list);
-				while(iter)
+				a3d_listitem_t* li = a3d_list_head(self->list);
+				while(li)
 				{
-					const void* v = a3d_list_peekitem(iter);
+					const void* v = a3d_list_peekitem(li);
 					if((*compare)(val, v) < 0)
 					{
-						if(a3d_list_insert(self->list, iter, val))
+						item = a3d_list_insert(self->list, li, val);
+						if(item)
 						{
+							iter->node = self;
+							iter->item = item;
 							return 1;
 						}
 						else if(created_list)
@@ -337,13 +342,16 @@ static int a3d_multimapNode_add(a3d_multimapNode_t* self,
 						return 0;
 					}
 
-					iter = a3d_list_next(iter);
+					li = a3d_list_next(li);
 				}
 			}
 
 			// add to end
-			if(a3d_list_enqueue(self->list, val))
+			item = a3d_list_append(self->list, NULL, val);
+			if(item)
 			{
+				iter->node = self;
+				iter->item = item;
 				return 1;
 			}
 			else if(created_list)
@@ -355,18 +363,24 @@ static int a3d_multimapNode_add(a3d_multimapNode_t* self,
 		else if((c >= 'a') &&
 		        (c <= 'z'))
 		{
+			iter->key[iter->key_len++] = c - 'a' + 'A';
+			iter->key[iter->key_len]   = '\0';
 			c = c - 'a' + 10;
 			break;
 		}
 		else if((c >= 'A') &&
 		        (c <= 'Z'))
 		{
+			iter->key[iter->key_len++] = c;
+			iter->key[iter->key_len]   = '\0';
 			c = c - 'A' + 10;
 			break;
 		}
 		else if((c >= '0') &&
 		        (c <= '9'))
 		{
+			iter->key[iter->key_len++] = c;
+			iter->key[iter->key_len]   = '\0';
 			c = c - '0';
 			break;
 		}
@@ -388,7 +402,8 @@ static int a3d_multimapNode_add(a3d_multimapNode_t* self,
 		created = 1;
 	}
 
-	if(a3d_multimapNode_add(node, compare, val, idx, key) == 0)
+	if(a3d_multimapNode_add(node, compare,
+	                        iter, val, idx, key) == 0)
 	{
 		goto fail_add;
 	}
@@ -635,12 +650,20 @@ const a3d_list_t* a3d_multimap_findf(const a3d_multimap_t* self,
 }
 
 int a3d_multimap_add(a3d_multimap_t* self,
+                     a3d_multimapIter_t* iter,
                      const void* val,
                      const char* key)
 {
 	// val may be NULL
 	assert(self);
+	assert(iter);
 	assert(key);
+
+	// initialize iter
+	iter->key_len = 0;
+	iter->key[0]  = '\0';
+	iter->node    = NULL;
+	iter->item    = NULL;
 
 	int len = strlen(key);
 	if(len >= A3D_MULTIMAP_KEY_LEN)
@@ -663,7 +686,7 @@ int a3d_multimap_add(a3d_multimap_t* self,
 	}
 
 	if(a3d_multimapNode_add(node, self->compare,
-	                        val, 0, key) == 0)
+	                        iter, val, 0, key) == 0)
 	{
 		goto fail_add;
 	}
@@ -687,11 +710,13 @@ int a3d_multimap_add(a3d_multimap_t* self,
 }
 
 int a3d_multimap_addf(a3d_multimap_t* self,
+                      a3d_multimapIter_t* iter,
                       const void* val,
                       const char* fmt, ...)
 {
 	// val may be NULL
 	assert(self);
+	assert(iter);
 	assert(fmt);
 
 	char key[A3D_MULTIMAP_KEY_LEN];
@@ -700,7 +725,7 @@ int a3d_multimap_addf(a3d_multimap_t* self,
 	vsnprintf(key, A3D_MULTIMAP_KEY_LEN, fmt, argptr);
 	va_end(argptr);
 
-	return a3d_multimap_add(self, val, key);
+	return a3d_multimap_add(self, iter, val, key);
 }
 
 const void* a3d_multimap_remove(a3d_multimap_t* self,
@@ -718,7 +743,7 @@ const void* a3d_multimap_remove(a3d_multimap_t* self,
 
 	// update the iter
 	a3d_multimapNode_t* node = iter->node;
-	a3d_listitem_t* item = iter->item;
+	a3d_listitem_t*     item = iter->item;
 	*_iter = a3d_multimapIter_nextDown(iter);
 
 	// update size

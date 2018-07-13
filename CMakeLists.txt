@@ -13,6 +13,7 @@ add_library(a3d
             a3d_unit.c
             a3d_timestamp.c
             a3d_list.c
+            a3d_hashmap.c
             a3d_multimap.c
             a3d_texfont.c
             a3d_texstring.c

@@ -776,6 +776,15 @@ int a3d_multimap_addf(a3d_multimap_t* self,
 	return a3d_multimap_add(self, iter, val, key);
 }
 
+const void* a3d_multimap_replace(a3d_multimapIter_t* iter,
+                                 const void*  val)
+{
+	// val may be NULL
+	assert(iter);
+
+	return a3d_list_replace(iter->node->list, iter->item, val);
+}
+
 const void* a3d_multimap_remove(a3d_multimap_t* self,
                                 a3d_multimapIter_t** _iter)
 {

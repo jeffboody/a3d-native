@@ -88,6 +88,8 @@ int                 a3d_multimap_addf(a3d_multimap_t* self,
                                       a3d_multimapIter_t* iter,
                                       const void* val,
                                       const char* fmt, ...);
+const void*         a3d_multimap_replace(a3d_multimapIter_t* iter,
+                                         const void* val);
 const void*         a3d_multimap_remove(a3d_multimap_t* self,
                                         a3d_multimapIter_t** _iter);
 

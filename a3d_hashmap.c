@@ -663,15 +663,10 @@ const void* a3d_hashmap_remove(a3d_hashmap_t* self,
 {
 	assert(self);
 	assert(_iter);
-
-	// ignore null iter
-	a3d_hashmapIter_t* iter = *_iter;
-	if(iter == NULL)
-	{
-		return NULL;
-	}
+	assert(*_iter);
 
 	// update the iter
+	a3d_hashmapIter_t* iter = *_iter;
 	a3d_hashmapNode_t* node = iter->node;
 	*_iter = a3d_hashmapIter_nextDown(iter, 1);
 

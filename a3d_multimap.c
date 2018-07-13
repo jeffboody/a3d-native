@@ -790,15 +790,10 @@ const void* a3d_multimap_remove(a3d_multimap_t* self,
 {
 	assert(self);
 	assert(_iter);
-
-	// ignore null iter
-	a3d_multimapIter_t* iter = *_iter;
-	if(iter == NULL)
-	{
-		return NULL;
-	}
+	assert(*_iter);
 
 	// update the iter
+	a3d_multimapIter_t* iter = *_iter;
 	a3d_multimapNode_t* node = iter->node;
 	a3d_listitem_t*     item = iter->item;
 	*_iter = a3d_multimapIter_nextDown(iter);

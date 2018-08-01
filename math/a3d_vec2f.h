@@ -34,6 +34,10 @@ typedef struct
 	GLfloat y;
 } a3d_vec2f_t;
 
+// dynamic constructor/destructor
+a3d_vec2f_t* a3d_vec2f_new(GLfloat x, GLfloat y);
+void         a3d_vec2f_delete(a3d_vec2f_t** _self);
+
 // standard vector operations
 void    a3d_vec2f_load(a3d_vec2f_t* self, GLfloat x, GLfloat y);
 void    a3d_vec2f_copy(const a3d_vec2f_t* self, a3d_vec2f_t* copy);

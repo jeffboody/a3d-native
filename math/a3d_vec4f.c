@@ -33,6 +33,35 @@
 * public                                                   *
 ***********************************************************/
 
+a3d_vec4f_t* a3d_vec4f_new(GLfloat x, GLfloat y, GLfloat z, GLfloat w)
+{
+	a3d_vec4f_t* self = (a3d_vec4f_t*)
+	                    malloc(sizeof(a3d_vec4f_t));
+	if(self == NULL)
+	{
+		LOGE("malloc failed");
+		return NULL;
+	}
+
+	self->x = x;
+	self->y = y;
+	self->z = z;
+	self->w = w;
+	return self;
+}
+
+void a3d_vec4f_delete(a3d_vec4f_t** _self)
+{
+	assert(_self);
+
+	a3d_vec4f_t* self = *_self;
+	if(self)
+	{
+		free(self);
+		*_self = NULL;
+	}
+}
+
 void a3d_vec4f_load(a3d_vec4f_t* self, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
 {
 	assert(self);

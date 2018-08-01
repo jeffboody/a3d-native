@@ -33,6 +33,33 @@
 * public                                                   *
 ***********************************************************/
 
+a3d_vec2f_t* a3d_vec2f_new(GLfloat x, GLfloat y)
+{
+	a3d_vec2f_t* self = (a3d_vec2f_t*)
+	                    malloc(sizeof(a3d_vec2f_t));
+	if(self == NULL)
+	{
+		LOGE("malloc failed");
+		return NULL;
+	}
+
+	self->x = x;
+	self->y = y;
+	return self;
+}
+
+void a3d_vec2f_delete(a3d_vec2f_t** _self)
+{
+	assert(_self);
+
+	a3d_vec2f_t* self = *_self;
+	if(self)
+	{
+		free(self);
+		*_self = NULL;
+	}
+}
+
 void a3d_vec2f_load(a3d_vec2f_t* self, GLfloat x, GLfloat y)
 {
 	assert(self);

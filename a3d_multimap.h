@@ -24,7 +24,7 @@
 #ifndef a3d_multimap_H
 #define a3d_multimap_H
 
-#include "a3d/a3d_list.h"
+#include "a3d_list.h"
 
 struct a3d_multimap_s;
 

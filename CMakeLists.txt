@@ -3,6 +3,14 @@ cmake_minimum_required(VERSION 3.4.1)
 # Compiler options
 add_compile_options(-Wall -DA3D_GLESv2)
 
+if(A3D_USE_TESS2)
+    set(SOURCE_TESS2
+        a3d_polygonShader.c
+        a3d_polygon.c)
+    set(LIBS_TESS2
+        tess2)
+endif()
+
 # Submodule library
 add_library(a3d
             STATIC
@@ -22,6 +30,9 @@ add_library(a3d
             a3d_GL.c
             a3d_GLESv2.c
             a3d_shader.c
+            a3d_lineShader.c
+            a3d_line.c
+            ${SOURCE_TESS2}
             math/a3d_mat3f.c
             math/a3d_mat4f.c
             math/a3d_stack4f.c
@@ -57,6 +68,7 @@ target_link_libraries(a3d
                       # Submodule libraries
                       pak
                       texgz
+                      ${LIBS_TESS2}
 
                       # NDK libraries
                       z

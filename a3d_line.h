@@ -36,6 +36,8 @@ typedef struct
 	int         dirty;
 	int         loop;
 	float       width;
+	float       length;
+	int         rounded;
 	float       brush1;
 	float       brush2;
 	float       stripe1;
@@ -56,6 +58,7 @@ a3d_line_t* a3d_line_new(int loop, float width, int blend);
 void        a3d_line_delete(a3d_line_t** _self);
 void        a3d_line_point(a3d_line_t* self,
                            float x, float y);
+void        a3d_line_rounded(a3d_line_t* self, int rounded);
 void        a3d_line_brush(a3d_line_t* self,
                            float brush1, float brush2);
 void        a3d_line_stripe(a3d_line_t* self,

@@ -203,12 +203,15 @@ static int a3d_line_build(a3d_line_t* self)
 		if((a == NULL) || (c == NULL))
 		{
 			a3d_vec2f_t e;
+			float se; // direction to vtx
 			if(a == NULL)
 			{
+				se = -1.0f;
 				a3d_vec2f_subv_copy(c, b, &e);
 			}
 			else
 			{
+				se = 1.0f;
 				a3d_vec2f_subv_copy(b, a, &e);
 				sab += a3d_vec2f_mag(&e);
 			}
@@ -223,6 +226,13 @@ static int a3d_line_build(a3d_line_t* self)
 			a3d_vec2f_load(&q, b->x, b->y);
 			a3d_vec2f_subv(&p, (const a3d_vec2f_t*) &v);
 			a3d_vec2f_addv(&q, (const a3d_vec2f_t*) &v);
+			if(self->rounded)
+			{
+				// add a rounded cap
+				a3d_vec2f_muls(&e, se*self->width/2.0f);
+				a3d_vec2f_addv(&p, (const a3d_vec2f_t*) &e);
+				a3d_vec2f_addv(&q, (const a3d_vec2f_t*) &e);
+			}
 			st[idx]    = sab;
 			vtx[idx++] = p.x;
 			st[idx]    = -1.0f;
@@ -353,14 +363,19 @@ static int a3d_line_build(a3d_line_t* self)
 	// close loop
 	if(self->loop)
 	{
-		st[idx]     = sbc;
-		vtx[idx++]  = vtx[0];
-		st[idx]     = -1.0f;
-		vtx[idx++]  = vtx[1];
-		st[idx]     = sbc;
-		vtx[idx++]  = vtx[2];
-		st[idx]     = 1.0f;
-		vtx[idx++]  = vtx[3];
+		st[idx]      = sbc;
+		vtx[idx++]   = vtx[0];
+		st[idx]      = -1.0f;
+		vtx[idx++]   = vtx[1];
+		st[idx]      = sbc;
+		vtx[idx++]   = vtx[2];
+		st[idx]      = 1.0f;
+		vtx[idx++]   = vtx[3];
+		self->length = sbc;
+	}
+	else
+	{
+		self->length = sab;
 	}
 
 	// buffer data
@@ -406,6 +421,8 @@ a3d_line_t* a3d_line_new(int loop, float width, int blend)
 	self->dirty   = 0;
 	self->loop    = loop;
 	self->width   = width;
+	self->length  = 0.0f;
+	self->rounded = 0;
 	self->brush1  = 1.0f;
 	self->brush2  = 0.0f;
 	self->stripe1 = 0.0f;
@@ -486,6 +503,16 @@ void a3d_line_point(a3d_line_t* self, float x, float y)
 	return;
 }
 
+void a3d_line_rounded(a3d_line_t* self, int rounded)
+{
+	assert(self);
+
+	// set the dirty flag since the rounded flag causes
+	// line geometry to include a cap
+	self->rounded = rounded;
+	self->dirty   = 1;
+}
+
 void a3d_line_brush(a3d_line_t* self,
                     float brush1, float brush2)
 {
@@ -562,6 +589,8 @@ void a3d_line_draw(a3d_line_t* self,
 	glVertexAttribPointer(shader->attr_st, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) mvp);
 	glUniform1f(shader->unif_width, self->width);
+	glUniform1f(shader->unif_length, self->length);
+	glUniform1i(shader->unif_rounded, self->rounded);
 	glUniform1f(shader->unif_brush1,  self->brush1);
 	glUniform1f(shader->unif_brush2,  self->brush2);
 	glUniform1f(shader->unif_stripe1, self->stripe1);

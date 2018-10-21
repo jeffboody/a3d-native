@@ -32,6 +32,8 @@ typedef struct
 	GLint  attr_vtx;
 	GLint  attr_st;
 	GLint  unif_width;
+	GLint  unif_length;
+	GLint  unif_rounded;
 	GLint  unif_brush1;
 	GLint  unif_brush2;
 	GLint  unif_stripe1;

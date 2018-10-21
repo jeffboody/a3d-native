@@ -89,6 +89,8 @@ static const char* FSHADER =
 	"#endif\n"
 	"\n"
 	"uniform float width;\n"
+	"uniform float length;\n"
+	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
 	"uniform float brush2;\n"
 	"uniform float stripe1;\n"
@@ -108,11 +110,37 @@ static const char* FSHADER =
 	"		color = color2;\n"
 	"	}\n"
 	"	\n"
-	"	float t = abs(varying_st.y);\n"
+	"	float t  = abs(varying_st.y);\n"
+	"	if(rounded)\n"
+	"	{\n"
+	"		float w2 = width/2.0;\n"
+	"		if(s < w2)\n"
+	"		{\n"
+	"			float xx = (w2 - s)/w2;\n"
+	"			float yy = t;\n"
+	"			if((xx*xx + yy*yy) > 1.0f)\n"
+	"			{\n"
+	"				discard;\n"
+	"			}\n"
+	"			t = sqrt(xx*xx + yy*yy);\n"
+	"		}\n"
+	"		else if(s > (length - w2))\n"
+	"		{\n"
+	"			float xx = (s - length + w2)/w2;\n"
+	"			float yy = t;\n"
+	"			if((xx*xx + yy*yy) > 1.0f)\n"
+	"			{\n"
+	"				discard;\n"
+	"			}\n"
+	"			t = sqrt(xx*xx + yy*yy);\n"
+	"		}\n"
+	"	}\n"
+	"	\n"
 	"	if((t < stripe1) || (t > stripe2))\n"
 	"	{\n"
 	"		color = color2;\n"
 	"	}\n"
+	"	\n"
 	"	gl_FragColor = color;\n"
 	"}\n";
 
@@ -140,6 +168,8 @@ a3d_lineShader_t* a3d_lineShader_new(void)
 	self->attr_st      = glGetAttribLocation(self->prog, "st");
 	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
 	self->unif_width   = glGetUniformLocation(self->prog, "width");
+	self->unif_length  = glGetUniformLocation(self->prog, "length");
+	self->unif_rounded = glGetUniformLocation(self->prog, "rounded");
 	self->unif_brush1  = glGetUniformLocation(self->prog, "brush1");
 	self->unif_brush2  = glGetUniformLocation(self->prog, "brush2");
 	self->unif_stripe1 = glGetUniformLocation(self->prog, "stripe1");

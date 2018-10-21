@@ -34,6 +34,12 @@
 ***********************************************************/
 
 static const char* VSHADER =
+	"#ifndef GL_ES\n"
+	"#define lowp\n"
+	"#define mediump\n"
+	"#define highp\n"
+	"#endif\n"
+	"\n"
 	"attribute vec2 vtx;\n"
 	"attribute highp vec2 st;\n"
 	"uniform   mat4 mvp;\n"
@@ -49,6 +55,10 @@ static const char* FSHADER =
 	"#ifdef GL_ES\n"
 	"precision mediump float;\n"
 	"precision mediump int;\n"
+	"#else\n"
+	"#define lowp\n"
+	"#define mediump\n"
+	"#define highp\n"
 	"#endif\n"
 	"\n"
 	"uniform float width;\n"

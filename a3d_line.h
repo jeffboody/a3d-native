@@ -42,6 +42,7 @@ typedef struct
 	float       stripe2;
 	a3d_vec4f_t color1;
 	a3d_vec4f_t color2;
+	int         blend;
 
 	// points
 	a3d_list_t* list;
@@ -51,7 +52,7 @@ typedef struct
 	GLuint id_st;
 } a3d_line_t;
 
-a3d_line_t* a3d_line_new(int loop, float width);
+a3d_line_t* a3d_line_new(int loop, float width, int blend);
 void        a3d_line_delete(a3d_line_t** _self);
 void        a3d_line_point(a3d_line_t* self,
                            float x, float y);

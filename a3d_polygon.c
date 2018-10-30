@@ -33,6 +33,13 @@
 #include "a3d_log.h"
 
 /***********************************************************
+* protected                                                *
+***********************************************************/
+
+extern void a3d_polygonShader_blend(a3d_polygonShader_t* self,
+                                    int blend);
+
+/***********************************************************
 * private - polygon idx                                    *
 ***********************************************************/
 
@@ -238,7 +245,7 @@ static int a3d_polygon_build(a3d_polygon_t* self)
 * public                                                   *
 ***********************************************************/
 
-a3d_polygon_t* a3d_polygon_new(void)
+a3d_polygon_t* a3d_polygon_new(int blend)
 {
 	a3d_polygon_t* self = (a3d_polygon_t*)
 	                      malloc(sizeof(a3d_polygon_t));
@@ -250,6 +257,7 @@ a3d_polygon_t* a3d_polygon_new(void)
 
 	// attributes
 	self->dirty = 0;
+	self->blend = blend;
 	a3d_vec4f_load(&self->color, 1.0f, 1.0f, 1.0f, 1.0f);
 
 	self->list = a3d_list_new();
@@ -400,7 +408,7 @@ void a3d_polygon_draw(a3d_polygon_t* self,
 	}
 
 	// optionally enable blending
-	if(self->color.a < 1.0f)
+	if(self->blend && (self->color.a < 1.0f))
 	{
 		a3d_polygonShader_blend(shader, 1);
 	}

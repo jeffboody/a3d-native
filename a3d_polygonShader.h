@@ -41,7 +41,5 @@ a3d_polygonShader_t* a3d_polygonShader_new(void);
 void                 a3d_polygonShader_delete(a3d_polygonShader_t** _self);
 void                 a3d_polygonShader_begin(a3d_polygonShader_t* self);
 void                 a3d_polygonShader_end(a3d_polygonShader_t* self);
-void                 a3d_polygonShader_blend(a3d_polygonShader_t* self,
-                                             int blend);
 
 #endif

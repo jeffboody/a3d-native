@@ -32,6 +32,13 @@
 #include "a3d_log.h"
 
 /***********************************************************
+* protected                                                *
+***********************************************************/
+
+extern void a3d_lineShader_blend(a3d_lineShader_t* self,
+                                 int blend);
+
+/***********************************************************
 * private                                                  *
 ***********************************************************/
 
@@ -385,7 +392,7 @@ static int a3d_line_build(a3d_line_t* self)
 * public                                                   *
 ***********************************************************/
 
-a3d_line_t* a3d_line_new(int loop, float width)
+a3d_line_t* a3d_line_new(int loop, float width, int blend)
 {
 	a3d_line_t* self = (a3d_line_t*)
 	                   malloc(sizeof(a3d_line_t));
@@ -403,6 +410,7 @@ a3d_line_t* a3d_line_new(int loop, float width)
 	self->brush2  = 0.0f;
 	self->stripe1 = 0.0f;
 	self->stripe2 = 1.0f;
+	self->blend   = blend;
 	a3d_vec4f_load(&self->color1, 1.0f, 1.0f, 1.0f, 1.0f);
 	a3d_vec4f_load(&self->color2, 1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -523,7 +531,8 @@ void a3d_line_draw(a3d_line_t* self,
 	}
 
 	// optionally enable blending
-	if((self->color1.a < 1.0f) || (self->color2.a < 1.0f))
+	if(self->blend &&
+	   ((self->color1.a < 1.0f) || (self->color2.a < 1.0f)))
 	{
 		a3d_lineShader_blend(shader, 1);
 	}

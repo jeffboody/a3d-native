@@ -48,7 +48,5 @@ a3d_lineShader_t* a3d_lineShader_new(void);
 void              a3d_lineShader_delete(a3d_lineShader_t** _self);
 void              a3d_lineShader_begin(a3d_lineShader_t* self);
 void              a3d_lineShader_end(a3d_lineShader_t* self);
-void              a3d_lineShader_blend(a3d_lineShader_t* self,
-                                       int blend);
 
 #endif

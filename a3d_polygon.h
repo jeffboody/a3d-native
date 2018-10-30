@@ -35,6 +35,7 @@ typedef struct
 	// attributes
 	int         dirty;
 	a3d_vec4f_t color;
+	int         blend;
 
 	// contours
 	a3d_list_t* list;
@@ -44,7 +45,7 @@ typedef struct
 	a3d_list_t* list_idx;
 } a3d_polygon_t;
 
-a3d_polygon_t* a3d_polygon_new(void);
+a3d_polygon_t* a3d_polygon_new(int blend);
 void           a3d_polygon_delete(a3d_polygon_t** _self);
 void           a3d_polygon_point(a3d_polygon_t* self,
                                  int first,

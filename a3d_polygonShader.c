@@ -30,6 +30,33 @@
 #include "a3d_log.h"
 
 /***********************************************************
+* protected                                                *
+***********************************************************/
+
+void a3d_polygonShader_blend(a3d_polygonShader_t* self,
+                             int blend)
+{
+	assert(self);
+
+	if(self->blend == blend)
+	{
+		return;
+	}
+
+	if(blend)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+
+	self->blend = blend;
+}
+
+/***********************************************************
 * private                                                  *
 ***********************************************************/
 
@@ -115,27 +142,4 @@ void a3d_polygonShader_end(a3d_polygonShader_t* self)
 	a3d_polygonShader_blend(self, 0);
 	glDisableVertexAttribArray(self->attr_vtx);
 	glUseProgram(0);
-}
-
-void a3d_polygonShader_blend(a3d_polygonShader_t* self,
-                             int blend)
-{
-	assert(self);
-
-	if(self->blend == blend)
-	{
-		return;
-	}
-
-	if(blend)
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-	else
-	{
-		glDisable(GL_BLEND);
-	}
-
-	self->blend = blend;
 }

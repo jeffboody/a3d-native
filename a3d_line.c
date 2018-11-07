@@ -407,7 +407,7 @@ static int a3d_line_build(a3d_line_t* self)
 * public                                                   *
 ***********************************************************/
 
-a3d_line_t* a3d_line_new(int loop, float width, int blend)
+a3d_line_t* a3d_line_new(int loop)
 {
 	a3d_line_t* self = (a3d_line_t*)
 	                   malloc(sizeof(a3d_line_t));
@@ -419,15 +419,15 @@ a3d_line_t* a3d_line_new(int loop, float width, int blend)
 
 	// attributes
 	self->dirty   = 0;
-	self->loop    = loop;
-	self->width   = width;
+	self->loop    = 0;
+	self->width   = 1.0f;
 	self->length  = 0.0f;
 	self->rounded = 0;
 	self->brush1  = 1.0f;
 	self->brush2  = 0.0f;
 	self->stripe1 = 0.0f;
 	self->stripe2 = 1.0f;
-	self->blend   = blend;
+	self->blend   = 0;
 	a3d_vec4f_load(&self->color1, 1.0f, 1.0f, 1.0f, 1.0f);
 	a3d_vec4f_load(&self->color2, 1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -503,14 +503,41 @@ void a3d_line_point(a3d_line_t* self, float x, float y)
 	return;
 }
 
+void a3d_line_blend(a3d_line_t* self, int blend)
+{
+	assert(self);
+
+	self->blend = blend;
+}
+
 void a3d_line_rounded(a3d_line_t* self, int rounded)
 {
 	assert(self);
+
+	if(self->rounded == rounded)
+	{
+		return;
+	}
 
 	// set the dirty flag since the rounded flag causes
 	// line geometry to include a cap
 	self->rounded = rounded;
 	self->dirty   = 1;
+}
+
+void a3d_line_width(a3d_line_t* self, float width)
+{
+	assert(self);
+
+	if(self->width == width)
+	{
+		return;
+	}
+
+	// set the dirty flag since the width causes
+	// line geometry to change
+	self->width = width;
+	self->dirty = 1;
 }
 
 void a3d_line_brush(a3d_line_t* self,

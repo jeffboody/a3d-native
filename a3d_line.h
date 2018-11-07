@@ -54,11 +54,13 @@ typedef struct
 	GLuint id_st;
 } a3d_line_t;
 
-a3d_line_t* a3d_line_new(int loop, float width, int blend);
+a3d_line_t* a3d_line_new(int loop);
 void        a3d_line_delete(a3d_line_t** _self);
 void        a3d_line_point(a3d_line_t* self,
                            float x, float y);
+void        a3d_line_blend(a3d_line_t* self, int blend);
 void        a3d_line_rounded(a3d_line_t* self, int rounded);
+void        a3d_line_width(a3d_line_t* self, float width);
 void        a3d_line_brush(a3d_line_t* self,
                            float brush1, float brush2);
 void        a3d_line_stripe(a3d_line_t* self,

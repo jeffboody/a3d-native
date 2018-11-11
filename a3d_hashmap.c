@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <math.h>
 
 #define LOG_TAG "a3d"
 #include "a3d_log.h"
@@ -676,4 +677,61 @@ const void* a3d_hashmap_remove(a3d_hashmap_t* self,
 	// remove the val from the node
 	// and recursively remove nodes if needed
 	return a3d_hashmapNode_removeVal(node, self);
+}
+
+void a3d_hashmap_base36(double x, int len, char* b)
+{
+	assert(x >= 0.0);
+	assert(fmod(x, 1.0) == 0.0);
+	assert(len >= 2);
+	assert(b);
+
+	// base36 is a utility function to reduce the hashmap
+	// depth for keys which may be large numbers
+
+	// initialize b
+	if(x <= 0.0)
+	{
+		b[0] = '0';
+		b[1] = '\0';
+		return;
+	}
+	else
+	{
+		b[0] = '\0';
+	}
+
+	char o[256] = "";
+	int  oi     = 0;
+	while((x > 0.5) && (oi < 255))
+	{
+		int m = (int) fmod(x, 36.0);
+		if(m < 10)
+		{
+			o[oi++] = '0' + m;
+		}
+		else
+		{
+			o[oi++] = 'A' + (m - 10);
+		}
+		o[oi] = '\0';
+
+		x = (x - m)/36.0;
+	}
+
+	// check len
+	if(oi >= len)
+	{
+		b[0] = '0';
+		b[1] = '\0';
+		return;
+	}
+
+	// reverse o
+	int bi = 0;
+	while(oi > 0)
+	{
+		b[bi++] = o[--oi];
+		b[bi]   = '\0';
+	}
 }

@@ -84,5 +84,6 @@ const void*        a3d_hashmap_replace(a3d_hashmapIter_t* iter,
                                        const void* val);
 const void*        a3d_hashmap_remove(a3d_hashmap_t* self,
                                       a3d_hashmapIter_t** _iter);
+void               a3d_hashmap_base36(double x, int len, char* b);
 
 #endif

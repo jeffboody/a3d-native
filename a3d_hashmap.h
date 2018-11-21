@@ -24,31 +24,24 @@
 #ifndef a3d_hashmap_H
 #define a3d_hashmap_H
 
-struct a3d_hashmap_s;
-
-#define A3D_HASHMAP_KEY_LEN   256
-#define A3D_HASHMAP_KEY_COUNT 36
-
-typedef struct
-{
-	int  key_len;
-	char key[A3D_HASHMAP_KEY_LEN];
-
-	struct a3d_hashmapNode_s* node;
-} a3d_hashmapIter_t;
+#define A3D_HASHMAP_KEY_LEN 256
 
 typedef struct a3d_hashmapNode_s
 {
-	// nodes are allocated on demand
-	// and freed when empty
+	struct a3d_hashmapNode_s* prev;
+	struct a3d_hashmapNode_s* next;
+	struct a3d_hashmapNode_s* down;
 
-	// key: 0-9, A-Z
-	struct a3d_hashmapNode_s* nodes[A3D_HASHMAP_KEY_COUNT];
-	struct a3d_hashmapNode_s* parent;
-
-	// matching value
 	const void* val;
+	char k;
 } a3d_hashmapNode_t;
+
+typedef struct
+{
+	int  depth;
+	char key[A3D_HASHMAP_KEY_LEN];
+	a3d_hashmapNode_t* node[A3D_HASHMAP_KEY_LEN];
+} a3d_hashmapIter_t;
 
 typedef struct
 {
@@ -73,17 +66,14 @@ const void*        a3d_hashmap_findf(const a3d_hashmap_t* self,
                                      a3d_hashmapIter_t* iter,
                                      const char* fmt, ...);
 int                a3d_hashmap_add(a3d_hashmap_t* self,
-                                   a3d_hashmapIter_t* iter,
                                    const void* val,
                                    const char* key);
 int                a3d_hashmap_addf(a3d_hashmap_t* self,
-                                    a3d_hashmapIter_t* iter,
                                     const void* val,
                                     const char* fmt, ...);
 const void*        a3d_hashmap_replace(a3d_hashmapIter_t* iter,
                                        const void* val);
 const void*        a3d_hashmap_remove(a3d_hashmap_t* self,
                                       a3d_hashmapIter_t** _iter);
-void               a3d_hashmap_base36(double x, int len, char* b);
 
 #endif

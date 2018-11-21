@@ -36,122 +36,32 @@
 * private - hashmapIter                                    *
 ***********************************************************/
 
-static const void*
-a3d_hashmapIter_val(const a3d_hashmapIter_t* self)
+static void
+a3d_hashmapIter_init(a3d_hashmapIter_t* self,
+                     a3d_hashmapNode_t* node)
 {
 	assert(self);
+	assert(node);
 
-	return self->node->val;
+	self->depth   = 0;
+	self->key[0]  = node->k;
+	self->key[1]  = '\0';
+	self->node[0] = node;
 }
 
-static const char*
-a3d_hashmapIter_key(const a3d_hashmapIter_t* self)
+static void
+a3d_hashmapIter_update(a3d_hashmapIter_t* self,
+                       int d, a3d_hashmapNode_t* node)
 {
 	assert(self);
+	assert(d >= 0);
+	assert(d < (A3D_HASHMAP_KEY_LEN - 1));
+	assert(node);
 
-	return self->key;
-}
-
-static a3d_hashmapIter_t*
-a3d_hashmapIter_nextDown(a3d_hashmapIter_t* self, int skip);
-
-static a3d_hashmapIter_t*
-a3d_hashmapIter_nextUp(a3d_hashmapIter_t* self)
-{
-	assert(self);
-
-	// end recursion
-	a3d_hashmapNode_t* parent = self->node->parent;
-	if(parent == NULL)
-	{
-		return NULL;
-	}
-
-	// find node in parent
-	int i;
-	for(i = 0; i < A3D_HASHMAP_KEY_COUNT; ++i)
-	{
-		a3d_hashmapNode_t* node = parent->nodes[i];
-		if(node == self->node)
-		{
-			break;
-		}
-	}
-
-	// try to traverse down to the next node
-	int j;
-	for(j = i + 1; j < A3D_HASHMAP_KEY_COUNT; ++j)
-	{
-		a3d_hashmapNode_t* node = parent->nodes[j];
-		if(node)
-		{
-			self->node = node;
-
-			// replace iter key
-			if(j < 10)
-			{
-				// number
-				self->key[self->key_len - 1] = '0' + (char) j;
-			}
-			else
-			{
-				// letter
-				self->key[self->key_len - 1] = 'A' + (char) (j - 10);
-			}
-
-			return a3d_hashmapIter_nextDown(self, 0);
-		}
-	}
-
-	// try to traverse up again
-	self->node = parent;
-	self->key_len -= 1;
-	self->key[self->key_len] = '\0';
-	return a3d_hashmapIter_nextUp(self);
-}
-
-static a3d_hashmapIter_t*
-a3d_hashmapIter_nextDown(a3d_hashmapIter_t* self, int skip)
-{
-	assert(self);
-
-	// check if val exists but has not been traversed yet
-	if((skip == 0) && self->node->val)
-	{
-		return self;
-	}
-
-	// try to traverse down
-	int i;
-	for(i = 0; i < A3D_HASHMAP_KEY_COUNT; ++i)
-	{
-		a3d_hashmapNode_t* node = self->node->nodes[i];
-		if(node)
-		{
-			self->node = node;
-
-			// update iter key
-			if(i < 10)
-			{
-				// number
-				self->key[self->key_len] = '0' + (char) i;
-				self->key_len += 1;
-				self->key[self->key_len] = '\0';
-			}
-			else
-			{
-				// letter
-				self->key[self->key_len] = 'A' + (char) (i - 10);
-				self->key_len += 1;
-				self->key[self->key_len] = '\0';
-			}
-
-			return a3d_hashmapIter_nextDown(self, 0);
-		}
-	}
-
-	// try to traverse up
-	return a3d_hashmapIter_nextUp(self);
+	self->depth      = d;
+	self->key[d]     = node->k;
+	self->key[d + 1] = '\0';
+	self->node[d]    = node;
 }
 
 /***********************************************************
@@ -159,277 +69,85 @@ a3d_hashmapIter_nextDown(a3d_hashmapIter_t* self, int skip)
 ***********************************************************/
 
 static a3d_hashmapNode_t*
-a3d_hashmapNode_new(a3d_hashmapNode_t* parent)
+a3d_hashmapNode_new(a3d_hashmapNode_t* prev, char k)
 {
-	// parent may be NULL for head
+	// prev may be NULL for head
 
 	a3d_hashmapNode_t* self = (a3d_hashmapNode_t*)
-	                          calloc(1, sizeof(a3d_hashmapNode_t));
+	                          malloc(sizeof(a3d_hashmapNode_t));
 	if(self == NULL)
 	{
-		LOGE("calloc failed");
+		LOGE("malloc failed");
 		return NULL;
 	}
 
-	self->parent = parent;
+	self->prev = prev;
+	self->next = NULL;
+	self->down = NULL;
+	self->val  = NULL;
+	self->k    = k;
 
 	return self;
 }
 
-static void a3d_hashmapNode_delete(a3d_hashmapNode_t** _self)
+static void
+a3d_hashmapNode_delete(a3d_hashmapNode_t** _self)
 {
 	assert(_self);
 
 	a3d_hashmapNode_t* self = *_self;
 	if(self)
 	{
-		int i;
-		for(i = 0; i < A3D_HASHMAP_KEY_COUNT; ++i)
-		{
-			a3d_hashmapNode_delete(&(self->nodes[i]));
-		}
-
+		// prev is a reference
+		a3d_hashmapNode_delete(&self->next);
+		a3d_hashmapNode_delete(&self->down);
 		free(self);
 		*_self = NULL;
 	}
 }
 
-static const void*
-a3d_hashmapNode_find(a3d_hashmapNode_t* self,
-                     a3d_hashmapIter_t* iter,
-                     int idx, const char* key)
-{
-	assert(self);
-	assert(iter);
-	assert(key);
-
-	int len = strlen(key);
-	if(len >= A3D_HASHMAP_KEY_LEN)
-	{
-		LOGE("invalid len=%i", len);
-		return NULL;
-	}
-
-	// find end or 0-9, A-Z
-	char c = key[idx++];
-	while(1)
-	{
-		if(c == '\0')
-		{
-			if(self->val)
-			{
-				iter->node = self;
-			}
-			return self->val;
-		}
-		else if((c >= 'a') &&
-		        (c <= 'z'))
-		{
-			iter->key[iter->key_len++] = c - 'a' + 'A';
-			iter->key[iter->key_len]   = '\0';
-			c = c - 'a' + 10;
-			break;
-		}
-		else if((c >= 'A') &&
-		        (c <= 'Z'))
-		{
-			iter->key[iter->key_len++] = c;
-			iter->key[iter->key_len]   = '\0';
-			c = c - 'A' + 10;
-			break;
-		}
-		else if((c >= '0') &&
-		        (c <= '9'))
-		{
-			iter->key[iter->key_len++] = c;
-			iter->key[iter->key_len]   = '\0';
-			c = c - '0';
-			break;
-		}
-
-		c = key[idx++];
-	}
-
-	// find next node
-	a3d_hashmapNode_t* node = self->nodes[(int) c];
-	if(node)
-	{
-		return a3d_hashmapNode_find(node, iter, idx, key);
-	}
-
-	// not found
-	return NULL;
-}
-
-static int a3d_hashmapNode_add(a3d_hashmapNode_t* self,
-                               a3d_hashmapIter_t* iter,
-                               const void* val,
-                               int idx, const char* key)
-{
-	assert(self);
-	assert(iter);
-	assert(val);
-	assert(key);
-
-	// add at end or traverse to 0-9, A-Z
-	char c = key[idx++];
-	while(1)
-	{
-		if(c == '\0')
-		{
-			if(self->val)
-			{
-				// hashmap already has val for this key
-				// use replace instead
-				return 0;
-			}
-
-			iter->node = self;
-			self->val  = val;
-			return 1;
-		}
-		else if((c >= 'a') &&
-		        (c <= 'z'))
-		{
-			iter->key[iter->key_len++] = c - 'a' + 'A';
-			iter->key[iter->key_len]   = '\0';
-			c = c - 'a' + 10;
-			break;
-		}
-		else if((c >= 'A') &&
-		        (c <= 'Z'))
-		{
-			iter->key[iter->key_len++] = c;
-			iter->key[iter->key_len]   = '\0';
-			c = c - 'A' + 10;
-			break;
-		}
-		else if((c >= '0') &&
-		        (c <= '9'))
-		{
-			iter->key[iter->key_len++] = c;
-			iter->key[iter->key_len]   = '\0';
-			c = c - '0';
-			break;
-		}
-
-		c = key[idx++];
-	}
-
-	int created = 0;
-	a3d_hashmapNode_t* node = self->nodes[(int) c];
-	if(node == NULL)
-	{
-		// create next node
-		node = a3d_hashmapNode_new(self);
-		if(node == NULL)
-		{
-			return 0;
-		}
-
-		created = 1;
-	}
-
-	if(a3d_hashmapNode_add(node, iter, val, idx, key) == 0)
-	{
-		goto fail_add;
-	}
-	else if(created)
-	{
-		self->nodes[(int) c] = node;
-	}
-
-	// success
-	return 1;
-
-	// failure
-	fail_add:
-		if(created)
-		{
-			a3d_hashmapNode_delete(&node);
-		}
-	return 0;
-}
-
-static int a3d_hashmapNode_empty(a3d_hashmapNode_t* self)
-{
-	assert(self);
-
-	// check if this hashmap node is now empty
-	int empty = 1;
-	if(self->val)
-	{
-		empty = 0;
-	}
-	else
-	{
-		int i;
-		for(i = 0; i < A3D_HASHMAP_KEY_COUNT; ++i)
-		{
-			if(self->nodes[i])
-			{
-				empty = 0;
-				break;
-			}
-		}
-	}
-
-	return empty;
-}
+/***********************************************************
+* private hashmap                                          *
+***********************************************************/
 
 static void
-a3d_hashmapNode_removeNode(a3d_hashmapNode_t* self,
-                           a3d_hashmapNode_t* node,
-                           a3d_hashmap_t* hashmap)
+a3d_hashmap_clean(a3d_hashmap_t* self,
+                  a3d_hashmapNode_t* node)
 {
-	// self may be null for the head node
+	assert(self);
 	assert(node);
-	assert(hashmap);
 
-	if(self == NULL)
+	// check if the node is an endpoint or traversal node
+	if(node->val || node->down)
 	{
-		a3d_hashmapNode_delete(&hashmap->head);
 		return;
 	}
 
-	// remove the node
-	int i;
-	for(i = 0; i < A3D_HASHMAP_KEY_COUNT; ++i)
+	// detach empty nodes
+	a3d_hashmapNode_t* prev = node->prev;
+	a3d_hashmapNode_t* next = node->next;
+	if(prev == NULL)
 	{
-		if(self->nodes[i] == node)
-		{
-			a3d_hashmapNode_delete(&(self->nodes[i]));
-			break;
-		}
+		self->head = next;
+	}
+	else if(prev->down == node)
+	{
+		prev->down = next;
+		a3d_hashmap_clean(self, prev);
+	}
+	else
+	{
+		prev->next = next;
 	}
 
-	// recursively remove empty nodes
-	if(a3d_hashmapNode_empty(self))
+	if(next)
 	{
-		a3d_hashmapNode_removeNode(self->parent,
-		                           self, hashmap);
-	}
-}
-
-static const void*
-a3d_hashmapNode_removeVal(a3d_hashmapNode_t* self,
-                          a3d_hashmap_t* hashmap)
-{
-	assert(self);
-	assert(hashmap);
-
-	// remove the val
-	const void* val = self->val;
-	self->val = NULL;
-
-	// recursively remove empty nodes
-	if(a3d_hashmapNode_empty(self))
-	{
-		a3d_hashmapNode_removeNode(self->parent,
-		                           self, hashmap);
+		next->prev = prev;
 	}
 
-	return val;
+	node->prev = NULL;
+	node->next = NULL;
+	a3d_hashmapNode_delete(&node);
 }
 
 /***********************************************************
@@ -504,33 +222,78 @@ a3d_hashmap_head(const a3d_hashmap_t* self,
 		return NULL;
 	}
 
-	// at least one node must exist since head is not NULL
-	iter->key_len = 0;
-	iter->key[0]  = '\0';
-	iter->node    = self->head;
+	a3d_hashmapIter_init(iter, self->head);
 
-	return a3d_hashmapIter_nextDown(iter, 0);
+	// find an endpoint
+	if(self->head->val)
+	{
+		return iter;
+	}
+	return a3d_hashmap_next(iter);
 }
 
 a3d_hashmapIter_t* a3d_hashmap_next(a3d_hashmapIter_t* iter)
 {
 	assert(iter);
 
-	return a3d_hashmapIter_nextDown(iter, 1);
+	int d = iter->depth;
+	a3d_hashmapNode_t* node = iter->node[d];
+	if(node->down)
+	{
+		// down
+		++d;
+		node = node->down;
+		a3d_hashmapIter_update(iter, d, node);
+	}
+	else if(node->next)
+	{
+		// sideways
+		node = node->next;
+		a3d_hashmapIter_update(iter, d, node);
+	}
+	else
+	{
+		// up
+		while(1)
+		{
+			--d;
+			if(d < 0)
+			{
+				return NULL;
+			}
+
+			node = iter->node[d];
+			if(node->next)
+			{
+				node = node->next;
+				a3d_hashmapIter_update(iter, d, node);
+				break;
+			}
+		}
+	}
+
+	// find an endpoint
+	if(node->val)
+	{
+		return iter;
+	}
+	return a3d_hashmap_next(iter);
 }
 
 const void* a3d_hashmap_val(const a3d_hashmapIter_t* iter)
 {
 	assert(iter);
 
-	return a3d_hashmapIter_val(iter);
+	int d = iter->depth;
+	a3d_hashmapNode_t* node = iter->node[d];
+	return node->val;
 }
 
 const char* a3d_hashmap_key(const a3d_hashmapIter_t* iter)
 {
 	assert(iter);
 
-	return a3d_hashmapIter_key(iter);
+	return iter->key;
 }
 
 const void* a3d_hashmap_find(const a3d_hashmap_t* self,
@@ -541,14 +304,58 @@ const void* a3d_hashmap_find(const a3d_hashmap_t* self,
 	assert(iter);
 	assert(key);
 
-	// initialize iter
-	iter->key_len = 0;
-	iter->key[0]  = '\0';
-	iter->node    = NULL;
-
-	if(self->head)
+	int len = strlen(key);
+	if((len >= A3D_HASHMAP_KEY_LEN) || (len == 0))
 	{
-		return a3d_hashmapNode_find(self->head, iter, 0, key);
+		LOGE("invalid len=%i", len);
+		return NULL;
+	}
+
+	// check for empty hashmap
+	if(self->head == NULL)
+	{
+		return NULL;
+	}
+
+	a3d_hashmapIter_init(iter, self->head);
+
+	// traverse the hashmap
+	int d = 0;
+	a3d_hashmapNode_t* node = self->head;
+	while(d < len)
+	{
+		if(key[d] == iter->key[d])
+		{
+			if(d == (len - 1))
+			{
+				// success
+				return node->val;
+			}
+			else if(node->down)
+			{
+				// down
+				++d;
+				node = node->down;
+				a3d_hashmapIter_update(iter, d, node);
+				continue;
+			}
+
+			return NULL;
+		}
+		else if((key[d] < iter->key[d]) ||
+		        (node->next == NULL))
+		{
+			// not found
+			return NULL;
+		}
+
+		// traverse to the next decision point
+		while(node->next && (key[d] > iter->key[d]))
+		{
+			// sideways
+			node = node->next;
+			a3d_hashmapIter_update(iter, d, node);
+		}
 	}
 
 	return NULL;
@@ -572,33 +379,25 @@ const void* a3d_hashmap_findf(const a3d_hashmap_t* self,
 }
 
 int a3d_hashmap_add(a3d_hashmap_t* self,
-                    a3d_hashmapIter_t* iter,
                     const void* val,
                     const char* key)
 {
 	assert(self);
-	assert(iter);
 	assert(val);
 	assert(key);
 
-	// initialize iter
-	iter->key_len = 0;
-	iter->key[0]  = '\0';
-	iter->node    = NULL;
-
 	int len = strlen(key);
-	if(len >= A3D_HASHMAP_KEY_LEN)
+	if((len >= A3D_HASHMAP_KEY_LEN) || (len == 0))
 	{
-		LOGE("invalid len=%i", len);
+		LOGE("invalid key=%s, len=%i", key, len);
 		return 0;
 	}
 
 	int created = 0;
-	a3d_hashmapNode_t* node = self->head;
-	if(node == NULL)
+	if(self->head == NULL)
 	{
-		node = a3d_hashmapNode_new(NULL);
-		if(node == NULL)
+		self->head = a3d_hashmapNode_new(NULL, key[0]);
+		if(self->head == NULL)
 		{
 			return 0;
 		}
@@ -606,36 +405,126 @@ int a3d_hashmap_add(a3d_hashmap_t* self,
 		created = 1;
 	}
 
-	if(a3d_hashmapNode_add(node, iter, val, 0, key) == 0)
+	a3d_hashmapIter_t  iterator;
+	a3d_hashmapIter_t* iter = &iterator;
+	a3d_hashmapIter_init(&iterator, self->head);
+
+	// traverse the hashmap
+	int d = 0;
+	a3d_hashmapNode_t* node = self->head;
+	while(d < len)
 	{
-		goto fail_add;
-	}
-	else if(created)
-	{
-		self->head = node;
+		if(key[d] == iter->key[d])
+		{
+			if(d == (len - 1))
+			{
+				if(node->val)
+				{
+					// hash already contains key
+					return 0;
+				}
+
+				// success
+				++self->size;
+				node->val = val;
+				return 1;
+			}
+			else if(node->down == NULL)
+			{
+				// insert a new down node
+				a3d_hashmapNode_t* down;
+				down = a3d_hashmapNode_new(node, key[d + 1]);
+				if(down == NULL)
+				{
+					a3d_hashmap_clean(self, node);
+					goto fail_add;
+				}
+				node->down = down;
+			}
+
+			// down
+			++d;
+			node = node->down;
+			a3d_hashmapIter_update(iter, d, node);
+			continue;
+		}
+		else if(key[d] < iter->key[d])
+		{
+			// insert a new prev node
+			a3d_hashmapNode_t* prev;
+			prev = a3d_hashmapNode_new(node->prev, key[d]);
+			if(prev == NULL)
+			{
+				a3d_hashmap_clean(self, node);
+				goto fail_add;
+			}
+			prev->next = node;
+
+			if(node->prev)
+			{
+				if(node->prev->next == node)
+				{
+					node->prev->next = prev;
+				}
+				else
+				{
+					node->prev->down = prev;
+				}
+			}
+			else
+			{
+				self->head = prev;
+			}
+			node->prev = prev;
+
+			// sideways
+			node = prev;
+			a3d_hashmapIter_update(iter, d, node);
+			continue;
+		}
+		else if(node->next == NULL)
+		{
+			// append a new next node
+			a3d_hashmapNode_t* next;
+			next = a3d_hashmapNode_new(node, key[d]);
+			if(next == NULL)
+			{
+				a3d_hashmap_clean(self, node);
+				goto fail_add;
+			}
+			node->next = next;
+
+			node = next;
+			a3d_hashmapIter_update(iter, d, node);
+			continue;
+		}
+
+		// traverse to the next decision point
+		while(node->next && (key[d] > iter->key[d]))
+		{
+			// sideways
+			node = node->next;
+			a3d_hashmapIter_update(iter, d, node);
+		}
 	}
 
-	++self->size;
-
-	// success
-	return 1;
+	// the key/val can always be added before d equals len
+	assert(0);
 
 	// failure
 	fail_add:
 		if(created)
 		{
-			a3d_hashmapNode_delete(&node);
+			a3d_hashmapNode_delete(&self->head);
 		}
 	return 0;
 }
 
 int a3d_hashmap_addf(a3d_hashmap_t* self,
-                     a3d_hashmapIter_t* iter,
                      const void* val,
                      const char* fmt, ...)
 {
 	assert(self);
-	assert(iter);
 	assert(val);
 	assert(fmt);
 
@@ -645,7 +534,7 @@ int a3d_hashmap_addf(a3d_hashmap_t* self,
 	vsnprintf(key, A3D_HASHMAP_KEY_LEN, fmt, argptr);
 	va_end(argptr);
 
-	return a3d_hashmap_add(self, iter, val, key);
+	return a3d_hashmap_add(self, val, key);
 }
 
 const void* a3d_hashmap_replace(a3d_hashmapIter_t* iter,
@@ -654,8 +543,11 @@ const void* a3d_hashmap_replace(a3d_hashmapIter_t* iter,
 	assert(iter);
 	assert(val);
 
-	const void* old = iter->node->val;
-	iter->node->val = val;
+	int d = iter->depth;
+	a3d_hashmapNode_t* node = iter->node[d];
+
+	const void* old = node->val;
+	node->val = val;
 	return old;
 }
 
@@ -666,72 +558,19 @@ const void* a3d_hashmap_remove(a3d_hashmap_t* self,
 	assert(_iter);
 	assert(*_iter);
 
-	// update the iter
 	a3d_hashmapIter_t* iter = *_iter;
-	a3d_hashmapNode_t* node = iter->node;
-	*_iter = a3d_hashmapIter_nextDown(iter, 1);
 
-	// update size
+	// save node and update iter
+	int d = iter->depth;
+	a3d_hashmapNode_t* node = iter->node[d];
+	*_iter = a3d_hashmap_next(iter);
+
+	// clear value and clean traversal nodes
+	const void* val = node->val;
+	node->val = NULL;
+	a3d_hashmap_clean(self, node);
+
 	--self->size;
 
-	// remove the val from the node
-	// and recursively remove nodes if needed
-	return a3d_hashmapNode_removeVal(node, self);
-}
-
-void a3d_hashmap_base36(double x, int len, char* b)
-{
-	assert(x >= 0.0);
-	assert(fmod(x, 1.0) == 0.0);
-	assert(len >= 2);
-	assert(b);
-
-	// base36 is a utility function to reduce the hashmap
-	// depth for keys which may be large numbers
-
-	// initialize b
-	if(x <= 0.0)
-	{
-		b[0] = '0';
-		b[1] = '\0';
-		return;
-	}
-	else
-	{
-		b[0] = '\0';
-	}
-
-	char o[256] = "";
-	int  oi     = 0;
-	while((x > 0.5) && (oi < 255))
-	{
-		int m = (int) fmod(x, 36.0);
-		if(m < 10)
-		{
-			o[oi++] = '0' + m;
-		}
-		else
-		{
-			o[oi++] = 'A' + (m - 10);
-		}
-		o[oi] = '\0';
-
-		x = (x - m)/36.0;
-	}
-
-	// check len
-	if(oi >= len)
-	{
-		b[0] = '0';
-		b[1] = '\0';
-		return;
-	}
-
-	// reverse o
-	int bi = 0;
-	while(oi > 0)
-	{
-		b[bi++] = o[--oi];
-		b[bi]   = '\0';
-	}
+	return val;
 }

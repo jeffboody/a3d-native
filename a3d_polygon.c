@@ -121,6 +121,12 @@ static int a3d_polygon_build(a3d_polygon_t* self)
 		}
 	}
 
+	if(a3d_list_size(self->list) == 0)
+	{
+		// at least one contour required
+		return 0;
+	}
+
 	TESStesselator* tess = tessNewTess(NULL);
 	if(tess == NULL)
 	{

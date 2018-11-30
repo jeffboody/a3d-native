@@ -69,8 +69,11 @@ a3d_hashmapIter_update(a3d_hashmapIter_t* self,
 ***********************************************************/
 
 static a3d_hashmapNode_t*
-a3d_hashmapNode_new(a3d_hashmapNode_t* prev, char k)
+a3d_hashmapNode_new(a3d_hashmapNode_t* prev,
+                    a3d_hashmap_t* hash, char k)
 {
+	assert(hash);
+
 	// prev may be NULL for head
 
 	a3d_hashmapNode_t* self = (a3d_hashmapNode_t*)
@@ -87,20 +90,25 @@ a3d_hashmapNode_new(a3d_hashmapNode_t* prev, char k)
 	self->val  = NULL;
 	self->k    = k;
 
+	++hash->nodes;
+
 	return self;
 }
 
 static void
-a3d_hashmapNode_delete(a3d_hashmapNode_t** _self)
+a3d_hashmapNode_delete(a3d_hashmapNode_t** _self,
+                       a3d_hashmap_t* hash)
 {
 	assert(_self);
+	assert(hash);
 
 	a3d_hashmapNode_t* self = *_self;
 	if(self)
 	{
 		// prev is a reference
-		a3d_hashmapNode_delete(&self->next);
-		a3d_hashmapNode_delete(&self->down);
+		--hash->nodes;
+		a3d_hashmapNode_delete(&self->next, hash);
+		a3d_hashmapNode_delete(&self->down, hash);
 		free(self);
 		*_self = NULL;
 	}
@@ -147,7 +155,7 @@ a3d_hashmap_clean(a3d_hashmap_t* self,
 
 	node->prev = NULL;
 	node->next = NULL;
-	a3d_hashmapNode_delete(&node);
+	a3d_hashmapNode_delete(&node, self);
 }
 
 /***********************************************************
@@ -164,8 +172,9 @@ a3d_hashmap_t* a3d_hashmap_new(void)
 		return NULL;
 	}
 
-	self->size = 0;
-	self->head = NULL;
+	self->size  = 0;
+	self->nodes = 0;
+	self->head  = NULL;
 
 	return self;
 }
@@ -182,7 +191,7 @@ void a3d_hashmap_delete(a3d_hashmap_t** _self)
 			LOGE("memory leak detected: size=%i", self->size);
 		}
 
-		a3d_hashmapNode_delete(&self->head);
+		a3d_hashmapNode_delete(&self->head, self);
 		free(self);
 		*_self = NULL;
 	}
@@ -193,7 +202,7 @@ void a3d_hashmap_discard(a3d_hashmap_t* self)
 	assert(self);
 
 	self->size = 0;
-	a3d_hashmapNode_delete(&self->head);
+	a3d_hashmapNode_delete(&self->head, self);
 }
 
 int a3d_hashmap_size(const a3d_hashmap_t* self)
@@ -201,6 +210,20 @@ int a3d_hashmap_size(const a3d_hashmap_t* self)
 	assert(self);
 
 	return self->size;
+}
+
+int a3d_hashmap_hashmapNodes(const a3d_hashmap_t* self)
+{
+	assert(self);
+
+	return self->nodes;
+}
+
+int a3d_hashmap_hashmapSize(const a3d_hashmap_t* self)
+{
+	assert(self);
+
+	return (int) self->nodes*sizeof(a3d_hashmapNode_t);
 }
 
 int a3d_hashmap_empty(const a3d_hashmap_t* self)
@@ -396,7 +419,7 @@ int a3d_hashmap_add(a3d_hashmap_t* self,
 	int created = 0;
 	if(self->head == NULL)
 	{
-		self->head = a3d_hashmapNode_new(NULL, key[0]);
+		self->head = a3d_hashmapNode_new(NULL, self, key[0]);
 		if(self->head == NULL)
 		{
 			return 0;
@@ -433,7 +456,7 @@ int a3d_hashmap_add(a3d_hashmap_t* self,
 			{
 				// insert a new down node
 				a3d_hashmapNode_t* down;
-				down = a3d_hashmapNode_new(node, key[d + 1]);
+				down = a3d_hashmapNode_new(node, self, key[d + 1]);
 				if(down == NULL)
 				{
 					a3d_hashmap_clean(self, node);
@@ -452,7 +475,7 @@ int a3d_hashmap_add(a3d_hashmap_t* self,
 		{
 			// insert a new prev node
 			a3d_hashmapNode_t* prev;
-			prev = a3d_hashmapNode_new(node->prev, key[d]);
+			prev = a3d_hashmapNode_new(node->prev, self, key[d]);
 			if(prev == NULL)
 			{
 				a3d_hashmap_clean(self, node);
@@ -486,7 +509,7 @@ int a3d_hashmap_add(a3d_hashmap_t* self,
 		{
 			// append a new next node
 			a3d_hashmapNode_t* next;
-			next = a3d_hashmapNode_new(node, key[d]);
+			next = a3d_hashmapNode_new(node, self, key[d]);
 			if(next == NULL)
 			{
 				a3d_hashmap_clean(self, node);
@@ -515,7 +538,7 @@ int a3d_hashmap_add(a3d_hashmap_t* self,
 	fail_add:
 		if(created)
 		{
-			a3d_hashmapNode_delete(&self->head);
+			a3d_hashmapNode_delete(&self->head, self);
 		}
 	return 0;
 }

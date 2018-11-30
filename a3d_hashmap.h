@@ -46,6 +46,7 @@ typedef struct
 typedef struct
 {
 	int size;
+	int nodes;
 	a3d_hashmapNode_t* head;
 } a3d_hashmap_t;
 
@@ -53,6 +54,8 @@ a3d_hashmap_t*     a3d_hashmap_new(void);
 void               a3d_hashmap_delete(a3d_hashmap_t** _self);
 void               a3d_hashmap_discard(a3d_hashmap_t* self);
 int                a3d_hashmap_size(const a3d_hashmap_t* self);
+int                a3d_hashmap_hashmapNodes(const a3d_hashmap_t* self);
+int                a3d_hashmap_hashmapSize(const a3d_hashmap_t* self);
 int                a3d_hashmap_empty(const a3d_hashmap_t* self);
 a3d_hashmapIter_t* a3d_hashmap_head(const a3d_hashmap_t* self,
                                     a3d_hashmapIter_t* iter);

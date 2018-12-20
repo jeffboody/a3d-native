@@ -43,6 +43,7 @@ typedef struct
 	// geometry
 	GLuint      id_vtx;
 	a3d_list_t* list_idx;
+	int         gsize;
 } a3d_polygon_t;
 
 a3d_polygon_t* a3d_polygon_new(int blend);
@@ -50,6 +51,7 @@ void           a3d_polygon_delete(a3d_polygon_t** _self);
 void           a3d_polygon_point(a3d_polygon_t* self,
                                  int first,
                                  float x, float y);
+int            a3d_polygon_gsize(a3d_polygon_t* self);
 void           a3d_polygon_color(a3d_polygon_t* self,
                                  a3d_vec4f_t* color);
 void           a3d_polygon_draw(a3d_polygon_t* self,

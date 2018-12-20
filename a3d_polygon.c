@@ -101,6 +101,7 @@ static void a3d_polygon_deleteVbo(a3d_polygon_t* self)
 			glDeleteBuffers(1, &pi->id);
 			a3d_polygonIdx_delete(&pi);
 		}
+		self->gsize = 0;
 		self->dirty = 0;
 	}
 }
@@ -189,11 +190,13 @@ static int a3d_polygon_build(a3d_polygon_t* self)
 	// buffer vertices
 	const GLfloat* vtx = tessGetVertices(tess);
 	int vtx_count = tessGetVertexCount(tess);
+	int gsize     = 0;
 	glGenBuffers(1, &self->id_vtx);
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx);
 	glBufferData(GL_ARRAY_BUFFER,
 	             2*vtx_count*sizeof(GLfloat),
 	             vtx, GL_STATIC_DRAW);
+	gsize += 2*vtx_count*4;
 
 	// buffer indices
 	int i;
@@ -230,7 +233,9 @@ static int a3d_polygon_build(a3d_polygon_t* self)
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 		             pi->count*sizeof(GLushort),
 		             poly, GL_STATIC_DRAW);
+		gsize += pi->count*4;
 	}
+	self->gsize = gsize;
 	self->dirty = 0;
 
 	tessDeleteTess(tess);
@@ -278,6 +283,7 @@ a3d_polygon_t* a3d_polygon_new(int blend)
 		goto fail_list_idx;
 	}
 	self->id_vtx = 0;
+	self->gsize  = 0;
 
 	// success
 	return self;
@@ -388,6 +394,13 @@ void a3d_polygon_point(a3d_polygon_t* self, int first,
 
 	// success
 	return;
+}
+
+int a3d_polygon_gsize(a3d_polygon_t* self)
+{
+	assert(self);
+
+	return self->gsize;
 }
 
 void a3d_polygon_color(a3d_polygon_t* self,

@@ -91,6 +91,7 @@ static void a3d_line_deleteVbo(a3d_line_t* self)
 		glDeleteBuffers(1, &self->id_st);
 		self->id_vtx = 0;
 		self->id_st  = 0;
+		self->gsize  = 0;
 		self->dirty  = 0;
 	}
 }
@@ -389,7 +390,8 @@ static int a3d_line_build(a3d_line_t* self)
 	glBufferData(GL_ARRAY_BUFFER,
 	             2*vtx_count*sizeof(GLfloat),
 	             st, GL_STATIC_DRAW);
-	self->dirty  = 0;
+	self->gsize = 4*vtx_count*4;
+	self->dirty = 0;
 
 	free(vtx);
 	free(st);
@@ -439,6 +441,7 @@ a3d_line_t* a3d_line_new(int loop)
 
 	self->id_vtx = 0;
 	self->id_st  = 0;
+	self->gsize  = 0;
 
 	// success
 	return self;
@@ -501,6 +504,13 @@ void a3d_line_point(a3d_line_t* self, float x, float y)
 
 	// success
 	return;
+}
+
+int a3d_line_gsize(a3d_line_t* self)
+{
+	assert(self);
+
+	return self->gsize;
 }
 
 void a3d_line_blend(a3d_line_t* self, int blend)

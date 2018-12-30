@@ -180,8 +180,9 @@ static a3d_listitem_t* a3d_listitem_new(a3d_list_t* list,
                                         a3d_listitem_t* next,
                                         const void* data)
 {
-	// prev, next and data can be NULL
+	// prev and next can be NULL
 	assert(list);
+	assert(data);
 	LOGD("debug");
 
 	a3d_listitem_t* self = (a3d_listitem_t*) malloc(sizeof(a3d_listitem_t));
@@ -359,8 +360,8 @@ a3d_listitem_t* a3d_list_find(const a3d_list_t* self,
                               const void* data,
                               a3d_listcmp_fn compare)
 {
-	// data can be NULL
 	assert(self);
+	assert(data);
 	assert(compare);
 	LOGD("debug");
 
@@ -380,8 +381,8 @@ a3d_listitem_t* a3d_list_findn(const a3d_list_t* self,
                                const void* data,
                                a3d_listcmp_fn compare)
 {
-	// data can be NULL
 	assert(self);
+	assert(data);
 	assert(compare);
 	LOGD("debug");
 
@@ -399,8 +400,8 @@ a3d_listitem_t* a3d_list_findn(const a3d_list_t* self,
 
 int a3d_list_push(a3d_list_t* self, const void* data)
 {
-	// data can be null
 	assert(self);
+	assert(data);
 	LOGD("debug");
 
 	a3d_listitem_t* item = a3d_listitem_new(self, NULL, self->head, data);
@@ -417,8 +418,8 @@ const void* a3d_list_pop(a3d_list_t* self)
 
 int a3d_list_enqueue(a3d_list_t* self, const void* data)
 {
-	// data can be null
 	assert(self);
+	assert(data);
 	LOGD("debug");
 
 	a3d_listitem_t* item = a3d_listitem_new(self, self->tail, NULL, data);
@@ -437,11 +438,11 @@ a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
                                 a3d_listitem_t* item,
                                 const void* data)
 {
-	// data can be null
 	// item may be null for empty list or to insert at head
 	// a3d_list_insert(list, NULL, data) may be preferred over
 	// a3d_list_push(list, data) when a listitem is needed
 	assert(self);
+	assert(data);
 	LOGD("debug");
 
 	if(item)
@@ -458,11 +459,11 @@ a3d_listitem_t* a3d_list_append(a3d_list_t* self,
                                 a3d_listitem_t* item,
                                 const void* data)
 {
-	// data can be null
 	// item may be null for empty list or to append at tail
 	// a3d_list_append(list, NULL, data) may be preferred over
 	// a3d_list_enqueue(list, data) when a listitem is needed
 	assert(self);
+	assert(data);
 	LOGD("debug");
 
 	if(item)
@@ -479,9 +480,9 @@ const void* a3d_list_replace(a3d_list_t* self,
                              a3d_listitem_t* item,
                              const void* data)
 {
-	// data can be null
 	assert(self);
 	assert(item);
+	assert(data);
 	LOGD("debug");
 
 	a3d_listnotify_fn mov_fn = self->mov_fn;

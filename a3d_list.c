@@ -370,32 +370,37 @@ a3d_listitem_t* a3d_list_find(const a3d_list_t* self,
 	{
 		if((*compare)(item->data, data) == 0)
 		{
-			break;
+			return item;
 		}
 		item = item->next;
 	}
-	return item;
+	return NULL;
 }
 
-a3d_listitem_t* a3d_list_findn(const a3d_list_t* self,
-                               const void* data,
-                               a3d_listcmp_fn compare)
+a3d_listitem_t* a3d_list_findSorted(const a3d_list_t* self,
+                                    const void* data,
+                                    a3d_listcmp_fn compare)
 {
 	assert(self);
 	assert(data);
 	assert(compare);
 	LOGD("debug");
 
-	a3d_listitem_t* item = self->tail;
+	a3d_listitem_t* item = self->head;
 	while(item)
 	{
-		if((*compare)(item->data, data) == 0)
+		int cmp = (*compare)(data, item->data);
+		if(cmp == 0)
 		{
-			break;
+			return item;
 		}
-		item = item->prev;
+		else if(cmp < 0)
+		{
+			return NULL;
+		}
+		item = item->next;
 	}
-	return item;
+	return NULL;
 }
 
 int a3d_list_push(a3d_list_t* self, const void* data)
@@ -453,6 +458,29 @@ a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
 	{
 		return a3d_listitem_new(self, NULL, self->head, data);
 	}
+}
+
+a3d_listitem_t* a3d_list_insertSorted(a3d_list_t* self,
+                                      a3d_listcmp_fn compare,
+                                      const void* data)
+{
+	assert(self);
+	assert(compare);
+	assert(data);
+
+	a3d_listitem_t* item = a3d_list_head(self);
+	while(item)
+	{
+		const void* d = a3d_list_peekitem(item);
+		if((*compare)(data, d) < 0)
+		{
+			return a3d_list_insert(self, item, data);
+		}
+
+		item = a3d_list_next(item);
+	}
+
+	return a3d_list_append(self, NULL, data);
 }
 
 a3d_listitem_t* a3d_list_append(a3d_list_t* self,

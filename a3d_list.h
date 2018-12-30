@@ -63,9 +63,9 @@ a3d_listitem_t* a3d_list_prev(a3d_listitem_t* item);
 a3d_listitem_t* a3d_list_find(const a3d_list_t* self,
                               const void* data,
                               a3d_listcmp_fn compare);
-a3d_listitem_t* a3d_list_findn(const a3d_list_t* self,
-                               const void* data,
-                               a3d_listcmp_fn compare);
+a3d_listitem_t* a3d_list_findSorted(const a3d_list_t* self,
+                                    const void* data,
+                                    a3d_listcmp_fn compare);
 int             a3d_list_push(a3d_list_t* self,
                               const void* data);
 const void*     a3d_list_pop(a3d_list_t* self);
@@ -75,6 +75,9 @@ const void*     a3d_list_dequeue(a3d_list_t* self);
 a3d_listitem_t* a3d_list_insert(a3d_list_t* self,
                                 a3d_listitem_t* item,
                                 const void* data);
+a3d_listitem_t* a3d_list_insertSorted(a3d_list_t* self,
+                                      a3d_listcmp_fn compare,
+                                      const void* data);
 a3d_listitem_t* a3d_list_append(a3d_list_t* self,
                                 a3d_listitem_t* item,
                                 const void* data);

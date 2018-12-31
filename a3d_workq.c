@@ -301,7 +301,7 @@ void a3d_workq_delete(a3d_workq_t** _self)
 	}
 }
 
-void a3d_workq_reset(a3d_workq_t* self)
+void a3d_workq_reset(a3d_workq_t* self, int blocking)
 {
 	assert(self);
 
@@ -313,17 +313,20 @@ void a3d_workq_reset(a3d_workq_t* self)
 	self->purge_id = A3D_WORKQ_PURGE;
 	a3d_workq_purge(self);
 
-	// blocking wait for the active queue
-	pthread_mutex_lock(&self->mutex);
-	while(a3d_list_size(self->queue_active) > 0)
+	if(blocking)
 	{
-		// must wait for active task to complete
-		pthread_cond_wait(&self->cond_complete, &self->mutex);
-	}
-	pthread_mutex_unlock(&self->mutex);
+		// blocking wait for the active queue
+		pthread_mutex_lock(&self->mutex);
+		while(a3d_list_size(self->queue_active) > 0)
+		{
+			// must wait for active task to complete
+			pthread_cond_wait(&self->cond_complete, &self->mutex);
+		}
+		pthread_mutex_unlock(&self->mutex);
 
-	// purge the complete queue
-	a3d_workq_purge(self);
+		// purge the complete queue
+		a3d_workq_purge(self);
+	}
 
 	// restore the purge_id
 	self->purge_id = purge_id;

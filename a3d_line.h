@@ -46,18 +46,20 @@ typedef struct
 	a3d_vec4f_t color2;
 	int         blend;
 
-	// points
+	// contours
 	a3d_list_t* list;
 
 	// GL state
 	GLuint id_vtx;
 	GLuint id_st;
+	int    vtx_count;
 	int    gsize;
 } a3d_line_t;
 
 a3d_line_t* a3d_line_new(int loop);
 void        a3d_line_delete(a3d_line_t** _self);
 void        a3d_line_point(a3d_line_t* self,
+                           int first,
                            float x, float y);
 int         a3d_line_gsize(a3d_line_t* self);
 void        a3d_line_blend(a3d_line_t* self, int blend);

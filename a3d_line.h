@@ -40,8 +40,7 @@ typedef struct
 	int         rounded;
 	float       brush1;
 	float       brush2;
-	float       stripe1;
-	float       stripe2;
+	float       stripe;
 	a3d_vec4f_t color1;
 	a3d_vec4f_t color2;
 	int         blend;
@@ -68,7 +67,7 @@ void        a3d_line_width(a3d_line_t* self, float width);
 void        a3d_line_brush(a3d_line_t* self,
                            float brush1, float brush2);
 void        a3d_line_stripe(a3d_line_t* self,
-                            float stripe1, float stripe2);
+                            float stripe);
 void        a3d_line_color(a3d_line_t* self,
                            a3d_vec4f_t* color1,
                            a3d_vec4f_t* color2);

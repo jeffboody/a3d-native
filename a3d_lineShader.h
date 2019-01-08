@@ -36,8 +36,7 @@ typedef struct
 	GLint  unif_rounded;
 	GLint  unif_brush1;
 	GLint  unif_brush2;
-	GLint  unif_stripe1;
-	GLint  unif_stripe2;
+	GLint  unif_stripe;
 	GLint  unif_color1;
 	GLint  unif_color2;
 	GLint  unif_mvp;

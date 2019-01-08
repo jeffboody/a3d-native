@@ -93,8 +93,7 @@ static const char* FSHADER =
 	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
 	"uniform float brush2;\n"
-	"uniform float stripe1;\n"
-	"uniform float stripe2;\n"
+	"uniform float stripe;\n"
 	"uniform vec4  color1;\n"
 	"uniform vec4  color2;\n"
 	"varying highp vec2 varying_st;\n"
@@ -136,7 +135,7 @@ static const char* FSHADER =
 	"		}\n"
 	"	}\n"
 	"	\n"
-	"	if((t < stripe1) || (t > stripe2))\n"
+	"	if(t > stripe)\n"
 	"	{\n"
 	"		color = color2;\n"
 	"	}\n"
@@ -172,8 +171,7 @@ a3d_lineShader_t* a3d_lineShader_new(void)
 	self->unif_rounded = glGetUniformLocation(self->prog, "rounded");
 	self->unif_brush1  = glGetUniformLocation(self->prog, "brush1");
 	self->unif_brush2  = glGetUniformLocation(self->prog, "brush2");
-	self->unif_stripe1 = glGetUniformLocation(self->prog, "stripe1");
-	self->unif_stripe2 = glGetUniformLocation(self->prog, "stripe2");
+	self->unif_stripe  = glGetUniformLocation(self->prog, "stripe");
 	self->unif_color1  = glGetUniformLocation(self->prog, "color1");
 	self->unif_color2  = glGetUniformLocation(self->prog, "color2");
 

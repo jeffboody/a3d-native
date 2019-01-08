@@ -528,8 +528,7 @@ a3d_line_t* a3d_line_new(int loop)
 	self->rounded = 0;
 	self->brush1  = 1.0f;
 	self->brush2  = 0.0f;
-	self->stripe1 = 0.0f;
-	self->stripe2 = 1.0f;
+	self->stripe  = 1.0f;
 	self->blend   = 0;
 	a3d_vec4f_load(&self->color1, 1.0f, 1.0f, 1.0f, 1.0f);
 	a3d_vec4f_load(&self->color2, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -717,13 +716,11 @@ void a3d_line_brush(a3d_line_t* self,
 	self->brush2 = brush2;
 }
 
-void a3d_line_stripe(a3d_line_t* self,
-                     float stripe1, float stripe2)
+void a3d_line_stripe(a3d_line_t* self, float stripe)
 {
 	assert(self);
 
-	self->stripe1 = stripe1;
-	self->stripe2 = stripe2;
+	self->stripe = stripe;
 }
 
 void a3d_line_color(a3d_line_t* self,
@@ -773,8 +770,7 @@ void a3d_line_draw(a3d_line_t* self,
 	glUniform1i(shader->unif_rounded, self->rounded);
 	glUniform1f(shader->unif_brush1,  self->brush1);
 	glUniform1f(shader->unif_brush2,  self->brush2);
-	glUniform1f(shader->unif_stripe1, self->stripe1);
-	glUniform1f(shader->unif_stripe2, self->stripe2);
+	glUniform1f(shader->unif_stripe, self->stripe);
 	glUniform4fv(shader->unif_color1, 1, (GLfloat*) &self->color1);
 	glUniform4fv(shader->unif_color2, 1, (GLfloat*) &self->color2);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, self->vtx_count);

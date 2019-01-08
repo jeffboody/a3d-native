@@ -90,6 +90,7 @@ static const char* FSHADER =
 	"\n"
 	"uniform float width;\n"
 	"uniform float length;\n"
+	"uniform float depth;\n"
 	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
 	"uniform float brush2;\n"
@@ -100,15 +101,9 @@ static const char* FSHADER =
 	"\n"
 	"void main()\n"
 	"{\n"
-	"	vec4  color = color1;\n"
 	"	highp float s     = abs(varying_st.x);\n"
 	"	highp float ds    = brush1 + brush2;\n"
 	"	highp float phase = mod(s, ds*width);\n"
-	"	if(phase > brush1*width)\n"
-	"	{\n"
-	"		color = color2;\n"
-	"	}\n"
-	"	\n"
 	"	float t  = abs(varying_st.y);\n"
 	"	if(rounded)\n"
 	"	{\n"
@@ -137,10 +132,21 @@ static const char* FSHADER =
 	"	\n"
 	"	if(t > stripe)\n"
 	"	{\n"
-	"		color = color2;\n"
+	"		gl_FragDepth = gl_DepthRange.near + ((1.0 + t)/2.0)*gl_DepthRange.diff;\n"
+	"		gl_FragColor = color2;\n"
 	"	}\n"
-	"	\n"
-	"	gl_FragColor = color;\n"
+	"	else\n"
+	"	{\n"
+	"		gl_FragDepth = gl_DepthRange.near + (depth/2.0)*gl_DepthRange.diff;\n"
+	"		if(phase > brush1*width)\n"
+	"		{\n"
+	"			gl_FragColor = color2;\n"
+	"		}\n"
+	"		else\n"
+	"		{\n"
+	"			gl_FragColor = color1;\n"
+	"		}\n"
+	"	}\n"
 	"}\n";
 
 /***********************************************************
@@ -168,6 +174,7 @@ a3d_lineShader_t* a3d_lineShader_new(void)
 	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
 	self->unif_width   = glGetUniformLocation(self->prog, "width");
 	self->unif_length  = glGetUniformLocation(self->prog, "length");
+	self->unif_depth   = glGetUniformLocation(self->prog, "depth");
 	self->unif_rounded = glGetUniformLocation(self->prog, "rounded");
 	self->unif_brush1  = glGetUniformLocation(self->prog, "brush1");
 	self->unif_brush2  = glGetUniformLocation(self->prog, "brush2");

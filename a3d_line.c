@@ -525,6 +525,7 @@ a3d_line_t* a3d_line_new(int loop)
 	self->loop    = 0;
 	self->width   = 1.0f;
 	self->length  = 0.0f;
+	self->depth   = 0.0f;
 	self->rounded = 0;
 	self->brush1  = 1.0f;
 	self->brush2  = 0.0f;
@@ -707,6 +708,13 @@ void a3d_line_width(a3d_line_t* self, float width)
 	self->dirty = 1;
 }
 
+void a3d_line_depth(a3d_line_t* self, float depth)
+{
+	assert(self);
+
+	self->depth = depth;
+}
+
 void a3d_line_brush(a3d_line_t* self,
                     float brush1, float brush2)
 {
@@ -767,6 +775,7 @@ void a3d_line_draw(a3d_line_t* self,
 	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) mvp);
 	glUniform1f(shader->unif_width, self->width);
 	glUniform1f(shader->unif_length, self->length);
+	glUniform1f(shader->unif_depth, self->depth);
 	glUniform1i(shader->unif_rounded, self->rounded);
 	glUniform1f(shader->unif_brush1,  self->brush1);
 	glUniform1f(shader->unif_brush2,  self->brush2);

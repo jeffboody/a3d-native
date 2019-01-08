@@ -37,6 +37,7 @@ typedef struct
 	int         loop;
 	float       width;
 	float       length;
+	float       depth;
 	int         rounded;
 	float       brush1;
 	float       brush2;
@@ -64,6 +65,7 @@ int         a3d_line_gsize(a3d_line_t* self);
 void        a3d_line_blend(a3d_line_t* self, int blend);
 void        a3d_line_rounded(a3d_line_t* self, int rounded);
 void        a3d_line_width(a3d_line_t* self, float width);
+void        a3d_line_depth(a3d_line_t* self, float depth);
 void        a3d_line_brush(a3d_line_t* self,
                            float brush1, float brush2);
 void        a3d_line_stripe(a3d_line_t* self,

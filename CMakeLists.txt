@@ -3,8 +3,11 @@ cmake_minimum_required(VERSION 3.4.1)
 # Compiler options
 add_compile_options(-Wall -DA3D_GLESv2)
 
-if(A3D_USE_TESS2)
+# requires libtess2 and GLES3 (Android only)
+if(A3D_USE_SHAPES)
     set(SOURCE_TESS2
+        a3d_lineShader.c
+        a3d_line.c
         a3d_polygonShader.c
         a3d_polygon.c)
     set(LIBS_TESS2
@@ -30,8 +33,6 @@ add_library(a3d
             a3d_GL.c
             a3d_GLESv2.c
             a3d_shader.c
-            a3d_lineShader.c
-            a3d_line.c
             ${SOURCE_TESS2}
             math/a3d_mat3f.c
             math/a3d_mat4f.c

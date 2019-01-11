@@ -347,11 +347,11 @@ static void a3d_line_buildContour(a3d_line_t* self,
 		vtx[idx++]   = vtx[2];
 		st[idx]      = 1.0f;
 		vtx[idx++]   = vtx[3];
-		self->length = sbc;
+		self->dist   = sbc;
 	}
 	else
 	{
-		self->length = sab;
+		self->dist = sab;
 	}
 
 	// add degenerate vertices
@@ -524,7 +524,7 @@ a3d_line_t* a3d_line_new(int loop)
 	self->dirty   = 0;
 	self->loop    = 0;
 	self->width   = 1.0f;
-	self->length  = 0.0f;
+	self->dist    = 0.0f;
 	self->depth   = 0.0f;
 	self->rounded = 0;
 	self->brush1  = 1.0f;
@@ -774,7 +774,7 @@ void a3d_line_draw(a3d_line_t* self,
 	glVertexAttribPointer(shader->attr_st, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) mvp);
 	glUniform1f(shader->unif_width, self->width);
-	glUniform1f(shader->unif_length, self->length);
+	glUniform1f(shader->unif_dist, self->dist);
 	glUniform1f(shader->unif_depth, self->depth);
 	glUniform1i(shader->unif_rounded, self->rounded);
 	glUniform1f(shader->unif_brush1,  self->brush1);

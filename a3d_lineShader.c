@@ -94,7 +94,7 @@ static const char* FSHADER =
 	"#endif\n"
 	"\n"
 	"uniform float width;\n"
-	"uniform float length;\n"
+	"uniform float dist;\n"
 	"uniform float depth;\n"
 	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
@@ -124,9 +124,9 @@ static const char* FSHADER =
 	"			}\n"
 	"			t = sqrt(xx*xx + yy*yy);\n"
 	"		}\n"
-	"		else if(s > (length - w2))\n"
+	"		else if(s > (dist - w2))\n"
 	"		{\n"
-	"			float xx = (s - length + w2)/w2;\n"
+	"			float xx = (s - dist + w2)/w2;\n"
 	"			float yy = t;\n"
 	"			if((xx*xx + yy*yy) > 1.0)\n"
 	"			{\n"
@@ -188,7 +188,7 @@ static const char* FSHADER =
 	"#endif\n"
 	"\n"
 	"uniform float width;\n"
-	"uniform float length;\n"
+	"uniform float dist;\n"
 	"uniform float depth;\n"
 	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
@@ -217,9 +217,9 @@ static const char* FSHADER =
 	"			}\n"
 	"			t = sqrt(xx*xx + yy*yy);\n"
 	"		}\n"
-	"		else if(s > (length - w2))\n"
+	"		else if(s > (dist - w2))\n"
 	"		{\n"
-	"			float xx = (s - length + w2)/w2;\n"
+	"			float xx = (s - dist + w2)/w2;\n"
 	"			float yy = t;\n"
 	"			if((xx*xx + yy*yy) > 1.0)\n"
 	"			{\n"
@@ -276,7 +276,7 @@ a3d_lineShader_t* a3d_lineShader_new(void)
 	self->attr_st      = glGetAttribLocation(self->prog, "st");
 	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
 	self->unif_width   = glGetUniformLocation(self->prog, "width");
-	self->unif_length  = glGetUniformLocation(self->prog, "length");
+	self->unif_dist    = glGetUniformLocation(self->prog, "dist");
 	self->unif_depth   = glGetUniformLocation(self->prog, "depth");
 	self->unif_rounded = glGetUniformLocation(self->prog, "rounded");
 	self->unif_brush1  = glGetUniformLocation(self->prog, "brush1");

@@ -36,7 +36,7 @@ typedef struct
 	int         dirty;
 	int         loop;
 	float       width;
-	float       length;
+	float       dist;
 	float       depth;
 	int         rounded;
 	float       brush1;

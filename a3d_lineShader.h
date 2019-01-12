@@ -33,7 +33,9 @@ typedef struct
 	GLint  attr_st;
 	GLint  unif_width;
 	GLint  unif_dist;
-	GLint  unif_depth;
+	GLint  unif_layer1;
+	GLint  unif_layer2;
+	GLint  unif_layers;
 	GLint  unif_rounded;
 	GLint  unif_brush1;
 	GLint  unif_brush2;
@@ -44,9 +46,10 @@ typedef struct
 
 	// GL state
 	int blend;
+	int layers;
 } a3d_lineShader_t;
 
-a3d_lineShader_t* a3d_lineShader_new(void);
+a3d_lineShader_t* a3d_lineShader_new(int layers);
 void              a3d_lineShader_delete(a3d_lineShader_t** _self);
 void              a3d_lineShader_begin(a3d_lineShader_t* self);
 void              a3d_lineShader_end(a3d_lineShader_t* self);

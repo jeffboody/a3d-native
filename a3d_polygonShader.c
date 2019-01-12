@@ -60,6 +60,42 @@ void a3d_polygonShader_blend(a3d_polygonShader_t* self,
 * private                                                  *
 ***********************************************************/
 
+#ifdef ANDROID
+
+// Android requires GLES 3.0 for gl_FragDepth
+static const char* VSHADER =
+	"#version 300 es\n"
+	"in      vec2 vtx;\n"
+	"uniform mat4 mvp;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	gl_Position = mvp*vec4(vtx, 0.0, 1.0);\n"
+	"}\n";
+
+static const char* FSHADER =
+	"#version 300 es\n"
+	"#ifdef GL_ES\n"
+	"precision mediump float;\n"
+	"precision mediump int;\n"
+	"#endif\n"
+	"\n"
+	"uniform int  layer;\n"
+	"uniform int  layers;\n"
+	"uniform vec4 color;\n"
+	"out vec4 fragColor;\n"
+	"\n"
+	"void main()\n"
+	"{\n"
+	"	float layerf  = float(layer);\n"
+	"	float layersf = float(layers);\n"
+	"	gl_FragDepth = gl_DepthRange.near +\n"
+	"	               (1.0 - layerf/layersf)*gl_DepthRange.diff;\n"
+	"	fragColor = color;\n"
+	"}\n";
+
+#else
+
 static const char* VSHADER =
 	"attribute vec2 vtx;\n"
 	"uniform   mat4 mvp;\n"
@@ -75,18 +111,26 @@ static const char* FSHADER =
 	"precision mediump int;\n"
 	"#endif\n"
 	"\n"
+	"uniform int  layer;\n"
+	"uniform int  layers;\n"
 	"uniform vec4 color;\n"
 	"\n"
 	"void main()\n"
 	"{\n"
+	"	float layerf  = float(layer);\n"
+	"	float layersf = float(layers);\n"
+	"	gl_FragDepth = gl_DepthRange.near +\n"
+	"	               (1.0 - layerf/layersf)*gl_DepthRange.diff;\n"
 	"	gl_FragColor = color;\n"
 	"}\n";
+
+#endif
 
 /***********************************************************
 * public                                                   *
 ***********************************************************/
 
-a3d_polygonShader_t* a3d_polygonShader_new(void)
+a3d_polygonShader_t* a3d_polygonShader_new(int layers)
 {
 	a3d_polygonShader_t* self = (a3d_polygonShader_t*)
 	                            malloc(sizeof(a3d_polygonShader_t));
@@ -101,11 +145,14 @@ a3d_polygonShader_t* a3d_polygonShader_new(void)
 	{
 	        goto fail_prog;
 	}
-	self->attr_vtx   = glGetAttribLocation(self->prog, "vtx");
-	self->unif_mvp   = glGetUniformLocation(self->prog, "mvp");
-	self->unif_color = glGetUniformLocation(self->prog, "color");
+	self->attr_vtx    = glGetAttribLocation(self->prog, "vtx");
+	self->unif_mvp    = glGetUniformLocation(self->prog, "mvp");
+	self->unif_layer  = glGetUniformLocation(self->prog, "layer");
+	self->unif_layers = glGetUniformLocation(self->prog, "layers");
+	self->unif_color  = glGetUniformLocation(self->prog, "color");
 
-	self->blend = 0;
+	self->blend  = 0;
+	self->layers = layers;
 
 	// success
 	return self;

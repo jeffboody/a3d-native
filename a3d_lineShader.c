@@ -95,7 +95,9 @@ static const char* FSHADER =
 	"\n"
 	"uniform float width;\n"
 	"uniform float dist;\n"
-	"uniform float depth;\n"
+	"uniform int   layer1;\n"
+	"uniform int   layer2;\n"
+	"uniform int   layers;\n"
 	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
 	"uniform float brush2;\n"
@@ -111,6 +113,7 @@ static const char* FSHADER =
 	"	highp float ds    = brush1 + brush2;\n"
 	"	highp float phase = mod(s, ds*width);\n"
 	"	float       t     = abs(varying_st.y);\n"
+	"	bool        endpt = false;\n"
 	"	if(rounded)\n"
 	"	{\n"
 	"		float w2 = width/2.0;\n"
@@ -123,6 +126,7 @@ static const char* FSHADER =
 	"				discard;\n"
 	"			}\n"
 	"			t = sqrt(xx*xx + yy*yy);\n"
+	"			endpt = true;\n"
 	"		}\n"
 	"		else if(s > (dist - w2))\n"
 	"		{\n"
@@ -133,19 +137,31 @@ static const char* FSHADER =
 	"				discard;\n"
 	"			}\n"
 	"			t = sqrt(xx*xx + yy*yy);\n"
+	"			endpt = true;\n"
 	"		}\n"
 	"	}\n"
 	"	\n"
+	"	float layersf = float(layers);\n"
 	"	if(t > stripe)\n"
 	"	{\n"
-	"		gl_FragDepth = gl_DepthRange.near +\n"
-	"		               ((1.0 + t)/2.0)*gl_DepthRange.diff;\n"
+	"		float layer2f = float(layer2);\n"
+	"		if(endpt == false)\n"
+	"		{\n"
+	"			gl_FragDepth = gl_DepthRange.near +\n"
+	"			               (1.0 - (layer2f + 1.0 - t)/layersf)*gl_DepthRange.diff;\n"
+	"		}\n"
+	"		else\n"
+	"		{\n"
+	"			gl_FragDepth = gl_DepthRange.near +\n"
+	"			               (1.0 - (1.0 - t)/layersf)*gl_DepthRange.diff;\n"
+	"		}\n"
 	"		fragColor    = color2;\n"
 	"	}\n"
 	"	else\n"
 	"	{\n"
+	"		float layer1f = float(layer1);\n"
 	"		gl_FragDepth = gl_DepthRange.near +\n"
-	"		               (depth/2.0)*gl_DepthRange.diff;\n"
+	"		               (1.0 - layer1f/layersf)*gl_DepthRange.diff;\n"
 	"		if(phase > brush1*width)\n"
 	"		{\n"
 	"			fragColor = color2;\n"
@@ -189,7 +205,9 @@ static const char* FSHADER =
 	"\n"
 	"uniform float width;\n"
 	"uniform float dist;\n"
-	"uniform float depth;\n"
+	"uniform int   layer1;\n"
+	"uniform int   layer2;\n"
+	"uniform int   layers;\n"
 	"uniform bool  rounded;\n"
 	"uniform float brush1;\n"
 	"uniform float brush2;\n"
@@ -203,7 +221,8 @@ static const char* FSHADER =
 	"	highp float s     = abs(varying_st.x);\n"
 	"	highp float ds    = brush1 + brush2;\n"
 	"	highp float phase = mod(s, ds*width);\n"
-	"	float t  = abs(varying_st.y);\n"
+	"	float       t     = abs(varying_st.y);\n"
+	"	bool        endpt = false;\n"
 	"	if(rounded)\n"
 	"	{\n"
 	"		float w2 = width/2.0;\n"
@@ -216,6 +235,7 @@ static const char* FSHADER =
 	"				discard;\n"
 	"			}\n"
 	"			t = sqrt(xx*xx + yy*yy);\n"
+	"			endpt = true;\n"
 	"		}\n"
 	"		else if(s > (dist - w2))\n"
 	"		{\n"
@@ -226,19 +246,36 @@ static const char* FSHADER =
 	"				discard;\n"
 	"			}\n"
 	"			t = sqrt(xx*xx + yy*yy);\n"
+	"			endpt = true;\n"
 	"		}\n"
 	"	}\n"
 	"	\n"
+	"	float layersf = float(layers);\n"
 	"	if(t > stripe)\n"
 	"	{\n"
-	"		gl_FragDepth = gl_DepthRange.near +\n"
-	"		               ((1.0 + t)/2.0)*gl_DepthRange.diff;\n"
+	"		float layer2f = float(layer2);\n"
+	"		if(endpt == false)\n"
+	"		{\n"
+	"			gl_FragDepth = gl_DepthRange.near +\n"
+	"			               (1.0 - (layer2f + 1.0 - t)/layersf)*gl_DepthRange.diff;\n"
+	"		}\n"
+	"		else if(layer2f >= 0.5*layersf)\n"
+	"		{\n"
+	"			gl_FragDepth = gl_DepthRange.near +\n"
+	"			               (1.0 - (0.5*layersf + 1.0 - t)/layersf)*gl_DepthRange.diff;\n"
+	"		}\n"
+	"		else\n"
+	"		{\n"
+	"			gl_FragDepth = gl_DepthRange.near +\n"
+	"			               (1.0 - (1.0 - t)/layersf)*gl_DepthRange.diff;\n"
+	"		}\n"
 	"		gl_FragColor = color2;\n"
 	"	}\n"
 	"	else\n"
 	"	{\n"
+	"		float layer1f = float(layer1);\n"
 	"		gl_FragDepth = gl_DepthRange.near +\n"
-	"		               (depth/2.0)*gl_DepthRange.diff;\n"
+	"		               (1.0 - layer1f/layersf)*gl_DepthRange.diff;\n"
 	"		if(phase > brush1*width)\n"
 	"		{\n"
 	"			gl_FragColor = color2;\n"
@@ -256,7 +293,7 @@ static const char* FSHADER =
 * public                                                   *
 ***********************************************************/
 
-a3d_lineShader_t* a3d_lineShader_new(void)
+a3d_lineShader_t* a3d_lineShader_new(int layers)
 {
 	a3d_lineShader_t* self = (a3d_lineShader_t *)
 	                         malloc(sizeof(a3d_lineShader_t));
@@ -277,7 +314,9 @@ a3d_lineShader_t* a3d_lineShader_new(void)
 	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
 	self->unif_width   = glGetUniformLocation(self->prog, "width");
 	self->unif_dist    = glGetUniformLocation(self->prog, "dist");
-	self->unif_depth   = glGetUniformLocation(self->prog, "depth");
+	self->unif_layer1  = glGetUniformLocation(self->prog, "layer1");
+	self->unif_layer2  = glGetUniformLocation(self->prog, "layer2");
+	self->unif_layers  = glGetUniformLocation(self->prog, "layers");
 	self->unif_rounded = glGetUniformLocation(self->prog, "rounded");
 	self->unif_brush1  = glGetUniformLocation(self->prog, "brush1");
 	self->unif_brush2  = glGetUniformLocation(self->prog, "brush2");
@@ -285,7 +324,8 @@ a3d_lineShader_t* a3d_lineShader_new(void)
 	self->unif_color1  = glGetUniformLocation(self->prog, "color1");
 	self->unif_color2  = glGetUniformLocation(self->prog, "color2");
 
-	self->blend = 0;
+	self->blend  = 0;
+	self->layers = layers;
 
 	// success
 	return self;

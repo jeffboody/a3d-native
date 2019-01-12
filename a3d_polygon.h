@@ -35,6 +35,7 @@ typedef struct
 	// attributes
 	int         dirty;
 	a3d_vec4f_t color;
+	int         layer;
 	int         blend;
 
 	// contours
@@ -52,6 +53,8 @@ void           a3d_polygon_point(a3d_polygon_t* self,
                                  int first,
                                  float x, float y);
 int            a3d_polygon_gsize(a3d_polygon_t* self);
+void           a3d_polygon_layer(a3d_polygon_t* self,
+                                 int layer);
 void           a3d_polygon_color(a3d_polygon_t* self,
                                  a3d_vec4f_t* color);
 void           a3d_polygon_draw(a3d_polygon_t* self,

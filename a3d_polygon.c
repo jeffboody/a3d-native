@@ -269,6 +269,7 @@ a3d_polygon_t* a3d_polygon_new(int blend)
 	// attributes
 	self->dirty = 0;
 	self->blend = blend;
+	self->layer = 0;
 	a3d_vec4f_load(&self->color, 1.0f, 1.0f, 1.0f, 1.0f);
 
 	self->list = a3d_list_new();
@@ -403,6 +404,14 @@ int a3d_polygon_gsize(a3d_polygon_t* self)
 	return self->gsize;
 }
 
+void a3d_polygon_layer(a3d_polygon_t* self,
+                       int layer)
+{
+	assert(self);
+
+	self->layer = layer;
+}
+
 void a3d_polygon_color(a3d_polygon_t* self,
                        a3d_vec4f_t* color)
 {
@@ -440,6 +449,8 @@ void a3d_polygon_draw(a3d_polygon_t* self,
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx);
 	glVertexAttribPointer(shader->attr_vtx, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glUniformMatrix4fv(shader->unif_mvp, 1, GL_FALSE, (GLfloat*) mvp);
+	glUniform1i(shader->unif_layer, self->layer);
+	glUniform1i(shader->unif_layers, shader->layers);
 	glUniform4fv(shader->unif_color, 1, (GLfloat*) &self->color);
 	a3d_listitem_t* iter = a3d_list_head(self->list_idx);
 	while(iter)

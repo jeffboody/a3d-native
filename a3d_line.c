@@ -380,132 +380,6 @@ static void a3d_line_buildContour(a3d_line_t* self,
 	*_idx = idx;
 }
 
-static int a3d_line_build(a3d_line_t* self)
-{
-	assert(self);
-
-	if(self->id_vtx)
-	{
-		if(self->dirty)
-		{
-			a3d_line_deleteVbo(self);
-		}
-		else
-		{
-			return 1;
-		}
-	}
-
-	// determine vtx_count
-	int vtx_count = 0;
-	a3d_listitem_t* iter = a3d_list_head(self->list);
-	while(iter)
-	{
-		a3d_list_t* contour = (a3d_list_t*)
-		                      a3d_list_peekitem(iter);
-
-		// at least 2 points required
-		if(a3d_list_size(contour) < 2)
-		{
-			iter = a3d_list_next(iter);
-			continue;
-		}
-
-		if(self->loop)
-		{
-			// 6 for interior points
-			// 2 to connect loop
-			vtx_count += 6*(a3d_list_size(contour)) + 2;
-		}
-		else
-		{
-			// 6 for interior points
-			// 2 for end points
-			vtx_count += 6*(a3d_list_size(contour) - 2) + 4;
-		}
-
-		// add degenerate triangle vertices
-		int first = a3d_list_prev(iter) ? 0 : 1;
-		int last  = a3d_list_next(iter) ? 0 : 1;
-		if((first == 0) && (last == 0))
-		{
-			vtx_count += 2;
-		}
-		else if((first == 0) || (last == 0))
-		{
-			vtx_count += 1;
-		}
-
-		iter = a3d_list_next(iter);
-	}
-
-	GLfloat* vtx = (GLfloat*) malloc(2*vtx_count*sizeof(GLfloat));
-	if(vtx == NULL)
-	{
-		LOGE("malloc failed");
-		return 0;
-	}
-
-	GLfloat* st = (GLfloat*) malloc(2*vtx_count*sizeof(GLfloat));
-	if(st == NULL)
-	{
-		LOGE("malloc failed");
-		goto fail_st;
-	}
-
-	// build contours
-	float sab = 0.0f;
-	float sbc = 0.0f;
-	int   idx = 0;
-	iter = a3d_list_head(self->list);
-	while(iter)
-	{
-		a3d_list_t* contour = (a3d_list_t*)
-		                      a3d_list_peekitem(iter);
-
-		// at least 2 points required
-		if(a3d_list_size(contour) < 2)
-		{
-			iter = a3d_list_next(iter);
-			continue;
-		}
-
-		int first = a3d_list_prev(iter) ? 0 : 1;
-		int last  = a3d_list_next(iter) ? 0 : 1;
-		a3d_line_buildContour(self, first, last,
-		                      contour, vtx, st,
-		                      &sab, &sbc, &idx);
-
-		iter = a3d_list_next(iter);
-	}
-
-	// buffer data
-	glGenBuffers(1, &self->id_vtx);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx);
-	glBufferData(GL_ARRAY_BUFFER,
-	             2*vtx_count*sizeof(GLfloat),
-	             vtx, GL_STATIC_DRAW);
-	glGenBuffers(1, &self->id_st);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_st);
-	glBufferData(GL_ARRAY_BUFFER,
-	             2*vtx_count*sizeof(GLfloat),
-	             st, GL_STATIC_DRAW);
-	self->vtx_count = vtx_count;
-	self->gsize     = 4*vtx_count*4;
-	self->dirty     = 0;
-
-	free(vtx);
-	free(st);
-
-	// success
-	return 1;
-
-	// failure
-	fail_st:
-		free(vtx);
-	return 0;
-}
-
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -744,6 +618,132 @@ void a3d_line_color(a3d_line_t* self,
 
 	a3d_vec4f_copy(color1, &self->color1);
 	a3d_vec4f_copy(color2, &self->color2);
+}
+
+int a3d_line_build(a3d_line_t* self)
+{
+	assert(self);
+
+	if(self->id_vtx)
+	{
+		if(self->dirty)
+		{
+			a3d_line_deleteVbo(self);
+		}
+		else
+		{
+			return 1;
+		}
+	}
+
+	// determine vtx_count
+	int vtx_count = 0;
+	a3d_listitem_t* iter = a3d_list_head(self->list);
+	while(iter)
+	{
+		a3d_list_t* contour = (a3d_list_t*)
+		                      a3d_list_peekitem(iter);
+
+		// at least 2 points required
+		if(a3d_list_size(contour) < 2)
+		{
+			iter = a3d_list_next(iter);
+			continue;
+		}
+
+		if(self->loop)
+		{
+			// 6 for interior points
+			// 2 to connect loop
+			vtx_count += 6*(a3d_list_size(contour)) + 2;
+		}
+		else
+		{
+			// 6 for interior points
+			// 2 for end points
+			vtx_count += 6*(a3d_list_size(contour) - 2) + 4;
+		}
+
+		// add degenerate triangle vertices
+		int first = a3d_list_prev(iter) ? 0 : 1;
+		int last  = a3d_list_next(iter) ? 0 : 1;
+		if((first == 0) && (last == 0))
+		{
+			vtx_count += 2;
+		}
+		else if((first == 0) || (last == 0))
+		{
+			vtx_count += 1;
+		}
+
+		iter = a3d_list_next(iter);
+	}
+
+	GLfloat* vtx = (GLfloat*) malloc(2*vtx_count*sizeof(GLfloat));
+	if(vtx == NULL)
+	{
+		LOGE("malloc failed");
+		return 0;
+	}
+
+	GLfloat* st = (GLfloat*) malloc(2*vtx_count*sizeof(GLfloat));
+	if(st == NULL)
+	{
+		LOGE("malloc failed");
+		goto fail_st;
+	}
+
+	// build contours
+	float sab = 0.0f;
+	float sbc = 0.0f;
+	int   idx = 0;
+	iter = a3d_list_head(self->list);
+	while(iter)
+	{
+		a3d_list_t* contour = (a3d_list_t*)
+		                      a3d_list_peekitem(iter);
+
+		// at least 2 points required
+		if(a3d_list_size(contour) < 2)
+		{
+			iter = a3d_list_next(iter);
+			continue;
+		}
+
+		int first = a3d_list_prev(iter) ? 0 : 1;
+		int last  = a3d_list_next(iter) ? 0 : 1;
+		a3d_line_buildContour(self, first, last,
+		                      contour, vtx, st,
+		                      &sab, &sbc, &idx);
+
+		iter = a3d_list_next(iter);
+	}
+
+	// buffer data
+	glGenBuffers(1, &self->id_vtx);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx);
+	glBufferData(GL_ARRAY_BUFFER,
+	             2*vtx_count*sizeof(GLfloat),
+	             vtx, GL_STATIC_DRAW);
+	glGenBuffers(1, &self->id_st);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_st);
+	glBufferData(GL_ARRAY_BUFFER,
+	             2*vtx_count*sizeof(GLfloat),
+	             st, GL_STATIC_DRAW);
+	self->vtx_count = vtx_count;
+	self->gsize     = 4*vtx_count*4;
+	self->dirty     = 0;
+
+	free(vtx);
+	free(st);
+
+	// success
+	return 1;
+
+	// failure
+	fail_st:
+		free(vtx);
+	return 0;
 }
 
 void a3d_line_draw(a3d_line_t* self,

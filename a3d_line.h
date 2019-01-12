@@ -76,6 +76,7 @@ void        a3d_line_stripe(a3d_line_t* self,
 void        a3d_line_color(a3d_line_t* self,
                            a3d_vec4f_t* color1,
                            a3d_vec4f_t* color2);
+int         a3d_line_build(a3d_line_t* self);
 void        a3d_line_draw(a3d_line_t* self,
                           a3d_lineShader_t* shader,
                           a3d_mat4f_t* mvp);

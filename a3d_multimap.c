@@ -168,11 +168,35 @@ a3d_multimapIter_t* a3d_multimap_nextItem(a3d_multimapIter_t* iter)
 	return NULL;
 }
 
+a3d_multimapIter_t* a3d_multimap_nextList(a3d_multimapIter_t* iter)
+{
+	assert(iter);
+
+	iter->hiter = a3d_hashmap_next(iter->hiter);
+	if(iter->hiter == NULL)
+	{
+		return NULL;
+	}
+
+	a3d_list_t* list = (a3d_list_t*)
+	                   a3d_hashmap_val(iter->hiter);
+	iter->item = a3d_list_head(list);
+
+	return iter;
+}
+
 const void* a3d_multimap_val(const a3d_multimapIter_t* iter)
 {
 	assert(iter);
 
 	return a3d_list_peekitem(iter->item);
+}
+
+const a3d_list_t* a3d_multimap_list(const a3d_multimapIter_t* iter)
+{
+	assert(iter);
+
+	return (const a3d_list_t*) a3d_hashmap_val(iter->hiter);
 }
 
 const char* a3d_multimap_key(const a3d_multimapIter_t* iter)

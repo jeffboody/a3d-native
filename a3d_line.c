@@ -80,23 +80,6 @@ static void a3d_line_intersect(const a3d_vec2f_t* p1, const a3d_vec2f_t* p2,
 	*_t = t;
 }
 
-static void a3d_line_deleteVbo(a3d_line_t* self)
-{
-	assert(self);
-
-	if(self->id_vtx)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &self->id_vtx);
-		glDeleteBuffers(1, &self->id_st);
-		self->id_vtx    = 0;
-		self->id_st     = 0;
-		self->vtx_count = 0;
-		self->gsize     = 0;
-		self->dirty     = 0;
-	}
-}
-
 static void a3d_line_buildContour(a3d_line_t* self,
                                   int first, int last,
                                   a3d_list_t* contour,
@@ -436,7 +419,7 @@ void a3d_line_delete(a3d_line_t** _self)
 	a3d_line_t* self = *_self;
 	if(self)
 	{
-		a3d_line_deleteVbo(self);
+		a3d_line_evict(self);
 
 		a3d_listitem_t* iter1 = a3d_list_head(self->list);
 		while(iter1)
@@ -628,7 +611,7 @@ int a3d_line_build(a3d_line_t* self)
 	{
 		if(self->dirty)
 		{
-			a3d_line_deleteVbo(self);
+			a3d_line_evict(self);
 		}
 		else
 		{
@@ -789,4 +772,21 @@ void a3d_line_draw(a3d_line_t* self,
 	glUniform4fv(shader->unif_color2, 1, (GLfloat*) &self->color2);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, self->vtx_count);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void a3d_line_evict(a3d_line_t* self)
+{
+	assert(self);
+
+	if(self->id_vtx)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &self->id_vtx);
+		glDeleteBuffers(1, &self->id_st);
+		self->id_vtx    = 0;
+		self->id_st     = 0;
+		self->vtx_count = 0;
+		self->gsize     = 0;
+		self->dirty     = 0;
+	}
 }

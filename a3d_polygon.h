@@ -61,5 +61,6 @@ int            a3d_polygon_build(a3d_polygon_t* self);
 void           a3d_polygon_draw(a3d_polygon_t* self,
                                 a3d_polygonShader_t* shader,
                                 a3d_mat4f_t* mvp);
+void           a3d_polygon_evict(a3d_polygon_t* self);
 
 #endif

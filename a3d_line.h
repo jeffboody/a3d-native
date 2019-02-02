@@ -80,5 +80,6 @@ int         a3d_line_build(a3d_line_t* self);
 void        a3d_line_draw(a3d_line_t* self,
                           a3d_lineShader_t* shader,
                           a3d_mat4f_t* mvp);
+void        a3d_line_evict(a3d_line_t* self);
 
 #endif

@@ -78,35 +78,6 @@ static void a3d_polygonIdx_delete(a3d_polygonIdx_t** _self)
 }
 
 /***********************************************************
-* private                                                  *
-***********************************************************/
-
-static void a3d_polygon_deleteVbo(a3d_polygon_t* self)
-{
-	assert(self);
-
-	if(self->id_vtx)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &self->id_vtx);
-		self->id_vtx = 0;
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		a3d_listitem_t* iter = a3d_list_head(self->list_idx);
-		while(iter)
-		{
-			a3d_polygonIdx_t* pi;
-			pi = (a3d_polygonIdx_t*)
-			      a3d_list_remove(self->list_idx, &iter);
-			glDeleteBuffers(1, &pi->id);
-			a3d_polygonIdx_delete(&pi);
-		}
-		self->gsize = 0;
-		self->dirty = 0;
-	}
-}
-
-/***********************************************************
 * public                                                   *
 ***********************************************************/
 
@@ -159,7 +130,7 @@ void a3d_polygon_delete(a3d_polygon_t** _self)
 	a3d_polygon_t* self = *_self;
 	if(self)
 	{
-		a3d_polygon_deleteVbo(self);
+		a3d_polygon_evict(self);
 		a3d_list_delete(&self->list_idx);
 
 		a3d_listitem_t* iter = a3d_list_head(self->list);
@@ -283,7 +254,7 @@ int a3d_polygon_build(a3d_polygon_t* self)
 	{
 		if(self->dirty)
 		{
-			a3d_polygon_deleteVbo(self);
+			a3d_polygon_evict(self);
 		}
 		else
 		{
@@ -465,4 +436,29 @@ void a3d_polygon_draw(a3d_polygon_t* self,
 	}
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void a3d_polygon_evict(a3d_polygon_t* self)
+{
+	assert(self);
+
+	if(self->id_vtx)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(1, &self->id_vtx);
+		self->id_vtx = 0;
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		a3d_listitem_t* iter = a3d_list_head(self->list_idx);
+		while(iter)
+		{
+			a3d_polygonIdx_t* pi;
+			pi = (a3d_polygonIdx_t*)
+			      a3d_list_remove(self->list_idx, &iter);
+			glDeleteBuffers(1, &pi->id);
+			a3d_polygonIdx_delete(&pi);
+		}
+		self->gsize = 0;
+		self->dirty = 0;
+	}
 }

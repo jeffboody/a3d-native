@@ -607,16 +607,9 @@ int a3d_line_build(a3d_line_t* self)
 {
 	assert(self);
 
-	if(self->id_vtx)
+	if(self->id_vtx && (self->dirty == 0))
 	{
-		if(self->dirty)
-		{
-			a3d_line_evict(self);
-		}
-		else
-		{
-			return 1;
-		}
+		return 1;
 	}
 
 	// determine vtx_count
@@ -666,7 +659,7 @@ int a3d_line_build(a3d_line_t* self)
 	if(vtx == NULL)
 	{
 		LOGE("malloc failed");
-		return 0;
+		goto fail_vtx;
 	}
 
 	GLfloat* st = (GLfloat*) malloc(2*vtx_count*sizeof(GLfloat));
@@ -703,16 +696,23 @@ int a3d_line_build(a3d_line_t* self)
 	}
 
 	// buffer data
-	glGenBuffers(1, &self->id_vtx);
+	if(self->id_vtx == 0)
+	{
+		glGenBuffers(1, &self->id_vtx);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx);
 	glBufferData(GL_ARRAY_BUFFER,
 	             2*vtx_count*sizeof(GLfloat),
-	             vtx, GL_STATIC_DRAW);
-	glGenBuffers(1, &self->id_st);
+	             vtx, GL_DYNAMIC_DRAW);
+
+	if(self->id_st == 0)
+	{
+		glGenBuffers(1, &self->id_st);
+	}
 	glBindBuffer(GL_ARRAY_BUFFER, self->id_st);
 	glBufferData(GL_ARRAY_BUFFER,
 	             2*vtx_count*sizeof(GLfloat),
-	             st, GL_STATIC_DRAW);
+	             st, GL_DYNAMIC_DRAW);
 	self->vtx_count = vtx_count;
 	self->gsize     = 4*vtx_count*4;
 	self->dirty     = 0;
@@ -726,6 +726,8 @@ int a3d_line_build(a3d_line_t* self)
 	// failure
 	fail_st:
 		free(vtx);
+	fail_vtx:
+		a3d_line_evict(self);
 	return 0;
 }
 

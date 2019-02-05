@@ -641,6 +641,70 @@ void a3d_list_swapn(a3d_list_t* fromList,
 	}
 }
 
+void a3d_list_appendList(a3d_list_t* self,
+                         a3d_list_t* from)
+{
+	assert(self);
+	assert(from);
+	assert(self->add_fn == NULL);
+	assert(self->del_fn == NULL);
+
+	if(from->size == 0)
+	{
+		return;
+	}
+	else if(self->size == 0)
+	{
+		self->head = from->head;
+		self->tail = from->tail;
+		self->size = from->size;
+		from->head = NULL;
+		from->tail = NULL;
+		from->size = 0;
+		return;
+	}
+
+	self->tail->next = from->head;
+	from->head->prev = self->tail;
+	self->tail = from->tail;
+	self->size += from->size;
+	from->head = NULL;
+	from->tail = NULL;
+	from->size = 0;
+}
+
+void a3d_list_insertList(a3d_list_t* self,
+                         a3d_list_t* from)
+{
+	assert(self);
+	assert(from);
+	assert(self->add_fn == NULL);
+	assert(self->del_fn == NULL);
+
+	if(from->size == 0)
+	{
+		return;
+	}
+	else if(self->size == 0)
+	{
+		self->head = from->head;
+		self->tail = from->tail;
+		self->size = from->size;
+		from->head = NULL;
+		from->tail = NULL;
+		from->size = 0;
+		return;
+	}
+
+	self->head->prev = from->tail;
+	from->tail->next = self->head;
+	self->head = from->head;
+	self->size += from->size;
+	from->head = NULL;
+	from->tail = NULL;
+	from->size = 0;
+}
+
 void a3d_list_notify(a3d_list_t* self,
                      void* owner,
                      a3d_listnotify_fn add_fn,

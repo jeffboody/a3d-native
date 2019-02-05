@@ -100,6 +100,10 @@ void            a3d_list_swapn(a3d_list_t* fromList,
                                a3d_list_t* toList,
                                a3d_listitem_t* from,
                                a3d_listitem_t* to);
+void            a3d_list_appendList(a3d_list_t* self,
+                                    a3d_list_t* from);
+void            a3d_list_insertList(a3d_list_t* self,
+                                    a3d_list_t* from);
 void            a3d_list_notify(a3d_list_t* self,
                                 void* owner,
                                 a3d_listnotify_fn add_fn,

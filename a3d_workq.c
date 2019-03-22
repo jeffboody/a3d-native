@@ -594,6 +594,41 @@ int a3d_workq_cancel(a3d_workq_t* self, void* task)
 	return status;
 }
 
+int a3d_workq_status(a3d_workq_t* self, void* task)
+{
+	assert(self);
+	assert(task);
+	LOGD("debug task=%p");
+
+	int status = A3D_WORKQ_ERROR;
+	pthread_mutex_lock(&self->mutex);
+
+	a3d_listitem_t* iter;
+	iter = a3d_list_find(self->queue_pending,
+	                     task, a3d_taskcmp_fn);
+	if(iter == NULL)
+	{
+		iter = a3d_list_find(self->queue_active,
+		                     task, a3d_taskcmp_fn);
+		if(iter == NULL)
+		{
+			iter = a3d_list_find(self->queue_complete,
+			                     task, a3d_taskcmp_fn);
+		}
+	}
+
+	if(iter)
+	{
+		a3d_workqnode_t* node;
+		node = (a3d_workqnode_t*)
+		       a3d_list_peekitem(iter);
+		status = node->status;
+	}
+
+	pthread_mutex_unlock(&self->mutex);
+	return status;
+}
+
 int a3d_workq_pending(a3d_workq_t* self)
 {
 	assert(self);

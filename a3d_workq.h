@@ -84,6 +84,7 @@ void         a3d_workq_purge(a3d_workq_t* self);
 int          a3d_workq_run(a3d_workq_t* self, void* task,
                            int priority);
 int          a3d_workq_cancel(a3d_workq_t* self, void* task);
+int          a3d_workq_status(a3d_workq_t* self, void* task);
 int          a3d_workq_pending(a3d_workq_t* self);
 
 #endif

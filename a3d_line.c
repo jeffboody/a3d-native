@@ -253,6 +253,15 @@ static void a3d_line_buildContour(a3d_line_t* self,
 
 		if(tp < 1.0f)
 		{
+			// LEFT TURN
+
+			a3d_vec2f_t bq;
+			a3d_vec2f_subv_copy(&q, b, &bq);
+			a3d_vec2f_normalize(&bq);
+			a3d_vec2f_muls(&bq, self->width/2.0f);
+			a3d_vec2f_addv_copy(b, &bq, &q);
+			a3d_vec2f_subv_copy(b, &bq, &p);
+
 			a3d_vec2f_addv_copy(&p, (const a3d_vec2f_t*) &vab, &r);
 			a3d_vec2f_addv_copy(&p, (const a3d_vec2f_t*) &vbc, &s);
 
@@ -285,6 +294,15 @@ static void a3d_line_buildContour(a3d_line_t* self,
 		}
 		else
 		{
+			// RIGHT TURN
+
+			a3d_vec2f_t bp;
+			a3d_vec2f_subv_copy(&p, b, &bp);
+			a3d_vec2f_normalize(&bp);
+			a3d_vec2f_muls(&bp, self->width/2.0f);
+			a3d_vec2f_addv_copy(b, &bp, &p);
+			a3d_vec2f_subv_copy(b, &bp, &q);
+
 			a3d_vec2f_subv_copy(&q, (const a3d_vec2f_t*) &vab, &s);
 			a3d_vec2f_subv_copy(&q, (const a3d_vec2f_t*) &vbc, &r);
 

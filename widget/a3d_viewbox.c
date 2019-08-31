@@ -228,77 +228,6 @@ static void a3d_viewbox_drag(a3d_widget_t* widget,
 	}
 }
 
-static void a3d_viewbox_drawSeparator(a3d_widget_t* widget, float y)
-{
-	assert(widget);
-
-	a3d_widget_twoToneY(widget, y);
-
-	// clip separator to border
-	a3d_rect4f_t rect_border_clip;
-	if(a3d_rect4f_intersect(&widget->rect_border,
-	                        &widget->rect_clip,
-	                        &rect_border_clip) == 0)
-	{
-		return;
-	}
-
-	// clip separator
-	float top = widget->rect_clip.t;
-	float bot = widget->rect_clip.t + widget->rect_clip.h;
-	if((y < top) || (y > bot))
-	{
-		return;
-	}
-
-	a3d_rect4f_t line =
-	{
-		.t = y,
-		.l = rect_border_clip.l,
-		.w = rect_border_clip.w,
-		.h = 0.0f
-	};
-
-	// draw the separator
-	a3d_screen_t* screen = widget->screen;
-	a3d_vec4f_t*  c      = &widget->color_line;
-	float         alpha  = c->a;
-	if((alpha > 0.0f) && (widget->style_line != A3D_WIDGET_LINE_NONE))
-	{
-		glDisable(GL_SCISSOR_TEST);
-		if(alpha < 1.0f)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-		glUseProgram(screen->prog);
-		glEnableVertexAttribArray(screen->attr_coords);
-
-		float lw = a3d_screen_layoutLine(screen, widget->style_line);
-		glLineWidth(lw);
-
-		a3d_rect4f_t* r = &line;
-		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords2);
-		glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		a3d_mat4f_t mvp;
-		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
-		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
-		glDrawArrays(GL_LINES, 0, 2);
-
-		glLineWidth(1.0f);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(screen->attr_coords);
-		glUseProgram(0);
-		if(alpha < 1.0f)
-		{
-			glDisable(GL_BLEND);
-		}
-		glEnable(GL_SCISSOR_TEST);
-	}
-}
-
 static void a3d_viewbox_draw(a3d_widget_t* widget)
 {
 	assert(widget);
@@ -319,13 +248,8 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 	if(self->footer)
 	{
 		a3d_widget_draw(self->footer);
-
-		// footer separator y
-		w = self->footer;
-		int y2 = w->rect_border.t - v_bo;
-		a3d_viewbox_drawSeparator(widget, y2);
 	}
-	a3d_viewbox_drawSeparator(widget, y);
+	a3d_widget_twoToneY(widget, y);
 }
 
 static void a3d_viewbox_refresh(a3d_widget_t* widget)
@@ -353,16 +277,12 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int stretch_mode,
                                float stretch_factor,
                                int style_border,
-                               int style_line,
                                a3d_vec4f_t* color_fill,
                                a3d_vec4f_t* color_fill2,
-                               a3d_vec4f_t* color_line,
                                int text_anchor,
                                int text_style_border,
-                               int text_style_line,
                                int text_style_text,
                                a3d_vec4f_t* text_color_fill,
-                               a3d_vec4f_t* text_color_line,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
                                const char* sprite,
@@ -375,9 +295,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_fill2);
-	assert(color_line);
 	assert(text_color_fill);
-	assert(text_color_line);
 	assert(text_color_text);
 	assert(sprite);
 	assert(body);
@@ -396,8 +314,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	                                       stretch_mode,
 	                                       stretch_factor,
 	                                       style_border,
-	                                       style_line,
-	                                       color_line,
 	                                       color_fill,
 	                                       NULL,
 	                                       a3d_viewbox_size,
@@ -425,10 +341,10 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	                                 0,
 	                                 text_anchor,
 	                                 text_style_border,
-	                                 text_style_line,
 	                                 text_style_text,
-	                                 &clear, &clear,
-	                                 text_color_text, text_color_text,
+	                                 &clear,
+	                                 text_color_text,
+	                                 text_color_text,
 	                                 text_max_len, 2,
 	                                 click_fn,
 	                                 NULL);

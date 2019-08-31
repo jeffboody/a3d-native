@@ -133,9 +133,7 @@ typedef struct a3d_widget_s
 
 	// decorations
 	int         style_border;
-	int         style_line;
 	int         scroll_bar;
-	a3d_vec4f_t color_line;
 	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_fill2;
 	a3d_vec4f_t color_scroll0;
@@ -182,7 +180,6 @@ typedef struct a3d_widget_s
 
 	// draw state
 	GLuint id_vtx_rect;
-	GLuint id_vtx_line;
 	GLuint prog;
 	GLint  attr_vertex;
 	GLint  unif_mvp;
@@ -212,8 +209,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int stretch_mode,
                              float stretch_factor,
                              int style_border,
-                             int style_line,
-                             a3d_vec4f_t* color_line,
                              a3d_vec4f_t* color_fill,
                              a3d_widget_reflow_fn reflow_fn,
                              a3d_widget_size_fn size_fn,

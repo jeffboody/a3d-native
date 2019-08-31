@@ -224,22 +224,17 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int stretch_mode,
                            float stretch_factor,
                            int style_border,
-                           int style_line,
                            a3d_vec4f_t* color_fill,
-                           a3d_vec4f_t* color_line,
                            int mode)
 {
 	assert(screen);
 	assert(color_fill);
-	assert(color_line);
 	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
 	     wsize, anchor, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
-	     stretch_mode, stretch_factor, style_border, style_line);
+	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
+	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
 
 	if(wsize == 0)
 	{
@@ -254,8 +249,6 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	                                                  stretch_mode,
 	                                                  stretch_factor,
 	                                                  style_border,
-	                                                  style_line,
-	                                                  color_line,
 	                                                  color_fill,
 	                                                  NULL,
 	                                                  a3d_layer_size,

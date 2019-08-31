@@ -83,7 +83,7 @@ typedef struct a3d_screen_s
 	a3d_spriteShader_t* sprite_shader_color;
 	a3d_list_t*         sprite_list;
 
-	// fill/line state
+	// fill state
 	GLuint id_coords2;
 	GLuint prog;
 	GLint  attr_coords;

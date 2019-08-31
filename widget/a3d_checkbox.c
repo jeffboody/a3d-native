@@ -67,25 +67,20 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int wsize,
                                  int anchor,
                                  int style_border,
-                                 int style_line,
                                  int style_text,
                                  a3d_vec4f_t* color_fill,
-                                 a3d_vec4f_t* color_line,
                                  a3d_vec4f_t* color_text,
                                  int max_len,
                                  int* pvalue)
 {
 	assert(screen);
 	assert(color_fill);
-	assert(color_line);
 	assert(color_text);
 	assert(pvalue);
-	LOGD("debug wsize=%i, anchor=%i, style_border=%i, style_line=%i, style_text=%i",
-	     wsize, anchor, style_border, style_line, style_text);
+	LOGD("debug wsize=%i, anchor=%i, style_border=%i, style_text=%i",
+	     wsize, anchor, style_border, style_text);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
 	LOGD("debug max_len=%i", max_len);
@@ -107,9 +102,8 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	                                                           wsize,
 	                                                           anchor,
 	                                                           style_border,
-	                                                           style_line,
 	                                                           style_text,
-	                                                           &clear, &clear,
+	                                                           &clear,
 	                                                           color_text, color_text,
 	                                                           max_len, 2,
 	                                                           a3d_checkbox_click,

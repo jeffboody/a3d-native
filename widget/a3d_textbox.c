@@ -49,10 +49,8 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	                                0,
 	                                self->anchor,
 	                                self->style_border,
-	                                self->style_line,
 	                                self->style_text,
 	                                &(self->color_fill),
-	                                &(self->color_line),
 	                                &(self->color_text),
 	                                self->max_len,
 	                                NULL, NULL);
@@ -268,39 +266,29 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int stretch_mode,
                                float stretch_factor,
                                int style_border,
-                               int style_line,
                                a3d_vec4f_t* color_fill,
-                               a3d_vec4f_t* color_line,
                                int text_anchor,
                                int text_wrapx,
                                int text_style_border,
-                               int text_style_line,
                                int text_style_text,
                                a3d_vec4f_t* text_color_fill,
-                               a3d_vec4f_t* text_color_line,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len)
 {
 	assert(screen);
 	assert(color_fill);
-	assert(color_line);
 	assert(text_color_fill);
-	assert(text_color_line);
 	assert(text_color_text);
 	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wrapx=%i, wrapy=%i",
 	     wsize, orientation, anchor, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
-	     stretch_mode, stretch_factor, style_border, style_line);
+	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
+	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
-	LOGD("text_anchor=%i, text_style_border=%i, text_style_line=%i, text_style_text=%i",
-	     text_anchor, text_style_border, text_style_line, text_style_text);
+	LOGD("text_anchor=%i, text_style_border=%i, text_style_text=%i",
+	     text_anchor, text_style_border, text_style_text);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
 	LOGD("debug text_max_len=%i", text_max_len);
@@ -325,9 +313,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	                                        stretch_mode,
 	                                        stretch_factor,
 	                                        style_border,
-	                                        style_line,
 	                                        color_fill,
-	                                        color_line,
 	                                        reflow_fn,
 	                                        NULL);
 	if(self == NULL)
@@ -348,13 +334,11 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->anchor       = text_anchor;
 	self->text_wrapx   = text_wrapx;
 	self->style_border = text_style_border;
-	self->style_line   = text_style_line;
 	self->style_text   = text_style_text;
 	self->font_type    = A3D_SCREEN_FONT_REGULAR;
 	self->max_len      = text_max_len;
 
 	a3d_vec4f_copy(text_color_fill, &self->color_fill);
-	a3d_vec4f_copy(text_color_line, &self->color_line);
 	a3d_vec4f_copy(text_color_text, &self->color_text);
 
 	// success

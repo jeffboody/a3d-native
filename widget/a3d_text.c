@@ -292,10 +292,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          int anchor,
                          int style_border,
-                         int style_line,
                          int style_text,
                          a3d_vec4f_t* color_fill,
-                         a3d_vec4f_t* color_line,
                          a3d_vec4f_t* color_text,
                          int max_len,
                          a3d_widget_click_fn click_fn,
@@ -304,14 +302,11 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	// click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
-	assert(color_line);
 	assert(color_text);
-	LOGD("debug wsize=%i, anchor=%i, style_border=%i, style_line=%i, style_text=%i",
-	     wsize, anchor, style_border, style_line, style_text);
+	LOGD("debug wsize=%i, anchor=%i, style_border=%i, style_text=%i",
+	     wsize, anchor, style_border, style_text);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
 	     color_text->r, color_text->g, color_text->b, color_text->a);
 	LOGD("debug max_len=%i", max_len);
@@ -329,8 +324,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	                                                A3D_WIDGET_STRETCH_NA,
 	                                                1.0f,
 	                                                style_border,
-	                                                style_line,
-	                                                color_line,
 	                                                color_fill,
 	                                                NULL,
 	                                                a3d_text_size,

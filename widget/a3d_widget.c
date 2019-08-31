@@ -225,66 +225,6 @@ static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
 	}
 }
 
-static void a3d_widget_makeRoundLines(GLfloat* vtx, int steps,
-                                      float t, float l,
-                                      float b, float r,
-                                      float radius, float lw)
-{
-	assert(vtx);
-
-	float outer = radius;
-	float inner = radius - lw;
-
-	// top-right
-	int   i;
-	int   idx = 0;
-	float s   = (float) (steps - 1);
-	for(i = 0; i < steps; ++i)
-	{
-		float ang = 0.0f + 90.0f*((float) i/s);
-		vtx[idx++] = r + inner*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = t - inner*sinf(ang*M_PI/180.0f);
-		vtx[idx++] = r + outer*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = t - outer*sinf(ang*M_PI/180.0f);
-	}
-
-	// top-left
-	for(i = 0; i < steps; ++i)
-	{
-		float ang = 90.0f + 90.0f*((float) i/s);
-		vtx[idx++] = l + inner*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = t - inner*sinf(ang*M_PI/180.0f);
-		vtx[idx++] = l + outer*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = t - outer*sinf(ang*M_PI/180.0f);
-	}
-
-	// bottom-left
-	for(i = 0; i < steps; ++i)
-	{
-		float ang = 180.0f + 90.0f*((float) i/s);
-		vtx[idx++] = l + inner*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = b - inner*sinf(ang*M_PI/180.0f);
-		vtx[idx++] = l + outer*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = b - outer*sinf(ang*M_PI/180.0f);
-	}
-
-	// bottom-right
-	for(i = 0; i < steps; ++i)
-	{
-		float ang = 270.0f + 90.0f*((float) i/s);
-		vtx[idx++] = r + inner*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = b - inner*sinf(ang*M_PI/180.0f);
-		vtx[idx++] = r + outer*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = b - outer*sinf(ang*M_PI/180.0f);
-	}
-
-	// finish line loop
-	vtx[idx++] = vtx[0];
-	vtx[idx++] = vtx[1];
-	vtx[idx++] = vtx[2];
-	vtx[idx++] = vtx[3];
-}
-
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -296,8 +236,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int stretch_mode,
                              float stretch_factor,
                              int style_border,
-                             int style_line,
-                             a3d_vec4f_t* color_line,
                              a3d_vec4f_t* color_fill,
                              a3d_widget_reflow_fn reflow_fn,
                              a3d_widget_size_fn size_fn,
@@ -309,14 +247,11 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 {
 	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
 	assert(screen);
-	assert(color_line);
 	assert(color_fill);
 	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
 	     wsize, anchor, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i, style_line=%i",
-	     stretch_mode, stretch_factor, style_border, style_line);
-	LOGD("debug color_line: r=%f, g=%f, b=%f, a=%f",
-	     color_line->r, color_line->g, color_line->b, color_line->a);
+	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
+	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
 
@@ -342,7 +277,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->stretch_mode   = stretch_mode;
 	self->stretch_factor = stretch_factor;
 	self->style_border   = style_border;
-	self->style_line     = style_line;
 	self->scroll_bar     = 0;
 	self->reflow_fn      = reflow_fn;
 	self->size_fn        = size_fn;
@@ -357,7 +291,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
-	a3d_vec4f_copy(color_line, &self->color_line);
 	a3d_vec4f_copy(color_fill, &self->color_fill);
 	a3d_vec4f_load(&self->color_fill2,  0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_load(&self->color_scroll0, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -365,7 +298,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->tone_y2    = 0.0f;
 
 	glGenBuffers(1, &self->id_vtx_rect);
-	glGenBuffers(1, &self->id_vtx_line);
 	glGenBuffers(1, &self->scroll_id_vtx_rect);
 
 	if(a3d_widget_shaders(self) == 0)
@@ -400,7 +332,6 @@ void a3d_widget_delete(a3d_widget_t** _self)
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(1, &self->scroll_id_vtx_rect);
-		glDeleteBuffers(1, &self->id_vtx_line);
 		glDeleteBuffers(1, &self->id_vtx_rect);
 		glDeleteProgram(self->scroll_prog);
 		glDeleteProgram(self->prog2);
@@ -578,18 +509,6 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 			             xyuv, GL_STATIC_DRAW);
 		}
 	}
-
-	// initialize rounded line
-	float lw = a3d_screen_layoutLine(self->screen, self->style_line);
-	int size_line = 2*4*steps*2 + 2*2;   // edges*corners*steps*xy + edges*xy
-	GLfloat vtx_line[size_line];
-	a3d_widget_makeRoundLines(vtx_line, steps,
-	                         t + v_bo, l + h_bo,
-	                         b - v_bo, r - v_bo,
-	                         radius, lw);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_line);
-	glBufferData(GL_ARRAY_BUFFER, size_line*sizeof(GLfloat),
-	             vtx_line, GL_STATIC_DRAW);
 }
 
 void a3d_widget_layoutSize(a3d_widget_t* self,
@@ -977,39 +896,6 @@ void a3d_widget_draw(a3d_widget_t* self)
 				glDisable(GL_BLEND);
 			}
 		}
-	}
-
-	// draw the border
-	c     = &self->color_line;
-	alpha = c->a;
-	if((alpha > 0.0f) && (self->style_line != A3D_WIDGET_LINE_NONE))
-	{
-		glDisable(GL_SCISSOR_TEST);
-		if(alpha < 1.0f)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-		glUseProgram(self->prog);
-		glEnableVertexAttribArray(self->attr_vertex);
-
-		// draw rounded line
-		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_line);
-		glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		a3d_mat4f_t mvp;
-		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
-		glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 2*(4*A3D_WIDGET_BEZEL + 1));
-
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(self->attr_vertex);
-		glUseProgram(0);
-		if(alpha < 1.0f)
-		{
-			glDisable(GL_BLEND);
-		}
-		glEnable(GL_SCISSOR_TEST);
 	}
 }
 

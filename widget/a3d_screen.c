@@ -328,7 +328,6 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	self->top_widget    = NULL;
 	self->focus_widget  = NULL;
 	self->dirty         = 1;
-	self->animate       = 1;
 	self->pointer_state = A3D_WIDGET_POINTER_UP;
 	self->pointer_x0    = 0.0f;
 	self->pointer_y0    = 0.0f;
@@ -399,7 +398,6 @@ void a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top)
 
 	self->top_widget = top;
 	self->dirty      = 1;
-	self->animate    = 1;
 }
 
 void a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus)
@@ -610,14 +608,6 @@ void a3d_screen_dirty(a3d_screen_t* self)
 	LOGD("debug");
 
 	self->dirty = 1;
-}
-
-void a3d_screen_animate(a3d_screen_t* self)
-{
-	assert(self);
-	LOGD("debug");
-
-	self->animate = 1;
 }
 
 void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
@@ -887,11 +877,6 @@ void a3d_screen_draw(a3d_screen_t* self, float dt)
 		a3d_widget_layoutSize(top, &w, &h);
 		a3d_widget_layoutXYClip(top, 0.0f, 0.0f, &clip, 1, 1);
 		self->dirty = 0;
-	}
-
-	if(self->animate)
-	{
-		self->animate = a3d_widget_fade(self->top_widget, 1.0f, dt);
 	}
 
 	glEnable(GL_SCISSOR_TEST);

@@ -100,7 +100,7 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 	// draw the separator
 	a3d_screen_t* screen = widget->screen;
 	a3d_vec4f_t*  c      = &self->color;
-	float         alpha  = widget->fade*c->a;
+	float         alpha  = c->a;
 	if(alpha > 0.0f)
 	{
 		glDisable(GL_SCISSOR_TEST);
@@ -191,7 +191,6 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 	                                                  NULL,
 	                                                  NULL,
 	                                                  a3d_hline_draw,
-	                                                  NULL,
 	                                                  NULL);
 	if(self == NULL)
 	{

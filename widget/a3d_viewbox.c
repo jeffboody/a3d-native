@@ -262,7 +262,7 @@ static void a3d_viewbox_drawSeparator(a3d_widget_t* widget, float y)
 	// draw the separator
 	a3d_screen_t* screen = widget->screen;
 	a3d_vec4f_t*  c      = &widget->color_line;
-	float         alpha  = widget->fade*c->a;
+	float         alpha  = c->a;
 	if((alpha > 0.0f) && (widget->style_line != A3D_WIDGET_LINE_NONE))
 	{
 		glDisable(GL_SCISSOR_TEST);
@@ -326,24 +326,6 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 		a3d_viewbox_drawSeparator(widget, y2);
 	}
 	a3d_viewbox_drawSeparator(widget, y);
-}
-
-static int a3d_viewbox_fade(a3d_widget_t* widget,
-                            float fade, float dt)
-{
-	assert(widget);
-	LOGD("debug");
-
-	int            animate = 0;
-	a3d_viewbox_t* self    = (a3d_viewbox_t*) widget;
-	a3d_widget_t*  bullet  = (a3d_widget_t*) self->bullet;
-	animate |= a3d_widget_fade(bullet, fade, dt);
-	animate |= a3d_widget_fade(self->body, fade, dt);
-	if(self->footer)
-	{
-		animate |= a3d_widget_fade(self->footer, fade, dt);
-	}
-	return animate;
 }
 
 static void a3d_viewbox_refresh(a3d_widget_t* widget)
@@ -423,7 +405,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	                                       a3d_viewbox_layout,
 	                                       a3d_viewbox_drag,
 	                                       a3d_viewbox_draw,
-	                                       a3d_viewbox_fade,
 	                                       a3d_viewbox_refresh);
 	if(self == NULL)
 	{

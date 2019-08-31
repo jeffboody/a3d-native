@@ -305,7 +305,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widget_layout_fn layout_fn,
                              a3d_widget_drag_fn drag_fn,
                              a3d_widget_draw_fn draw_fn,
-                             a3d_widget_fade_fn fade_fn,
                              a3d_widget_refresh_fn refresh_fn)
 {
 	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
@@ -353,8 +352,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->drag_fn        = drag_fn;
 	self->refresh_fn     = refresh_fn;
 	self->draw_fn        = draw_fn;
-	self->fade_fn        = fade_fn;
-	self->fade           = 0.0f;
 	self->sound_fx       = 1;
 
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -848,11 +845,6 @@ void a3d_widget_draw(a3d_widget_t* self)
 	assert(self);
 	LOGD("debug");
 
-	if(self->fade == 0.0f)
-	{
-		return;
-	}
-
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&self->rect_border,
 	                        &self->rect_clip,
@@ -864,7 +856,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 	// draw the fill
 	a3d_screen_t* screen = self->screen;
 	a3d_vec4f_t*  c      = &self->color_fill;
-	float         alpha  = self->fade*c->a;
+	float         alpha  = c->a;
 	if(alpha > 0.0f)
 	{
 		a3d_screen_scissor(screen, &rect_border_clip);
@@ -889,7 +881,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 		else
 		{
 			a3d_vec4f_t* c2     = &self->color_fill2;
-			float        alpha2 = self->fade*c2->a;
+			float        alpha2 = c2->a;
 			glEnableVertexAttribArray(self->attr_vertex2);
 			glVertexAttribPointer(self->attr_vertex2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			glUseProgram(self->prog2);
@@ -989,7 +981,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 
 	// draw the border
 	c     = &self->color_line;
-	alpha = self->fade*c->a;
+	alpha = c->a;
 	if((alpha > 0.0f) && (self->style_line != A3D_WIDGET_LINE_NONE))
 	{
 		glDisable(GL_SCISSOR_TEST);
@@ -1019,56 +1011,6 @@ void a3d_widget_draw(a3d_widget_t* self)
 		}
 		glEnable(GL_SCISSOR_TEST);
 	}
-}
-
-int a3d_widget_fade(a3d_widget_t* self, float fade, float dt)
-{
-	assert(self);
-
-	int animate = 0;
-
-	// disable fade by default
-	#if 1
-		self->fade = fade;
-	#else
-		if(self->fade != fade)
-		{
-			// animate and clamp fade
-			float dfade = 3.0f*dt;
-			if(self->fade > fade)
-			{
-				self->fade -= dfade;
-				if(self->fade < fade)
-				{
-					self->fade = fade;
-				}
-				else
-				{
-					animate = 1;
-				}
-			}
-			else
-			{
-				self->fade += dfade;
-				if(self->fade > fade)
-				{
-					self->fade = fade;
-				}
-				else
-				{
-					animate = 1;
-				}
-			}
-		}
-	#endif
-
-	a3d_widget_fade_fn fade_fn = self->fade_fn;
-	if(fade_fn)
-	{
-		animate |= (*fade_fn)(self, fade, dt);
-	}
-
-	return animate;
 }
 
 // helper function

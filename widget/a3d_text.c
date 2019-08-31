@@ -118,7 +118,7 @@ static void a3d_text_draw(a3d_widget_t* widget)
 	}
 
 	a3d_vec4f_t* c     = &self->color;
-	float        alpha = widget->fade*c->a;
+	float        alpha = c->a;
 	if(alpha > 0.0f)
 	{
 		a3d_mat4f_t mvp;
@@ -338,7 +338,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	                                                NULL,
 	                                                NULL,
 	                                                a3d_text_draw,
-	                                                NULL,
 	                                                refresh_fn);
 	if(self == NULL)
 	{

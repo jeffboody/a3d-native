@@ -115,7 +115,7 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 
 	// draw sprite
 	a3d_vec4f_t* c     = &self->color;
-	float        alpha = widget->fade*c->a;
+	float        alpha = c->a;
 	if(alpha > 0.0f)
 	{
 		float w  = 0.0f;
@@ -393,7 +393,6 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	                                                    NULL,
 	                                                    NULL,
 	                                                    a3d_sprite_draw,
-	                                                    NULL,
 	                                                    refresh_fn);
 	if(self == NULL)
 	{

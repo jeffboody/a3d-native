@@ -188,46 +188,6 @@ static void a3d_layer_draw(a3d_widget_t* widget)
 	}
 }
 
-static int a3d_layer_fade(a3d_widget_t* widget,
-                          float fade, float dt)
-{
-	assert(widget);
-	LOGD("debug");
-
-	int             a;
-	int             animate = 0;
-	a3d_layer_t*    self    = (a3d_layer_t*) widget;
-	a3d_listitem_t* iter    = a3d_list_head(self->list);
-	a3d_widget_t*   head    = (a3d_widget_t*)
-	                          a3d_list_peekhead(self->list);
-	while(iter)
-	{
-		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		if((self->mode == A3D_LAYER_MODE_LAYERED) ||
-		   (widget == head))
-		{
-			a = a3d_widget_fade(widget, fade, dt);
-			iter = a3d_list_next(iter);
-		}
-		else
-		{
-			// remove widget if fade-to-zero is complete
-			a = a3d_widget_fade(widget, 0.0f, dt);
-			if(a == 0)
-			{
-				a3d_list_remove(self->list, &iter);
-			}
-			else
-			{
-				iter = a3d_list_next(iter);
-			}
-		}
-		animate |= a;
-	}
-
-	return animate;
-}
-
 static void a3d_layer_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
@@ -251,15 +211,6 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 
 	a3d_widget_t* self = (a3d_widget_t*) owner;
 	a3d_screen_dirty(self->screen);
-	a3d_screen_animate(self->screen);
-}
-
-static int a3d_layer_compare(const void* a, const void* b)
-{
-	assert(a);
-	assert(b);
-
-	return (a == b) ? 0 : 1;
 }
 
 /***********************************************************
@@ -312,7 +263,6 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	                                                  a3d_layer_layout,
 	                                                  a3d_layer_drag,
 	                                                  a3d_layer_draw,
-	                                                  a3d_layer_fade,
 	                                                  a3d_layer_refresh);
 	if(self == NULL)
 	{
@@ -368,18 +318,9 @@ void a3d_layer_bringFront(a3d_layer_t* self,
                           a3d_widget_t* widget)
 {
 	assert(self);
+	assert(self->mode == A3D_LAYER_MODE_FRONT);
 	assert(widget);
 
-	a3d_listitem_t* item;
-	item = a3d_list_find(self->list,
-	                     (const void*) widget,
-	                     a3d_layer_compare);
-	if(item)
-	{
-		a3d_list_move(self->list, item, NULL);
-	}
-	else
-	{
-		a3d_list_push(self->list, (const void*) widget);
-	}
+	a3d_list_discard(self->list);
+	a3d_list_push(self->list, (const void*) widget);
 }

@@ -204,7 +204,6 @@ typedef struct a3d_widget_s
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
-                             int anchor,
                              int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
@@ -225,6 +224,9 @@ void          a3d_widget_layoutXYClip(a3d_widget_t* self,
                                       int dragx, int dragy);
 void          a3d_widget_layoutSize(a3d_widget_t* self,
                                     float* w, float* h);
+void          a3d_widget_layoutAnchor(a3d_widget_t* self,
+                                      a3d_rect4f_t* rect,
+                                      float* x, float * y);
 int           a3d_widget_click(a3d_widget_t* self,
                                int state,
                                float x, float y);
@@ -237,10 +239,9 @@ void          a3d_widget_drag(a3d_widget_t* self,
                               float x, float y,
                               float dx, float dy);
 void          a3d_widget_draw(a3d_widget_t* self);
-void          a3d_widget_anchorPt(a3d_rect4f_t* rect,
-                                  int anchor,
-                                  float* x, float * y);
 void          a3d_widget_refresh(a3d_widget_t* self);
+void          a3d_widget_anchor(a3d_widget_t* self,
+                                int anchor);
 void          a3d_widget_soundFx(a3d_widget_t* self,
                                  int sound_fx);
 void          a3d_widget_twoTone(a3d_widget_t* self,

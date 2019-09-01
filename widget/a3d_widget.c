@@ -231,7 +231,6 @@ static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
-                             int anchor,
                              int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
@@ -248,8 +247,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
 	assert(screen);
 	assert(color_fill);
-	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
-	     wsize, anchor, wrapx, wrapy);
+	LOGD("debug wsize=%i, wrapx=%i, wrapy=%i",
+	     wsize, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
 	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -271,7 +270,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->priv           = NULL;
 	self->drag_dx        = 0.0f;
 	self->drag_dy        = 0.0f;
-	self->anchor         = anchor;
+	self->anchor         = A3D_WIDGET_ANCHOR_TL;
 	self->wrapx          = wrapx;
 	self->wrapy          = wrapy;
 	self->stretch_mode   = stretch_mode;
@@ -661,6 +660,61 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	*h = self->rect_border.h;
 }
 
+void a3d_widget_layoutAnchor(a3d_widget_t* self,
+                             a3d_rect4f_t* rect,
+                             float* x, float * y)
+{
+	assert(self);
+	assert(rect);
+	assert(x);
+	assert(y);
+
+	// initialize to tl corner
+	*x = rect->l;
+	*y = rect->t;
+
+	float w  = rect->w;
+	float h  = rect->h;
+	float w2 = w/2.0f;
+	float h2 = h/2.0f;
+	if(self->anchor == A3D_WIDGET_ANCHOR_TC)
+	{
+		*x += w2;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_TR)
+	{
+		*x += w;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_CL)
+	{
+		*y += h2;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_CC)
+	{
+		*x += w2;
+		*y += h2;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_CR)
+	{
+		*x += w;
+		*y += h2;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_BL)
+	{
+		*y += h;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_BC)
+	{
+		*x += w2;
+		*y += h;
+	}
+	else if(self->anchor == A3D_WIDGET_ANCHOR_BR)
+	{
+		*x += w;
+		*y += h;
+	}
+}
+
 int a3d_widget_click(a3d_widget_t* self,
                      int state,
                      float x, float y)
@@ -899,60 +953,11 @@ void a3d_widget_draw(a3d_widget_t* self)
 	}
 }
 
-// helper function
-void a3d_widget_anchorPt(a3d_rect4f_t* rect,
-                         int anchor,
-                         float* x, float * y)
+void a3d_widget_anchor(a3d_widget_t* self, int anchor)
 {
-	assert(rect);
-	assert(x);
-	assert(y);
-	LOGD("debug anchor=%i", anchor);
+	assert(self);
 
-	// initialize to tl corner
-	*x = rect->l;
-	*y = rect->t;
-
-	float w  = rect->w;
-	float h  = rect->h;
-	float w2 = w/2.0f;
-	float h2 = h/2.0f;
-	if(anchor == A3D_WIDGET_ANCHOR_TC)
-	{
-		*x += w2;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_TR)
-	{
-		*x += w;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_CL)
-	{
-		*y += h2;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_CC)
-	{
-		*x += w2;
-		*y += h2;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_CR)
-	{
-		*x += w;
-		*y += h2;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_BL)
-	{
-		*y += h;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_BC)
-	{
-		*x += w2;
-		*y += h;
-	}
-	else if(anchor == A3D_WIDGET_ANCHOR_BR)
-	{
-		*x += w;
-		*y += h;
-	}
+	self->anchor = anchor;
 }
 
 void a3d_widget_refresh(a3d_widget_t* self)

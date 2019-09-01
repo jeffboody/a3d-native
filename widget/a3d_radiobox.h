@@ -38,7 +38,6 @@ typedef struct
 
 a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  int wsize,
-                                 int anchor,
                                  int style_border,
                                  int style_text,
                                  a3d_vec4f_t* color_fill,

@@ -153,7 +153,6 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
-                           int anchor,
                            int style_line,
                            a3d_vec4f_t* color_line,
                            int max_len)
@@ -176,7 +175,6 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 
 	a3d_hline_t* self = (a3d_hline_t*) a3d_widget_new(screen,
 	                                                  wsize,
-	                                                  anchor,
 	                                                  A3D_WIDGET_WRAP_SHRINK,
 	                                                  A3D_WIDGET_WRAP_SHRINK,
 	                                                  A3D_WIDGET_STRETCH_NA,

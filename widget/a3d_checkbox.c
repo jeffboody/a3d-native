@@ -65,7 +65,6 @@ static void a3d_checkbox_refresh(a3d_widget_t* widget)
 
 a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int wsize,
-                                 int anchor,
                                  int style_border,
                                  int style_text,
                                  a3d_vec4f_t* color_fill,
@@ -77,8 +76,8 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	assert(color_fill);
 	assert(color_text);
 	assert(pvalue);
-	LOGD("debug wsize=%i, anchor=%i, style_border=%i, style_text=%i",
-	     wsize, anchor, style_border, style_text);
+	LOGD("debug wsize=%i, style_border=%i, style_text=%i",
+	     wsize, style_border, style_text);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
 	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
 	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
@@ -100,7 +99,6 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 
 	a3d_checkbox_t* self = (a3d_checkbox_t*) a3d_bulletbox_new(screen,
 	                                                           wsize,
-	                                                           anchor,
 	                                                           style_border,
 	                                                           style_text,
 	                                                           &clear,

@@ -133,9 +133,8 @@ static void a3d_layer_layout(a3d_widget_t* widget,
 		// layout the layer
 		float x = 0.0f;
 		float y = 0.0f;
-		a3d_widget_anchorPt(&widget->rect_draw,
-		                    child->anchor,
-		                    &x, &y);
+		a3d_widget_layoutAnchor(child, &widget->rect_draw,
+		                        &x, &y);
 		a3d_widget_layoutXYClip(child, x, y, &rect_clip,
 		                        dragx, dragy);
 
@@ -219,7 +218,6 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
-                           int anchor,
                            int wrapx, int wrapy,
                            int stretch_mode,
                            float stretch_factor,
@@ -229,8 +227,8 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 {
 	assert(screen);
 	assert(color_fill);
-	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
-	     wsize, anchor, wrapx, wrapy);
+	LOGD("debug wsize=%i, wrapx=%i, wrapy=%i",
+	     wsize, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
 	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -243,7 +241,6 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 
 	a3d_layer_t* self = (a3d_layer_t*) a3d_widget_new(screen,
 	                                                  wsize,
-	                                                  anchor,
 	                                                  wrapx,
 	                                                  wrapy,
 	                                                  stretch_mode,

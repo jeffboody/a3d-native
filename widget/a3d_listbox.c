@@ -147,7 +147,7 @@ static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self,
 		rect_draw.h = h;
 		t += h;
 
-		a3d_widget_anchorPt(&rect_draw, child->anchor, &x, &y);
+		a3d_widget_layoutAnchor(child, &rect_draw, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
@@ -187,7 +187,7 @@ static void a3d_listbox_layoutVerticalStretch(a3d_listbox_t* self,
 		rect_draw.h = dh;
 		t += dh;
 
-		a3d_widget_anchorPt(&rect_draw, child->anchor, &x, &y);
+		a3d_widget_layoutAnchor(child, &rect_draw, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
@@ -225,7 +225,7 @@ static void a3d_listbox_layoutHorizontalShrink(a3d_listbox_t* self,
 		rect_draw.h = h;
 		l += w;
 
-		a3d_widget_anchorPt(&rect_draw, child->anchor, &x, &y);
+		a3d_widget_layoutAnchor(child, &rect_draw, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
@@ -265,7 +265,7 @@ static void a3d_listbox_layoutHorizontalStretch(a3d_listbox_t* self,
 		rect_draw.h = h;
 		l += dw;
 
-		a3d_widget_anchorPt(&rect_draw, child->anchor, &x, &y);
+		a3d_widget_layoutAnchor(child, &rect_draw, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
@@ -376,7 +376,6 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
                                int orientation,
-                               int anchor,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
@@ -388,8 +387,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	// reflow_fn, refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
-	LOGD("debug wsize=%i, orientation=%i, anchor=%i, wrapx=%i, wrapy=%i",
-	     wsize, orientation, anchor, wrapx, wrapy);
+	LOGD("debug wsize=%i, orientation=%i, wrapx=%i, wrapy=%i",
+	     wsize, orientation, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
 	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -408,7 +407,6 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 
 	a3d_listbox_t* self = (a3d_listbox_t*) a3d_widget_new(screen,
 	                                                      wsize,
-	                                                      anchor,
 	                                                      wrapx,
 	                                                      wrapy,
 	                                                      stretch_mode,

@@ -41,7 +41,6 @@ typedef struct
 
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
-                           int anchor,
                            int wrapx, int wrapy,
                            int stretch_mode,
                            float stretch_factor,

@@ -328,7 +328,6 @@ int a3d_spriteTex_decRef(a3d_spriteTex_t* self)
 
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
-                             int anchor,
                              int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
@@ -343,8 +342,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_sprite);
-	LOGD("debug wsize=%i, anchor=%i, wrapx=%i, wrapy=%i",
-	     wsize, anchor, wrapx, wrapy);
+	LOGD("debug wsize=%i, wrapx=%i, wrapy=%i",
+	     wsize, wrapx, wrapy);
 	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
 	     stretch_mode, stretch_factor, style_border);
 	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
@@ -373,7 +372,6 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	a3d_sprite_t* self = (a3d_sprite_t*) a3d_widget_new(screen,
 	                                                    wsize,
-	                                                    anchor,
 	                                                    wrapx,
 	                                                    wrapy,
 	                                                    stretch_mode,

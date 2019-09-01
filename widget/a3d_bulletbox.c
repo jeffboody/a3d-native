@@ -84,7 +84,7 @@ static void a3d_bulletbox_layout(a3d_widget_t* widget,
 	rect_draw.w = iw;
 	rect_draw.h = h;
 	a3d_rect4f_t rect_clip;
-	a3d_widget_anchorPt(&rect_draw, icon->anchor, &x, &y);
+	a3d_widget_layoutAnchor(icon, &rect_draw, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &widget->rect_clip,
 	                     &rect_clip);
@@ -94,7 +94,7 @@ static void a3d_bulletbox_layout(a3d_widget_t* widget,
 	// layout text
 	rect_draw.l = l + A3D_BULLETBOX_SPACE*iw;
 	rect_draw.w = tw;
-	a3d_widget_anchorPt(&rect_draw, text->anchor, &x, &y);
+	a3d_widget_layoutAnchor(text, &rect_draw, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &widget->rect_clip,
 	                     &rect_clip);
@@ -127,7 +127,6 @@ static void a3d_bulletbox_draw(a3d_widget_t* widget)
 
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int anchor,
                                    int style_border,
                                    int style_text,
                                    a3d_vec4f_t* color_fill,
@@ -150,7 +149,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*) a3d_widget_new(screen,
 	                                         wsize,
-	                                         anchor,
 	                                         A3D_WIDGET_WRAP_SHRINK,
 	                                         A3D_WIDGET_WRAP_SHRINK,
 	                                         A3D_WIDGET_STRETCH_NA,
@@ -189,7 +187,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	self->icon = a3d_sprite_new(screen,
 	                            0,
-	                            anchor,
 	                            wrap,
 	                            wrap,
 	                            A3D_WIDGET_STRETCH_SQUARE,
@@ -207,7 +204,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	self->text = a3d_text_new(screen,
 	                          0,
-	                          anchor,
 	                          A3D_WIDGET_BORDER_NONE,
 	                          style_text,
 	                          &clear,

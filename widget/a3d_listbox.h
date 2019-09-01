@@ -43,7 +43,6 @@ typedef struct
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
                                int orientation,
-                               int anchor,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,

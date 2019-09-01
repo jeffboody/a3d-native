@@ -40,7 +40,6 @@ typedef struct
 	float       last_h;
 
 	// text properties
-	int         anchor;
 	int         text_wrapx;
 	int         style_border;
 	int         style_text;
@@ -53,13 +52,11 @@ typedef struct
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                int orientation,
-                               int anchor,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
                                int style_border,
                                a3d_vec4f_t* color_fill,
-                               int text_anchor,
                                int text_wrapx,
                                int text_style_border,
                                int text_style_text,

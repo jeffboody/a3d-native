@@ -160,7 +160,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	rect_draw.l = l;
 	rect_draw.w = w;
 	rect_draw.h = bullet_h;
-	a3d_widget_anchorPt(&rect_draw, bullet->anchor, &x, &y);
+	a3d_widget_layoutAnchor(bullet, &rect_draw, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &self->widget.rect_clip,
 	                     &rect_clip);
@@ -186,7 +186,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 		rect_draw.t = t + bullet_h + 2.0f*v_bo;
 		rect_draw.h = h - bullet_h - 2.0f*v_bo;
 	}
-	a3d_widget_anchorPt(&rect_draw, body->anchor, &x, &y);
+	a3d_widget_layoutAnchor(body, &rect_draw, &x, &y);
 	a3d_rect4f_intersect(&rect_draw,
 	                     &self->widget.rect_clip,
 	                     &rect_clip);
@@ -200,7 +200,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 		rect_draw.l = l;
 		rect_draw.w = w;
 		rect_draw.h = footer_h;
-		a3d_widget_anchorPt(&rect_draw, footer->anchor, &x, &y);
+		a3d_widget_layoutAnchor(footer, &rect_draw, &x, &y);
 		a3d_rect4f_intersect(&rect_draw,
 		                     &self->widget.rect_clip,
 		                     &rect_clip);
@@ -272,14 +272,12 @@ static void a3d_viewbox_refresh(a3d_widget_t* widget)
 
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int anchor,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
                                int style_border,
                                a3d_vec4f_t* color_fill,
                                a3d_vec4f_t* color_fill2,
-                               int text_anchor,
                                int text_style_border,
                                int text_style_text,
                                a3d_vec4f_t* text_color_fill,
@@ -308,7 +306,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*) a3d_widget_new(screen,
 	                                       wsize,
-	                                       anchor,
 	                                       wrapx,
 	                                       wrapy,
 	                                       stretch_mode,
@@ -339,7 +336,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 
 	self->bullet = a3d_bulletbox_new(screen,
 	                                 0,
-	                                 text_anchor,
 	                                 text_style_border,
 	                                 text_style_text,
 	                                 &clear,

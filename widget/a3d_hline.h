@@ -53,7 +53,6 @@ typedef struct
 
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
-                           int anchor,
                            int style_line,
                            a3d_vec4f_t* color_line,
                            int max_len);

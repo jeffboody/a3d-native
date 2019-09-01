@@ -60,7 +60,7 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
-	                        widget->style_border,
+	                        widget->border,
 	                        &h_bo, &v_bo);
 	if(footer)
 	{
@@ -168,7 +168,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
-	                        widget->style_border,
+	                        widget->border,
 	                        &h_bo, &v_bo);
 
 	// layout body
@@ -233,7 +233,7 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 	float v_bo = 0.0f;
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_screen_layoutBorder(widget->screen,
-	                        widget->style_border,
+	                        widget->border,
 	                        &h_bo, &v_bo);
 	a3d_widget_t* w = &(self->bullet->widget);
 	float         y = w->rect_border.t + w->rect_border.h + v_bo;
@@ -244,7 +244,7 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 	{
 		a3d_widget_draw(self->footer);
 	}
-	a3d_widget_twoToneY(widget, y);
+	a3d_widget_headerY(widget, y);
 }
 
 static void a3d_viewbox_refresh(a3d_widget_t* widget)
@@ -269,12 +269,11 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
-                               int style_border,
+                               int border,
                                a3d_vec4f_t* color_fill,
-                               a3d_vec4f_t* color_fill2,
-                               int text_style_border,
+                               a3d_vec4f_t* color_header,
+                               int text_border,
                                int text_style_text,
-                               a3d_vec4f_t* text_color_fill,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
                                const char* sprite,
@@ -286,8 +285,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	// footer may be NULL
 	assert(screen);
 	assert(color_fill);
-	assert(color_fill2);
-	assert(text_color_fill);
+	assert(color_header);
 	assert(text_color_text);
 	assert(sprite);
 	assert(body);
@@ -304,7 +302,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	                                       wrapy,
 	                                       stretch_mode,
 	                                       stretch_factor,
-	                                       style_border,
+	                                       border,
 	                                       color_fill,
 	                                       NULL,
 	                                       a3d_viewbox_size,
@@ -318,7 +316,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		return NULL;
 	}
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
-	a3d_widget_twoTone((a3d_widget_t*) self, color_fill2);
+	a3d_widget_colorHeader((a3d_widget_t*) self, color_header);
 
 	a3d_vec4f_t clear =
 	{
@@ -330,7 +328,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 
 	self->bullet = a3d_bulletbox_new(screen,
 	                                 0,
-	                                 text_style_border,
+	                                 text_border,
 	                                 text_style_text,
 	                                 &clear,
 	                                 text_color_text,

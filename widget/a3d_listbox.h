@@ -46,7 +46,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
-                               int style_border,
+                               int border,
                                a3d_vec4f_t* color_fill,
                                a3d_widget_reflow_fn reflow_fn,
                                a3d_widget_refresh_fn refresh_fn);

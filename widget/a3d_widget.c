@@ -233,7 +233,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
-                             int style_border,
+                             int border,
                              a3d_vec4f_t* color_fill,
                              a3d_widget_reflow_fn reflow_fn,
                              a3d_widget_size_fn size_fn,
@@ -268,7 +268,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->wrapy          = wrapy;
 	self->stretch_mode   = stretch_mode;
 	self->stretch_factor = stretch_factor;
-	self->style_border   = style_border;
+	self->border         = border;
 	self->scroll_bar     = 0;
 	self->reflow_fn      = reflow_fn;
 	self->size_fn        = size_fn;
@@ -284,10 +284,10 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_copy(color_fill, &self->color_fill);
-	a3d_vec4f_load(&self->color_fill2,  0.0f, 0.0f, 0.0f, 0.0f);
+	a3d_vec4f_load(&self->color_header,  0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_load(&self->color_scroll0, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_load(&self->color_scroll1, 0.0f, 0.0f, 0.0f, 0.0f);
-	self->tone_y2    = 0.0f;
+	self->header_y = 0.0f;
 
 	glGenBuffers(1, &self->id_vtx_rect);
 	glGenBuffers(1, &self->scroll_id_vtx_rect);
@@ -435,8 +435,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	// set the layout
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
-	a3d_screen_layoutBorder(self->screen,
-	                        self->style_border,
+	a3d_screen_layoutBorder(self->screen, self->border,
 	                        &h_bo, &v_bo);
 	self->rect_border.t = t;
 	self->rect_border.l = l;
@@ -531,8 +530,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// initialize size
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
-	a3d_screen_layoutBorder(self->screen,
-	                        self->style_border,
+	a3d_screen_layoutBorder(self->screen, self->border,
 	                        &h_bo, &v_bo);
 	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
@@ -828,7 +826,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 
-		if(self->tone_y2 == 0.0f)
+		if(self->header_y == 0.0f)
 		{
 			glEnableVertexAttribArray(self->attr_vertex);
 			glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -838,20 +836,20 @@ void a3d_widget_draw(a3d_widget_t* self)
 		}
 		else
 		{
-			a3d_vec4f_t* c2     = &self->color_fill2;
+			a3d_vec4f_t* c2     = &self->color_header;
 			float        alpha2 = c2->a;
 			glEnableVertexAttribArray(self->attr_vertex2);
 			glVertexAttribPointer(self->attr_vertex2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 			glUseProgram(self->prog2);
 			glUniform4f(self->unif_color2a, c->r, c->g, c->b, alpha);
 			glUniform4f(self->unif_color2b, c2->r, c2->g, c2->b, alpha2);
-			glUniform1f(self->unif_y2, self->tone_y2);
+			glUniform1f(self->unif_y2, self->header_y);
 			glUniformMatrix4fv(self->unif_mvp2, 1, GL_FALSE, (GLfloat*) &mvp);
 		}
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4*A3D_WIDGET_BEZEL);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		if(self->tone_y2 == 0.0f)
+		if(self->header_y == 0.0f)
 		{
 			glDisableVertexAttribArray(self->attr_vertex);
 		}
@@ -964,20 +962,20 @@ void a3d_widget_soundFx(a3d_widget_t* self,
 	self->sound_fx = sound_fx;
 }
 
-void a3d_widget_twoTone(a3d_widget_t* self,
-                        a3d_vec4f_t* color_fill2)
+void a3d_widget_colorHeader(a3d_widget_t* self,
+                            a3d_vec4f_t* color_header)
 {
 	assert(self);
-	assert(color_fill2);
+	assert(color_header);
 
-	a3d_vec4f_copy(color_fill2, &self->color_fill2);
+	a3d_vec4f_copy(color_header, &self->color_header);
 }
 
-void a3d_widget_twoToneY(a3d_widget_t* self, float y)
+void a3d_widget_headerY(a3d_widget_t* self, float y)
 {
 	assert(self);
 
-	self->tone_y2 = y;
+	self->header_y = y;
 }
 
 void a3d_widget_scrollbar(a3d_widget_t* self,

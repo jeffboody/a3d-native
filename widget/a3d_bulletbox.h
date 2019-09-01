@@ -39,7 +39,7 @@ typedef struct
 
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int style_border,
+                                   int border,
                                    int style_text,
                                    a3d_vec4f_t* color_fill,
                                    a3d_vec4f_t* color_text,

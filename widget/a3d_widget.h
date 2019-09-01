@@ -126,14 +126,16 @@ typedef struct a3d_widget_s
 	int   stretch_mode;
 	float stretch_factor;
 
-	// decorations
-	int         style_border;
+	// style
+	int         border;
 	int         scroll_bar;
 	a3d_vec4f_t color_fill;
-	a3d_vec4f_t color_fill2;
+	a3d_vec4f_t color_header;
 	a3d_vec4f_t color_scroll0;
 	a3d_vec4f_t color_scroll1;
-	float       tone_y2;
+
+	// header
+	float header_y;
 
 	// sound fx for clicks
 	int sound_fx;
@@ -202,7 +204,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wrapx, int wrapy,
                              int stretch_mode,
                              float stretch_factor,
-                             int style_border,
+                             int border,
                              a3d_vec4f_t* color_fill,
                              a3d_widget_reflow_fn reflow_fn,
                              a3d_widget_size_fn size_fn,
@@ -239,9 +241,9 @@ void          a3d_widget_anchor(a3d_widget_t* self,
                                 int anchor);
 void          a3d_widget_soundFx(a3d_widget_t* self,
                                  int sound_fx);
-void          a3d_widget_twoTone(a3d_widget_t* self,
-                                 a3d_vec4f_t* color_fill2);
-void          a3d_widget_twoToneY(a3d_widget_t* self, float y);
+void          a3d_widget_colorHeader(a3d_widget_t* self,
+                                     a3d_vec4f_t* color_header);
+void          a3d_widget_headerY(a3d_widget_t* self, float y);
 void          a3d_widget_scrollbar(a3d_widget_t* self,
                                    a3d_vec4f_t* color_scroll0,
                                    a3d_vec4f_t* color_scroll1);

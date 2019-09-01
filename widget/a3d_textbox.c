@@ -43,12 +43,15 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	assert(self);
 	assert(string);
 
+	a3d_vec4f_t clear;
+	a3d_vec4f_load(&clear, 0.0f, 0.0f, 0.0f, 0.0f);
+
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_text_t* text = a3d_text_new(widget->screen,
 	                                0,
-	                                self->style_border,
+	                                self->border,
 	                                self->style_text,
-	                                &(self->color_fill),
+	                                &clear,
 	                                &(self->color_text),
 	                                self->max_len,
 	                                NULL, NULL);
@@ -130,12 +133,12 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 	a3d_textbox_t* self = (a3d_textbox_t*) widget;
 
-	// subtract the text_style_border which is added when
+	// subtract the text_border which is added when
 	// printing text lines
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
-	                        self->style_border,
+	                        self->border,
 	                        &h_bo, &v_bo);
 	w = w - 2.0f*h_bo;
 
@@ -261,19 +264,17 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
-                               int style_border,
+                               int border,
                                a3d_vec4f_t* color_fill,
                                int text_wrapx,
-                               int text_style_border,
+                               int text_border,
                                int text_style_text,
-                               a3d_vec4f_t* text_color_fill,
-                               a3d_vec4f_t* text_color_text,
+                               a3d_vec4f_t* color_text,
                                int text_max_len)
 {
 	assert(screen);
 	assert(color_fill);
-	assert(text_color_fill);
-	assert(text_color_text);
+	assert(color_text);
 
 	if(wsize == 0)
 	{
@@ -293,7 +294,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	                                        wrapx, wrapy,
 	                                        stretch_mode,
 	                                        stretch_factor,
-	                                        style_border,
+	                                        border,
 	                                        color_fill,
 	                                        reflow_fn,
 	                                        NULL);
@@ -312,14 +313,13 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->last_w = 0.0f;
 	self->last_h = 0.0f;
 
-	self->text_wrapx   = text_wrapx;
-	self->style_border = text_style_border;
-	self->style_text   = text_style_text;
-	self->font_type    = A3D_SCREEN_FONT_REGULAR;
-	self->max_len      = text_max_len;
+	self->text_wrapx = text_wrapx;
+	self->border     = text_border;
+	self->style_text = text_style_text;
+	self->font_type  = A3D_SCREEN_FONT_REGULAR;
+	self->max_len    = text_max_len;
 
-	a3d_vec4f_copy(text_color_fill, &self->color_fill);
-	a3d_vec4f_copy(text_color_text, &self->color_text);
+	a3d_vec4f_copy(color_text, &self->color_text);
 
 	// success
 	return self;

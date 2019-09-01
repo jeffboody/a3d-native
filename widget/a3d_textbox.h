@@ -41,7 +41,7 @@ typedef struct
 
 	// text properties
 	int         text_wrapx;
-	int         style_border;
+	int         border;
 	int         style_text;
 	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_text;
@@ -55,13 +55,12 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wrapx, int wrapy,
                                int stretch_mode,
                                float stretch_factor,
-                               int style_border,
+                               int border,
                                a3d_vec4f_t* color_fill,
                                int text_wrapx,
-                               int text_style_border,
+                               int text_border,
                                int text_style_text,
-                               a3d_vec4f_t* text_color_fill,
-                               a3d_vec4f_t* text_color_text,
+                               a3d_vec4f_t* color_text,
                                int text_max_len);
 void           a3d_textbox_delete(a3d_textbox_t** _self);
 void           a3d_textbox_clear(a3d_textbox_t* self);

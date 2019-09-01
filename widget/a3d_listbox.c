@@ -39,7 +39,6 @@ static void a3d_listbox_size(a3d_widget_t* widget,
 	assert(widget);
 	assert(w);
 	assert(h);
-	LOGD("debug");
 
 	a3d_listbox_t*  self  = (a3d_listbox_t*) widget;
 	a3d_listitem_t* iter  = a3d_list_head(self->list);
@@ -101,7 +100,6 @@ static int a3d_listbox_click(a3d_widget_t* widget,
                              float x, float y)
 {
 	assert(widget);
-	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_listbox_t*  self = (a3d_listbox_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
@@ -124,7 +122,6 @@ static void a3d_listbox_layoutVerticalShrink(a3d_listbox_t* self,
                                              int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x = 0.0f;
@@ -162,7 +159,6 @@ static void a3d_listbox_layoutVerticalStretch(a3d_listbox_t* self,
                                               int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x   = 0.0f;
@@ -202,7 +198,6 @@ static void a3d_listbox_layoutHorizontalShrink(a3d_listbox_t* self,
                                                int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x = 0.0f;
@@ -240,7 +235,6 @@ static void a3d_listbox_layoutHorizontalStretch(a3d_listbox_t* self,
                                                 int dragx, int dragy)
 {
 	assert(self);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// initialize the layout
 	float x   = 0.0f;
@@ -280,7 +274,6 @@ static void a3d_listbox_layout(a3d_widget_t* widget,
                                int dragx, int dragy)
 {
 	assert(widget);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	a3d_listbox_t* self = (a3d_listbox_t*) widget;
 	if(a3d_list_empty(self->list))
@@ -317,7 +310,6 @@ static void a3d_listbox_drag(a3d_widget_t* widget,
                              float dx, float dy)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_listbox_t*  self = (a3d_listbox_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
@@ -332,7 +324,6 @@ static void a3d_listbox_drag(a3d_widget_t* widget,
 static void a3d_listbox_draw(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_listbox_t*  self = (a3d_listbox_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
@@ -347,7 +338,6 @@ static void a3d_listbox_draw(a3d_widget_t* widget)
 static void a3d_listbox_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_listbox_t*  self = (a3d_listbox_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
@@ -363,7 +353,6 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 {
 	assert(owner);
 	assert(item);
-	LOGD("debug");
 
 	a3d_widget_t* self = (a3d_widget_t*) owner;
 	a3d_screen_dirty(self->screen);
@@ -387,12 +376,6 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	// reflow_fn, refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
-	LOGD("debug wsize=%i, orientation=%i, wrapx=%i, wrapy=%i",
-	     wsize, orientation, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
-	     stretch_mode, stretch_factor, style_border);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
 
 	if(wsize == 0)
 	{
@@ -456,8 +439,6 @@ void a3d_listbox_delete(a3d_listbox_t** _self)
 	a3d_listbox_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_list_delete(&self->list);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}

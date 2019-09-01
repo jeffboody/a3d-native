@@ -39,7 +39,6 @@ static void a3d_layer_size(a3d_widget_t* widget,
 	assert(widget);
 	assert(w);
 	assert(h);
-	LOGD("debug");
 
 	a3d_layer_t*    self  = (a3d_layer_t*) widget;
 	a3d_listitem_t* iter  = a3d_list_head(self->list);
@@ -77,7 +76,6 @@ static int a3d_layer_click(a3d_widget_t* widget,
                            float x, float y)
 {
 	assert(widget);
-	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	// send events front-to-back
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
@@ -116,7 +114,6 @@ static void a3d_layer_layout(a3d_widget_t* widget,
                              int dragx, int dragy)
 {
 	assert(widget);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	// the rect_clip is constant across all layers
 	a3d_rect4f_t rect_clip;
@@ -147,7 +144,6 @@ static void a3d_layer_drag(a3d_widget_t* widget,
                            float dx, float dy)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
 	if(self->mode == A3D_LAYER_MODE_FRONT)
@@ -174,7 +170,6 @@ static void a3d_layer_drag(a3d_widget_t* widget,
 static void a3d_layer_draw(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	// draw back-to-front
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
@@ -190,7 +185,6 @@ static void a3d_layer_draw(a3d_widget_t* widget)
 static void a3d_layer_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);
@@ -206,7 +200,6 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 {
 	assert(owner);
 	assert(item);
-	LOGD("debug");
 
 	a3d_widget_t* self = (a3d_widget_t*) owner;
 	a3d_screen_dirty(self->screen);
@@ -227,12 +220,6 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 {
 	assert(screen);
 	assert(color_fill);
-	LOGD("debug wsize=%i, wrapx=%i, wrapy=%i",
-	     wsize, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
-	     stretch_mode, stretch_factor, style_border);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
 
 	if(wsize == 0)
 	{
@@ -290,8 +277,6 @@ void a3d_layer_delete(a3d_layer_t** _self)
 	a3d_layer_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_list_delete(&self->list);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}

@@ -135,7 +135,6 @@ static const char* FSHADER_SCROLL =
 static int a3d_widget_shaders(a3d_widget_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
 	if(self->prog == 0)
@@ -247,12 +246,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
 	assert(screen);
 	assert(color_fill);
-	LOGD("debug wsize=%i, wrapx=%i, wrapy=%i",
-	     wsize, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
-	     stretch_mode, stretch_factor, style_border);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
 
 	if(wsize == 0)
 	{
@@ -320,8 +313,6 @@ void a3d_widget_delete(a3d_widget_t** _self)
 	a3d_widget_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		// TODO - screen top
 
 		if(a3d_widget_hasFocus(self))
@@ -343,7 +334,6 @@ void a3d_widget_delete(a3d_widget_t** _self)
 void a3d_widget_priv(a3d_widget_t* self, void* priv)
 {
 	assert(self);
-	LOGD("debug");
 
 	self->priv = priv;
 }
@@ -355,7 +345,6 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 {
 	assert(self);
 	assert(clip);
-	LOGD("debug x=%f, y=%f, dragx=%i, dragy=%i", x, y, dragx, dragy);
 
 	float w  = self->rect_border.w;
 	float h  = self->rect_border.h;
@@ -516,7 +505,6 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	assert(self);
 	assert(w);
 	assert(h);
-	LOGD("debug w=%f, h=%f", *w, *h);
 
 	float sw;
 	float sh;
@@ -720,7 +708,6 @@ int a3d_widget_click(a3d_widget_t* self,
                      float x, float y)
 {
 	assert(self);
-	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_widget_click_fn click_fn = self->click_fn;
 	if(click_fn == NULL)
@@ -781,7 +768,6 @@ void a3d_widget_drag(a3d_widget_t* self,
                      float dx, float dy)
 {
 	assert(self);
-	LOGD("debug dx=%f, dy=%f", dx, dy);
 
 	if((a3d_rect4f_contains(&self->rect_clip, x, y) == 0) ||
 	   (a3d_rect4f_contains(&self->rect_border, x, y) == 0))
@@ -816,7 +802,6 @@ void a3d_widget_drag(a3d_widget_t* self,
 void a3d_widget_draw(a3d_widget_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&self->rect_border,
@@ -963,7 +948,6 @@ void a3d_widget_anchor(a3d_widget_t* self, int anchor)
 void a3d_widget_refresh(a3d_widget_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	a3d_widget_refresh_fn refresh_fn = self->refresh_fn;
 	if(refresh_fn)

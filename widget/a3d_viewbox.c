@@ -40,7 +40,6 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 	assert(widget);
 	assert(w);
 	assert(h);
-	LOGD("debug");
 
 	a3d_viewbox_t* self   = (a3d_viewbox_t*) widget;
 	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
@@ -115,7 +114,6 @@ static int a3d_viewbox_click(a3d_widget_t* widget,
                              float x, float y)
 {
 	assert(widget);
-	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
@@ -136,7 +134,6 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
                                int dragx, int dragy)
 {
 	assert(widget);
-	LOGD("debug dragx=%i, dragy=%i", dragx, dragy);
 
 	a3d_viewbox_t* self   = (a3d_viewbox_t*) widget;
 	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
@@ -214,7 +211,6 @@ static void a3d_viewbox_drag(a3d_widget_t* widget,
                              float dx, float dy)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_widget_drag((a3d_widget_t*) self->bullet,
@@ -231,7 +227,6 @@ static void a3d_viewbox_drag(a3d_widget_t* widget,
 static void a3d_viewbox_draw(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	// bullet separator y
 	float h_bo = 0.0f;
@@ -255,7 +250,6 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 static void a3d_viewbox_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_widget_refresh((a3d_widget_t*) self->bullet);
@@ -377,8 +371,6 @@ void a3d_viewbox_delete(a3d_viewbox_t** _self)
 	a3d_viewbox_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_bulletbox_delete(&self->bullet);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
@@ -396,8 +388,6 @@ void a3d_viewbox_textPrintf(a3d_viewbox_t* self,
 	va_start(argptr, fmt);
 	vsnprintf(string, 256, fmt, argptr);
 	va_end(argptr);
-
-	LOGD("debug %s", string);
 
 	a3d_bulletbox_textPrintf(self->bullet, "%s", string);
 }

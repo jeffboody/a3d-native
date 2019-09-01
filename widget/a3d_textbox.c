@@ -42,7 +42,6 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 {
 	assert(self);
 	assert(string);
-	LOGD("debug string=%s", string);
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_text_t* text = a3d_text_new(widget->screen,
@@ -128,7 +127,6 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
                                float w, float h)
 {
 	assert(widget);
-	LOGD("debug w=%f, h=%f", w, h);
 
 	a3d_textbox_t* self = (a3d_textbox_t*) widget;
 
@@ -276,19 +274,6 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	assert(color_fill);
 	assert(text_color_fill);
 	assert(text_color_text);
-	LOGD("debug wsize=%i, orientation=%i, wrapx=%i, wrapy=%i",
-	     wsize, orientation, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
-	     stretch_mode, stretch_factor, style_border);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("text_style_border=%i, text_style_text=%i",
-	     text_style_border, text_style_text);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
-	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug text_max_len=%i", text_max_len);
 
 	if(wsize == 0)
 	{
@@ -352,8 +337,6 @@ void a3d_textbox_delete(a3d_textbox_t** _self)
 	a3d_textbox_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_textbox_clear(self);
 		a3d_listbox_delete((a3d_listbox_t**) _self);
 		*_self = NULL;
@@ -363,7 +346,6 @@ void a3d_textbox_delete(a3d_textbox_t** _self)
 void a3d_textbox_clear(a3d_textbox_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
 	a3d_listitem_t* iter    = a3d_list_head(listbox->list);
@@ -403,8 +385,6 @@ void a3d_textbox_printf(a3d_textbox_t* self,
 	va_start(argptr, fmt);
 	vsnprintf(string, self->max_len, fmt, argptr);
 	va_end(argptr);
-
-	LOGD("debug %s", string);
 
 	self->dirty = 1;
 

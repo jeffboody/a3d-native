@@ -107,7 +107,6 @@ static const char* FSHADER =
 static void a3d_sprite_draw(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_sprite_t* self   = (a3d_sprite_t*) widget;
 	a3d_screen_t* screen = widget->screen;
@@ -163,8 +162,6 @@ static void a3d_sprite_draw(a3d_widget_t* widget)
 
 a3d_spriteShader_t* a3d_spriteShader_new(int format)
 {
-	LOGD("debug");
-
 	a3d_spriteShader_t* self = (a3d_spriteShader_t*) malloc(sizeof(a3d_spriteShader_t));
 	if(self == NULL)
 	{
@@ -206,8 +203,6 @@ void a3d_spriteShader_delete(a3d_spriteShader_t** _self)
 	a3d_spriteShader_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;
@@ -219,7 +214,6 @@ a3d_spriteTex_t* a3d_spriteTex_new(const char* fname,
 {
 	assert(fname);
 	assert(resource);
-	LOGD("debug fname=%s, resource=%s", fname, resource);
 
 	a3d_spriteTex_t* self = (a3d_spriteTex_t*) malloc(sizeof(a3d_spriteTex_t));
 	if(self == NULL)
@@ -301,8 +295,6 @@ void a3d_spriteTex_delete(a3d_spriteTex_t** _self)
 	a3d_spriteTex_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDeleteTextures(1, &self->id_tex);
 
@@ -342,15 +334,6 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_sprite);
-	LOGD("debug wsize=%i, wrapx=%i, wrapy=%i",
-	     wsize, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
-	     stretch_mode, stretch_factor, style_border);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_sprite: r=%f, g=%f, b=%f, a=%f",
-	     color_sprite->r, color_sprite->g, color_sprite->b, color_sprite->a);
-	LOGD("debug count=%i", count);
 
 	if(count <= 0)
 	{
@@ -437,8 +420,6 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 	a3d_sprite_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		int i;
 		a3d_widget_t* widget = (a3d_widget_t*) self;
 		a3d_screen_t* screen = widget->screen;
@@ -461,7 +442,6 @@ int a3d_sprite_load(a3d_sprite_t* self, int index, const char* fname)
 {
 	assert(self);
 	assert(fname);
-	LOGD("debug index=%i, fname=%s", index, fname);
 
 	// check for invalid index
 	if((index < 0) || (index >= self->count))
@@ -487,7 +467,6 @@ int a3d_sprite_load(a3d_sprite_t* self, int index, const char* fname)
 void a3d_sprite_select(a3d_sprite_t* self, int index)
 {
 	assert(self);
-	LOGD("debug index=%i", index);
 
 	// check for invalid index
 	if((index < 0) || (index >= self->count))

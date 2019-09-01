@@ -68,7 +68,6 @@ static const char* FSHADER =
 static int a3d_font_loadShaders(a3d_font_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
 	if(self->prog == 0)
@@ -375,7 +374,6 @@ a3d_font_t* a3d_font_new(const char* resource,
 	assert(resource);
 	assert(texname);
 	assert(xmlname);
-	LOGD("debug");
 
 	a3d_font_t* self = (a3d_font_t*) malloc(sizeof(a3d_font_t));
 	if(self == NULL)
@@ -443,8 +441,6 @@ void a3d_font_delete(a3d_font_t** _self)
 	a3d_font_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		glUseProgram(0);
 		glDeleteProgram(self->prog);
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -462,7 +458,6 @@ void a3d_font_request(a3d_font_t* self,
 	assert(self);
 	assert(tc);
 	assert(vc);
-	LOGD("debug");
 
 	// check for a ascii/cursor character
 	if((c < 31) || (c > 126))

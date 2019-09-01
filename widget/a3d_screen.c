@@ -173,8 +173,6 @@ static const char A3D_SHIFTKEYS[128] =
 
 static int a3d_shiftkeycode(int keycode, int meta)
 {
-	LOGD("debug keycode=0x%X, meta=0x%X", keycode, meta);
-
 	if((keycode >= 0) && (keycode < 128))
 	{
 		int shiftchar = meta & (A3D_KEY_SHIFT | A3D_KEY_CAPS);
@@ -234,7 +232,6 @@ static const char* FSHADER =
 static int a3d_screen_shaders(a3d_screen_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
 	if(self->prog == 0)
@@ -254,7 +251,6 @@ static int a3d_screen_compareTexFname(const void* a, const void* b)
 {
 	assert(a);
 	assert(b);
-	LOGD("debug");
 
 	a3d_spriteTex_t* t = (a3d_spriteTex_t*) a;
 	const char*      s = (const char*) b;
@@ -266,7 +262,6 @@ static int a3d_screen_compareTexId(const void* a, const void* b)
 {
 	assert(a);
 	assert(b);
-	LOGD("debug");
 
 	a3d_spriteTex_t* t  = (a3d_spriteTex_t*) a;
 	GLuint*          id = (GLuint*) b;
@@ -289,7 +284,6 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	assert(font_bold);
 	assert(sound_fx);
 	assert(playClick);
-	LOGD("debug");
 
 	a3d_screen_t* self = (a3d_screen_t*) malloc(sizeof(a3d_screen_t));
 	if(self == NULL)
@@ -371,8 +365,6 @@ void a3d_screen_delete(a3d_screen_t** _self)
 	a3d_screen_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		// all sprites should have been unmapped already
 		a3d_list_delete(&self->sprite_list);
 
@@ -389,7 +381,6 @@ void a3d_screen_delete(a3d_screen_t** _self)
 void a3d_screen_top(a3d_screen_t* self, a3d_widget_t* top)
 {
 	assert(self);
-	LOGD("debug");
 
 	if(self->top_widget == top)
 	{
@@ -411,7 +402,6 @@ void a3d_screen_focus(a3d_screen_t* self, a3d_widget_t* focus)
 a3d_font_t* a3d_screen_font(a3d_screen_t* self, int type)
 {
 	assert(self);
-	LOGD("debug");
 
 	return self->font[type];
 }
@@ -419,7 +409,6 @@ a3d_font_t* a3d_screen_font(a3d_screen_t* self, int type)
 a3d_spriteShader_t* a3d_screen_spriteShader(a3d_screen_t* self, int format)
 {
 	assert(self);
-	LOGD("debug");
 
 	if(format == A3D_SPRITESHADER_ALPHA)
 	{
@@ -437,7 +426,6 @@ GLuint a3d_screen_spriteTexMap(a3d_screen_t* self, const char* fname,
 	assert(self);
 	assert(fname);
 	assert(format);
-	LOGD("debug fname=%s", fname);
 
 	a3d_spriteTex_t* t    = NULL;
 	a3d_listitem_t*  iter = a3d_list_find(self->sprite_list,
@@ -476,7 +464,6 @@ void a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id)
 {
 	assert(self);
 	assert(_id);
-	LOGD("debug");
 
 	// ignore zero
 	if(*_id == 0)
@@ -508,7 +495,6 @@ void a3d_screen_spriteTexUnmap(a3d_screen_t* self, GLuint* _id)
 void a3d_screen_resize(a3d_screen_t* self, int w, int h)
 {
 	assert(self);
-	LOGD("debug w=%i, h=%i");
 
 	if((self->w == w) && (self->h == h))
 	{
@@ -523,7 +509,6 @@ void a3d_screen_resize(a3d_screen_t* self, int w, int h)
 void a3d_screen_density(a3d_screen_t* self, float density)
 {
 	assert(self);
-	LOGD("debug density=%f");
 
 	if(self->density == density)
 	{
@@ -537,7 +522,6 @@ void a3d_screen_density(a3d_screen_t* self, float density)
 void a3d_screen_sizei(a3d_screen_t* self, int* w, int* h)
 {
 	assert(self);
-	LOGD("debug");
 
 	*w = self->w;
 	*h = self->h;
@@ -546,7 +530,6 @@ void a3d_screen_sizei(a3d_screen_t* self, int* w, int* h)
 void a3d_screen_sizef(a3d_screen_t* self, float* w, float* h)
 {
 	assert(self);
-	LOGD("debug");
 
 	*w = (float) self->w;
 	*h = (float) self->h;
@@ -555,7 +538,6 @@ void a3d_screen_sizef(a3d_screen_t* self, float* w, float* h)
 void a3d_screen_rescale(a3d_screen_t* self, int scale)
 {
 	assert(self);
-	LOGD("debug scale=%i", scale);
 
 	if(self->scale == scale)
 	{
@@ -573,7 +555,6 @@ void a3d_screen_rescale(a3d_screen_t* self, int scale)
 int a3d_screen_scalei(a3d_screen_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	return self->scale;
 }
@@ -581,7 +562,6 @@ int a3d_screen_scalei(a3d_screen_t* self)
 float a3d_screen_scalef(a3d_screen_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	if(self->scale == A3D_SCREEN_SCALE_XSMALL)
 	{
@@ -605,7 +585,6 @@ float a3d_screen_scalef(a3d_screen_t* self)
 void a3d_screen_dirty(a3d_screen_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	self->dirty = 1;
 }
@@ -616,7 +595,6 @@ void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
 	assert(self);
 	assert(hborder);
 	assert(vborder);
-	LOGD("debug style=%i", style);
 
 	*hborder = 0.0f;
 	*vborder = 0.0f;
@@ -655,7 +633,6 @@ void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
 float a3d_screen_layoutLine(a3d_screen_t* self, int style)
 {
 	assert(self);
-	LOGD("debug style=%i", style);
 
 	// line style requires a mask
 	if(style == A3D_WIDGET_LINE_SMALL)
@@ -672,7 +649,6 @@ float a3d_screen_layoutLine(a3d_screen_t* self, int style)
 float a3d_screen_layoutText(a3d_screen_t* self, int style)
 {
 	assert(self);
-	LOGD("debug style=%i", style);
 
 	// default size is 24 px at density 1.0
 	float size = 24.0f*self->density*a3d_screen_scalef(self);
@@ -691,7 +667,6 @@ int a3d_screen_pointerDown(a3d_screen_t* self,
                            float x, float y, double t0)
 {
 	assert(self);
-	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
 
 	if((self->top_widget == NULL) ||
 	   (self->pointer_state != A3D_WIDGET_POINTER_UP))
@@ -719,7 +694,6 @@ int a3d_screen_pointerUp(a3d_screen_t* self,
                          float x, float y, double t0)
 {
 	assert(self);
-	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
 
 	int touch = self->pointer_state != A3D_WIDGET_POINTER_UP;
 	if(self->top_widget &&
@@ -737,7 +711,6 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
                            float x, float y, double t0)
 {
 	assert(self);
-	LOGD("debug x=%f, y=%f, t0=%lf", x, y, t0);
 
 	if((self->top_widget == NULL) ||
 	   (self->pointer_state == A3D_WIDGET_POINTER_UP))
@@ -804,7 +777,6 @@ void a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect)
 {
 	assert(self);
 	assert(rect);
-	LOGD("debug");
 
 	glScissor((GLint) (rect->l + 0.5f),
 	          self->h - (GLint) (rect->t + rect->h + 0.5f),
@@ -815,7 +787,6 @@ void a3d_screen_scissor(a3d_screen_t* self, a3d_rect4f_t* rect)
 void a3d_screen_draw(a3d_screen_t* self, float dt)
 {
 	assert(self);
-	LOGD("debug");
 
 	a3d_widget_t* top = self->top_widget;
 	if(top == NULL)

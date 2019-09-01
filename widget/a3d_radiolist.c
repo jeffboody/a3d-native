@@ -41,7 +41,6 @@
 static void a3d_radiolist_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_radiolist_t* self = (a3d_radiolist_t*) widget;
 	if(self->value != *(self->pvalue))
@@ -84,19 +83,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	assert(text_color_fill);
 	assert(text_color_text);
 	assert(pvalue);
-	LOGD("debug wsize=%i, orientation=%i, wrapx=%i, wrapy=%i",
-	     wsize, orientation, wrapx, wrapy);
-	LOGD("debug stretch_mode=%i, stretch_factor=%f, style_border=%i",
-	     stretch_mode, stretch_factor, style_border);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("text_style_border=%i, text_style_text=%i",
-	     text_style_border, text_style_text);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
-	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug text_max_len=%i", text_max_len);
 
 	if(wsize == 0)
 	{
@@ -138,8 +124,6 @@ void a3d_radiolist_delete(a3d_radiolist_t** _self)
 	a3d_radiolist_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_radiolist_clear(self);
 		a3d_listbox_delete((a3d_listbox_t**) _self);
 		*_self = NULL;
@@ -163,7 +147,6 @@ void a3d_radiolist_clear(a3d_radiolist_t* self)
 void a3d_radiolist_value(a3d_radiolist_t* self, int value)
 {
 	assert(self);
-	LOGD("debug value=%i", value);
 
 	*(self->pvalue) = value;
 }
@@ -187,8 +170,6 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	va_start(argptr, fmt);
 	vsnprintf(string, self->max_len, fmt, argptr);
 	va_end(argptr);
-
-	LOGD("debug %s", string);
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_radiobox_t* rb = a3d_radiobox_new(widget->screen,

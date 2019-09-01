@@ -39,7 +39,6 @@ static int a3d_checkbox_click(a3d_widget_t* widget,
                               float x, float y)
 {
 	assert(widget);
-	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_checkbox_t* self = (a3d_checkbox_t*) widget;
 	if(state == A3D_WIDGET_POINTER_UP)
@@ -52,7 +51,6 @@ static int a3d_checkbox_click(a3d_widget_t* widget,
 static void a3d_checkbox_refresh(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_checkbox_t*  self   = (a3d_checkbox_t*) widget;
 	a3d_bulletbox_t* bullet = &(self->bullet);
@@ -76,13 +74,6 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	assert(color_fill);
 	assert(color_text);
 	assert(pvalue);
-	LOGD("debug wsize=%i, style_border=%i, style_text=%i",
-	     wsize, style_border, style_text);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
-	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i", max_len);
 
 	if(wsize == 0)
 	{
@@ -142,8 +133,6 @@ void a3d_checkbox_delete(a3d_checkbox_t** _self)
 	a3d_checkbox_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_bulletbox_delete((a3d_bulletbox_t**) _self);
 		*_self = NULL;
 	}
@@ -161,8 +150,6 @@ void a3d_checkbox_textPrintf(a3d_checkbox_t* self,
 	va_start(argptr, fmt);
 	vsnprintf(string, 256, fmt, argptr);
 	va_end(argptr);
-
-	LOGD("debug %s", string);
 
 	a3d_bulletbox_textPrintf(&self->bullet, "%s", string);
 }

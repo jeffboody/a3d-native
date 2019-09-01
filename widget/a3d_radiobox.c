@@ -39,7 +39,6 @@ static int a3d_radiobox_click(a3d_widget_t* widget,
                               float x, float y)
 {
 	assert(widget);
-	LOGD("debug state=%i, x=%f, y=%f", state, x, y);
 
 	a3d_radiobox_t* self = (a3d_radiobox_t*) widget;
 	if(state == A3D_WIDGET_POINTER_UP)
@@ -68,13 +67,6 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	assert(color_fill);
 	assert(color_text);
 	assert(parent);
-	LOGD("debug wsize=%i, style_border=%i, style_text=%i",
-	     wsize, style_border, style_text);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
-	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i", max_len);
 
 	if(wsize == 0)
 	{
@@ -137,8 +129,6 @@ void a3d_radiobox_delete(a3d_radiobox_t** _self)
 	a3d_radiobox_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		a3d_bulletbox_delete((a3d_bulletbox_t**) _self);
 		*_self = NULL;
 	}
@@ -147,7 +137,6 @@ void a3d_radiobox_delete(a3d_radiobox_t** _self)
 void a3d_radiobox_refresh(a3d_radiobox_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	a3d_radiolist_t* parent = self->parent;
 	a3d_bulletbox_t* bullet = &(self->bullet);
@@ -173,8 +162,6 @@ void a3d_radiobox_textPrintf(a3d_radiobox_t* self,
 	va_start(argptr, fmt);
 	vsnprintf(string, 256, fmt, argptr);
 	va_end(argptr);
-
-	LOGD("debug %s", string);
 
 	a3d_bulletbox_textPrintf(&self->bullet, "%s", string);
 }

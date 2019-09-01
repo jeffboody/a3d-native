@@ -44,7 +44,6 @@
 static int a3d_text_strlen(a3d_text_t* self)
 {
 	assert(self);
-	LOGD("debug");
 
 	int len = strlen(self->string);
 	if(len >= self->max_len)
@@ -61,7 +60,6 @@ static void a3d_text_size(a3d_widget_t* widget,
 	assert(widget);
 	assert(w);
 	assert(h);
-	LOGD("debug");
 
 	a3d_text_t* self = (a3d_text_t*) widget;
 	a3d_font_t* font = a3d_screen_font(widget->screen,
@@ -97,7 +95,6 @@ static void a3d_text_size(a3d_widget_t* widget,
 static void a3d_text_draw(a3d_widget_t* widget)
 {
 	assert(widget);
-	LOGD("debug");
 
 	a3d_text_t* self = (a3d_text_t*) widget;
 
@@ -302,13 +299,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	assert(screen);
 	assert(color_fill);
 	assert(color_text);
-	LOGD("debug wsize=%i, style_border=%i, style_text=%i",
-	     wsize, style_border, style_text);
-	LOGD("debug color_fill: r=%f, g=%f, b=%f, a=%f",
-	     color_fill->r, color_fill->g, color_fill->b, color_fill->a);
-	LOGD("debug color_text: r=%f, g=%f, b=%f, a=%f",
-	     color_text->r, color_text->g, color_text->b, color_text->a);
-	LOGD("debug max_len=%i", max_len);
 
 	if(wsize == 0)
 	{
@@ -394,8 +384,6 @@ void a3d_text_delete(a3d_text_t** _self)
 	a3d_text_t* self = *_self;
 	if(self)
 	{
-		LOGD("debug");
-
 		glDeleteBuffers(1, &self->id_vertex);
 		glDeleteBuffers(1, &self->id_coords);
 
@@ -454,8 +442,6 @@ void a3d_text_printf(a3d_text_t* self,
 	va_start(argptr, fmt);
 	vsnprintf(self->string, self->max_len, fmt, argptr);
 	va_end(argptr);
-
-	LOGD("debug %s", self->string);
 
 	int len1 = strlen(self->string);
 	if(len1 >= self->max_len)

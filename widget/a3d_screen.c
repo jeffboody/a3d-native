@@ -22,6 +22,7 @@
  */
 
 #include "a3d_screen.h"
+#include "a3d_hline.h"
 #include "a3d_key.h"
 #include "a3d_text.h"
 #include "a3d_widget.h"
@@ -630,16 +631,16 @@ void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
 	}
 }
 
-float a3d_screen_layoutLine(a3d_screen_t* self, int style)
+float a3d_screen_layoutHLine(a3d_screen_t* self, int style)
 {
 	assert(self);
 
 	// line style requires a mask
-	if(style == A3D_WIDGET_LINE_SMALL)
+	if(style == A3D_HLINE_STYLE_SMALL)
 	{
 		return 3.0f;
 	}
-	else if(style == A3D_WIDGET_LINE_LARGE)
+	else if(style == A3D_HLINE_STYLE_LARGE)
 	{
 		return 9.0f;
 	}

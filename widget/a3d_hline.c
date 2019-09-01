@@ -112,17 +112,7 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 		glUseProgram(screen->prog);
 		glEnableVertexAttribArray(screen->attr_coords);
 
-		int line_style = A3D_WIDGET_LINE_MEDIUM;
-		if(self->style == A3D_HLINE_STYLE_SMALL)
-		{
-			line_style = A3D_WIDGET_LINE_SMALL;
-		}
-		else if(self->style == A3D_HLINE_STYLE_LARGE)
-		{
-			line_style = A3D_WIDGET_LINE_LARGE;
-		}
-
-		float lw = a3d_screen_layoutLine(screen, line_style);
+		float lw = a3d_screen_layoutHLine(screen, self->style);
 		glLineWidth(lw);
 
 		a3d_rect4f_t* r = &line;

@@ -84,8 +84,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	self = (a3d_checkbox_t*)
 	       a3d_bulletbox_new(screen, wsize,
 	                         border, style_text,
-	                         color_text, color_text,
-	                         max_len, 2,
+	                         color_text, max_len, 2,
 	                         a3d_checkbox_click,
 	                         a3d_checkbox_refresh);
 	if(self == NULL)

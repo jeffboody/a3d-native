@@ -129,15 +129,13 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
                                    int border,
                                    int style_text,
-                                   a3d_vec4f_t* color_text,
-                                   a3d_vec4f_t* color_icon,
+                                   a3d_vec4f_t* color,
                                    int max_len, int count,
                                    a3d_widget_click_fn click_fn,
                                    a3d_widget_refresh_fn refresh_fn)
 {
 	assert(screen);
-	assert(color_text);
-	assert(color_icon);
+	assert(color);
 
 	if(wsize == 0)
 	{
@@ -192,7 +190,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	                            1.0f,
 	                            A3D_WIDGET_BORDER_NONE,
 	                            &clear,
-	                            color_icon,
+	                            color,
 	                            NULL,
 	                            NULL,
 	                            count);
@@ -206,7 +204,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	                          A3D_WIDGET_BORDER_NONE,
 	                          style_text,
 	                          &clear,
-	                          color_text,
+	                          color,
 	                          max_len,
 	                          NULL,
 	                          NULL);

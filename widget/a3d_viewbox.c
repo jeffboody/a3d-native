@@ -318,10 +318,8 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 	a3d_widget_colorHeader((a3d_widget_t*) self, color_header);
 
-	self->bullet = a3d_bulletbox_new(screen, 0,
-	                                 text_border,
+	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
 	                                 text_style_text,
-	                                 text_color_text,
 	                                 text_color_text,
 	                                 text_max_len, 2,
 	                                 click_fn, NULL);

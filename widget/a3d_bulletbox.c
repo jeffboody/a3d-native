@@ -129,7 +129,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
                                    int border,
                                    int style_text,
-                                   a3d_vec4f_t* color_fill,
                                    a3d_vec4f_t* color_text,
                                    a3d_vec4f_t* color_icon,
                                    int max_len, int count,
@@ -137,7 +136,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    a3d_widget_refresh_fn refresh_fn)
 {
 	assert(screen);
-	assert(color_fill);
 	assert(color_text);
 	assert(color_icon);
 
@@ -145,6 +143,15 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	{
 		wsize = sizeof(a3d_bulletbox_t);
 	}
+
+	a3d_vec4f_t clear =
+	{
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f
+	};
+
 
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*) a3d_widget_new(screen,
@@ -154,7 +161,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	                                         A3D_WIDGET_STRETCH_NA,
 	                                         1.0f,
 	                                         border,
-	                                         color_fill,
+	                                         &clear,
 	                                         NULL,
 	                                         a3d_bulletbox_size,
 	                                         click_fn,
@@ -166,14 +173,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	{
 		return NULL;
 	}
-
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
 
 	int wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_MEDIUM;
 	if(style_text == A3D_TEXT_STYLE_LARGE)

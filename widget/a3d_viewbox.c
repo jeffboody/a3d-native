@@ -318,24 +318,13 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 	a3d_widget_colorHeader((a3d_widget_t*) self, color_header);
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
-	self->bullet = a3d_bulletbox_new(screen,
-	                                 0,
+	self->bullet = a3d_bulletbox_new(screen, 0,
 	                                 text_border,
 	                                 text_style_text,
-	                                 &clear,
 	                                 text_color_text,
 	                                 text_color_text,
 	                                 text_max_len, 2,
-	                                 click_fn,
-	                                 NULL);
+	                                 click_fn, NULL);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;

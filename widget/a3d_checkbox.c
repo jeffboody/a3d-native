@@ -80,23 +80,14 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_checkbox_t);
 	}
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
-	a3d_checkbox_t* self = (a3d_checkbox_t*) a3d_bulletbox_new(screen,
-	                                                           wsize,
-	                                                           border,
-	                                                           style_text,
-	                                                           &clear,
-	                                                           color_text, color_text,
-	                                                           max_len, 2,
-	                                                           a3d_checkbox_click,
-	                                                           a3d_checkbox_refresh);
+	a3d_checkbox_t* self;
+	self = (a3d_checkbox_t*)
+	       a3d_bulletbox_new(screen, wsize,
+	                         border, style_text,
+	                         color_text, color_text,
+	                         max_len, 2,
+	                         a3d_checkbox_click,
+	                         a3d_checkbox_refresh);
 	if(self == NULL)
 	{
 		return NULL;

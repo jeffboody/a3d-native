@@ -230,9 +230,7 @@ static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
-                             int wrapx, int wrapy,
-                             int stretch_mode,
-                             float stretch_factor,
+                             a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color_fill,
                              a3d_widget_reflow_fn reflow_fn,
@@ -264,10 +262,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->drag_dx        = 0.0f;
 	self->drag_dy        = 0.0f;
 	self->anchor         = A3D_WIDGET_ANCHOR_TL;
-	self->wrapx          = wrapx;
-	self->wrapy          = wrapy;
-	self->stretch_mode   = stretch_mode;
-	self->stretch_factor = stretch_factor;
 	self->border         = border;
 	self->scroll_bar     = 0;
 	self->reflow_fn      = reflow_fn;
@@ -279,6 +273,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->refresh_fn     = refresh_fn;
 	self->draw_fn        = draw_fn;
 	self->sound_fx       = 1;
+
+	memcpy(&self->layout, layout, sizeof(a3d_widgetLayout_t));
 
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -505,6 +501,8 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	assert(w);
 	assert(h);
 
+	a3d_widgetLayout_t* layout = &self->layout;
+
 	float sw;
 	float sh;
 	a3d_screen_sizef(self->screen, &sw, &sh);
@@ -513,10 +511,10 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	                                   A3D_SCREEN_FONT_REGULAR);
 	float ar = a3d_font_aspectRatioAvg(font);
 	float th = 0.0f;
-	if((self->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
-	   (self->wrapy <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
+	if((layout->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
+	   (layout->wrapy <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 	{
-		int style = self->wrapy - A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
+		int style = layout->wrapy - A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
 		th = a3d_screen_layoutText(self->screen, style);
 	}
 	float tw = ar*th;
@@ -525,14 +523,14 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	float ssq = (sw > sh) ? sh : sw;
 	float tsq = th;   // always use the height for square
 	float psq = (*w > *h) ? *h : *w;
-	int   sq  = (self->stretch_mode == A3D_WIDGET_STRETCH_SQUARE);
+	int   sq  = (layout->stretch_mode == A3D_WIDGET_STRETCH_SQUARE);
 
 	// initialize size
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(self->screen, self->border,
 	                        &h_bo, &v_bo);
-	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->rect_draw.w   = *w - 2.0f*h_bo;
 		self->rect_border.w = *w;
@@ -540,25 +538,25 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	else
 	{
 		float rw = 0.0f;
-		if(self->wrapx == A3D_WIDGET_WRAP_STRETCH_SCREEN)
+		if(layout->wrapx == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rw = sq ? ssq : sw;
-			rw *= self->stretch_factor;
+			rw *= layout->stretch_factor;
 			self->rect_draw.w   = rw - 2.0f*h_bo;
 			self->rect_border.w = rw;
 		}
-		else if((self->wrapx >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
-		        (self->wrapx <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
+		else if((layout->wrapx >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
+		        (layout->wrapx <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rw = sq ? tsq : tw;
-			rw *= self->stretch_factor;
+			rw *= layout->stretch_factor;
 			self->rect_draw.w   = rw;
 			self->rect_border.w = rw + 2.0f*h_bo;
 		}
 		else
 		{
 			rw = sq ? psq : *w;
-			rw *= self->stretch_factor;
+			rw *= layout->stretch_factor;
 			self->rect_draw.w   = rw - 2.0f*h_bo;
 			self->rect_border.w = rw;
 		}
@@ -570,7 +568,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 		self->rect_draw.w = 0.0f;
 	}
 
-	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->rect_draw.h   = *h - 2.0f*v_bo;
 		self->rect_border.h = *h;
@@ -578,25 +576,25 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	else
 	{
 		float rh = 0.0f;
-		if(self->wrapy == A3D_WIDGET_WRAP_STRETCH_SCREEN)
+		if(layout->wrapy == A3D_WIDGET_WRAP_STRETCH_SCREEN)
 		{
 			rh = sq ? ssq : sh;
-			rh *= self->stretch_factor;
+			rh *= layout->stretch_factor;
 			self->rect_draw.h   = rh - 2.0f*v_bo;
 			self->rect_border.h = rh;
 		}
-		else if((self->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
-		        (self->wrapy <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
+		else if((layout->wrapy >= A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL) &&
+		        (layout->wrapy <= A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE))
 		{
 			rh = sq ? tsq : th;
-			rh *= self->stretch_factor;
+			rh *= layout->stretch_factor;
 			self->rect_draw.h   = rh;
 			self->rect_border.h = rh + 2.0f*v_bo;
 		}
 		else
 		{
 			rh = sq ? psq : *h;
-			rh *= self->stretch_factor;
+			rh *= layout->stretch_factor;
 			self->rect_draw.h   = rh - 2.0f*v_bo;
 			self->rect_border.h = rh;
 		}
@@ -629,14 +627,14 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	}
 
 	// wrap width
-	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->rect_draw.w   = draw_w;
 		self->rect_border.w = draw_w + 2.0f*h_bo;
 	}
 
 	// wrap height
-	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->rect_draw.h   = draw_h;
 		self->rect_border.h = draw_h + 2.0f*v_bo;
@@ -767,6 +765,8 @@ void a3d_widget_drag(a3d_widget_t* self,
 {
 	assert(self);
 
+	a3d_widgetLayout_t* layout = &self->layout;
+
 	if((a3d_rect4f_contains(&self->rect_clip, x, y) == 0) ||
 	   (a3d_rect4f_contains(&self->rect_border, x, y) == 0))
 	{
@@ -774,13 +774,13 @@ void a3d_widget_drag(a3d_widget_t* self,
 		return;
 	}
 
-	if(self->wrapx == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->drag_dx += dx;
 		dx = 0.0f;
 	}
 
-	if(self->wrapy == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapy == A3D_WIDGET_WRAP_SHRINK)
 	{
 		self->drag_dy += dy;
 		dy = 0.0f;
@@ -790,8 +790,8 @@ void a3d_widget_drag(a3d_widget_t* self,
 	// changing it's own layout
 	a3d_widget_drag_fn drag_fn = self->drag_fn;
 	if(drag_fn &&
-	   ((self->wrapx > A3D_WIDGET_WRAP_SHRINK) ||
-	    (self->wrapy > A3D_WIDGET_WRAP_SHRINK)))
+	   ((layout->wrapx > A3D_WIDGET_WRAP_SHRINK) ||
+	    (layout->wrapy > A3D_WIDGET_WRAP_SHRINK)))
 	{
 		(*drag_fn)(self, x, y, dx, dy);
 	}

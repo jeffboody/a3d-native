@@ -150,22 +150,22 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		.a = 0.0f
 	};
 
+	a3d_widgetLayout_t layout =
+	{
+		.wrapx          = A3D_WIDGET_WRAP_SHRINK,
+		.wrapy          = A3D_WIDGET_WRAP_SHRINK,
+		.stretch_mode   = A3D_WIDGET_STRETCH_NA,
+		.stretch_factor = 1.0f
+	};
+
 	a3d_bulletbox_t* self;
-	self = (a3d_bulletbox_t*) a3d_widget_new(screen,
-	                                         wsize,
-	                                         A3D_WIDGET_WRAP_SHRINK,
-	                                         A3D_WIDGET_WRAP_SHRINK,
-	                                         A3D_WIDGET_STRETCH_NA,
-	                                         1.0f,
-	                                         border,
-	                                         &clear,
-	                                         NULL,
-	                                         a3d_bulletbox_size,
-	                                         click_fn,
-	                                         a3d_bulletbox_layout,
-	                                         a3d_bulletbox_drag,
-	                                         a3d_bulletbox_draw,
-	                                         refresh_fn);
+	self = (a3d_bulletbox_t*)
+	       a3d_widget_new(screen, wsize, &layout, border,
+	                      &clear, NULL, a3d_bulletbox_size,
+	                      click_fn, a3d_bulletbox_layout,
+	                      a3d_bulletbox_drag,
+	                      a3d_bulletbox_draw,
+	                      refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -181,9 +181,15 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
 	}
 
-	self->icon = a3d_sprite_new(screen, 0, wrap, wrap,
-	                            A3D_WIDGET_STRETCH_SQUARE,
-	                            1.0f,
+	a3d_widgetLayout_t layout_sprite =
+	{
+		.wrapx          = wrap,
+		.wrapy          = wrap,
+		.stretch_mode   = A3D_WIDGET_STRETCH_SQUARE,
+		.stretch_factor = 1.0f
+	};
+
+	self->icon = a3d_sprite_new(screen, 0, &layout_sprite,
 	                            A3D_WIDGET_BORDER_NONE,
 	                            color, NULL, NULL, count);
 	if(self->icon == NULL)

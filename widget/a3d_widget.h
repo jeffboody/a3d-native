@@ -87,15 +87,30 @@ typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
 typedef void (*a3d_widget_draw_fn)(struct a3d_widget_s* widget);
 typedef void (*a3d_widget_refresh_fn)(struct a3d_widget_s* widget);
 
+typedef struct a3d_widgetLayout_s
+{
+	// horizontal/vertical wrapping
+	//    shrink:
+	//       size of children
+	//       outset border
+	//       children must be shrink
+	//    stretch:
+	//       size of container
+	//       inset border
+	//       children may be stretch or shrink
+	//       top level widget must be stretch
+	int   wrapx;
+	int   wrapy;
+	int   stretch_mode;
+	float stretch_factor;
+} a3d_widgetLayout_t;
+
 typedef struct a3d_widget_s
 {
 	struct a3d_screen_s* screen;
 
 	// optional priv data
 	void* priv;
-
-	// anchor to the widget parent
-	int anchor;
 
 	// dragable rules (implicit widget property of drag event)
 	// 1. wrapping must be shrink
@@ -111,20 +126,13 @@ typedef struct a3d_widget_s
 	a3d_rect4f_t rect_clip;
 	a3d_rect4f_t rect_border;
 
-	// horizontal/vertical wrapping
-	//    shrink:
-	//       size of children
-	//       outset border
-	//       children must be shrink
-	//    stretch:
-	//       size of container
-	//       inset border
-	//       children may be stretch or shrink
-	//       top level widget must be stretch
-	int   wrapx;
-	int   wrapy;
-	int   stretch_mode;
-	float stretch_factor;
+	// anchor to the widget parent
+	// anchor is not part of the layout since it is only
+	// relevant for layers and defaults to TL otherwise
+	int anchor;
+
+	// widget layout
+	a3d_widgetLayout_t layout;
 
 	// style
 	int         border;
@@ -201,9 +209,7 @@ typedef struct a3d_widget_s
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
-                             int wrapx, int wrapy,
-                             int stretch_mode,
-                             float stretch_factor,
+                             a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color_fill,
                              a3d_widget_reflow_fn reflow_fn,

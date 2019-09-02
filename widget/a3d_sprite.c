@@ -320,9 +320,7 @@ int a3d_spriteTex_decRef(a3d_spriteTex_t* self)
 
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
-                             int wrapx, int wrapy,
-                             int stretch_mode,
-                             float stretch_factor,
+                             a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color,
                              a3d_widget_click_fn click_fn,
@@ -339,10 +337,10 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	if((wrapx == A3D_WIDGET_WRAP_SHRINK) ||
-	   (wrapy == A3D_WIDGET_WRAP_SHRINK))
+	if((layout->wrapx == A3D_WIDGET_WRAP_SHRINK) ||
+	   (layout->wrapy == A3D_WIDGET_WRAP_SHRINK))
 	{
-		LOGE("invalid wrapx=%i, wrapy=%i", wrapx, wrapy);
+		LOGE("invalid wrapx=%i, wrapy=%i", layout->wrapx, layout->wrapy);
 		return NULL;
 	}
 
@@ -361,14 +359,10 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)
-	       a3d_widget_new(screen, wsize,
-	                      wrapx, wrapy,
-	                      stretch_mode, stretch_factor,
-	                      border, &clear,
-	                      NULL, NULL,
+	       a3d_widget_new(screen, wsize, layout,
+	                      border, &clear, NULL, NULL,
 	                      click_fn, NULL, NULL,
-	                      a3d_sprite_draw,
-	                      refresh_fn);
+	                      a3d_sprite_draw, refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;

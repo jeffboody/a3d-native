@@ -163,21 +163,21 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_hline_t);
 	}
 
-	a3d_hline_t* self = (a3d_hline_t*) a3d_widget_new(screen,
-	                                                  wsize,
-	                                                  A3D_WIDGET_WRAP_SHRINK,
-	                                                  A3D_WIDGET_WRAP_SHRINK,
-	                                                  A3D_WIDGET_STRETCH_NA,
-	                                                  1.0f,
-	                                                  A3D_WIDGET_BORDER_NONE,
-	                                                  &clear,
-	                                                  NULL,
-	                                                  a3d_hline_size,
-	                                                  NULL,
-	                                                  NULL,
-	                                                  NULL,
-	                                                  a3d_hline_draw,
-	                                                  NULL);
+	a3d_widgetLayout_t layout =
+	{
+		.wrapx          = A3D_WIDGET_WRAP_SHRINK,
+		.wrapy          = A3D_WIDGET_WRAP_SHRINK,
+		.stretch_mode   = A3D_WIDGET_STRETCH_NA,
+		.stretch_factor = 1.0f
+	};
+
+	a3d_hline_t* self;
+	self = (a3d_hline_t*)
+	       a3d_widget_new(screen, wsize, &layout,
+	                      A3D_WIDGET_BORDER_NONE,
+	                      &clear, NULL, a3d_hline_size,
+	                      NULL, NULL, NULL, a3d_hline_draw,
+	                      NULL);
 	if(self == NULL)
 	{
 		return NULL;

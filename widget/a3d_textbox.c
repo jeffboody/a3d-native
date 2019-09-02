@@ -261,9 +261,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                int orientation,
-                               int wrapx, int wrapy,
-                               int stretch_mode,
-                               float stretch_factor,
+                               a3d_widgetLayout_t* layout,
                                int border,
                                a3d_vec4f_t* color_fill,
                                int text_wrapx,
@@ -282,22 +280,15 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	}
 
 	a3d_widget_reflow_fn reflow_fn = a3d_textbox_reflow;
-	if(wrapx == A3D_WIDGET_WRAP_SHRINK)
+	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
 		reflow_fn = NULL;
 	}
 
 	a3d_textbox_t* self;
-	self = (a3d_textbox_t*) a3d_listbox_new(screen,
-	                                        wsize,
-	                                        orientation,
-	                                        wrapx, wrapy,
-	                                        stretch_mode,
-	                                        stretch_factor,
-	                                        border,
-	                                        color_fill,
-	                                        reflow_fn,
-	                                        NULL);
+	self = (a3d_textbox_t*)
+	a3d_listbox_new(screen, wsize, orientation, layout, border,
+	                color_fill, reflow_fn, NULL);
 	if(self == NULL)
 	{
 		return NULL;

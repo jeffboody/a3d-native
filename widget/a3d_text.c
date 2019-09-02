@@ -306,21 +306,20 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_text_t);
 	}
 
-	a3d_text_t* self = (a3d_text_t*) a3d_widget_new(screen,
-	                                                wsize,
-	                                                A3D_WIDGET_WRAP_SHRINK,
-	                                                A3D_WIDGET_WRAP_SHRINK,
-	                                                A3D_WIDGET_STRETCH_NA,
-	                                                1.0f,
-	                                                border,
-	                                                color_fill,
-	                                                NULL,
-	                                                a3d_text_size,
-	                                                click_fn,
-	                                                NULL,
-	                                                NULL,
-	                                                a3d_text_draw,
-	                                                refresh_fn);
+	a3d_widgetLayout_t layout =
+	{
+		.wrapx          = A3D_WIDGET_WRAP_SHRINK,
+		.wrapy          = A3D_WIDGET_WRAP_SHRINK,
+		.stretch_mode   = A3D_WIDGET_STRETCH_NA,
+		.stretch_factor = 1.0f
+	};
+
+	a3d_text_t* self;
+	self = (a3d_text_t*)
+	       a3d_widget_new(screen, wsize, &layout, border,
+	                      color_fill, NULL, a3d_text_size,
+	                      click_fn, NULL, NULL, a3d_text_draw,
+	                      refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;

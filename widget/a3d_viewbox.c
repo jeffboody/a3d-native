@@ -266,9 +266,7 @@ static void a3d_viewbox_refresh(a3d_widget_t* widget)
 
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int wrapx, int wrapy,
-                               int stretch_mode,
-                               float stretch_factor,
+                               a3d_widgetLayout_t* layout,
                                int border,
                                a3d_vec4f_t* color_fill,
                                a3d_vec4f_t* color_header,
@@ -296,21 +294,15 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	}
 
 	a3d_viewbox_t* self;
-	self = (a3d_viewbox_t*) a3d_widget_new(screen,
-	                                       wsize,
-	                                       wrapx,
-	                                       wrapy,
-	                                       stretch_mode,
-	                                       stretch_factor,
-	                                       border,
-	                                       color_fill,
-	                                       NULL,
-	                                       a3d_viewbox_size,
-	                                       a3d_viewbox_click,
-	                                       a3d_viewbox_layout,
-	                                       a3d_viewbox_drag,
-	                                       a3d_viewbox_draw,
-	                                       a3d_viewbox_refresh);
+	self = (a3d_viewbox_t*)
+	       a3d_widget_new(screen, wsize, layout, border,
+	                      color_fill, NULL,
+	                      a3d_viewbox_size,
+	                      a3d_viewbox_click,
+	                      a3d_viewbox_layout,
+	                      a3d_viewbox_drag,
+	                      a3d_viewbox_draw,
+	                      a3d_viewbox_refresh);
 	if(self == NULL)
 	{
 		return NULL;

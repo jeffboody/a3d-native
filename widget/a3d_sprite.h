@@ -81,9 +81,7 @@ typedef struct
 
 a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              int wsize,
-                             int wrapx, int wrapy,
-                             int stretch_mode,
-                             float stretch_factor,
+                             a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color,
                              a3d_widget_click_fn click_fn,

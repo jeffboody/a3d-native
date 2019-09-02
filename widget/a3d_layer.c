@@ -211,9 +211,7 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
-                           int wrapx, int wrapy,
-                           int stretch_mode,
-                           float stretch_factor,
+                           a3d_widgetLayout_t* layout,
                            int border,
                            a3d_vec4f_t* color,
                            int mode)
@@ -228,8 +226,7 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 
 	a3d_layer_t* self;
 	self = (a3d_layer_t*)
-	       a3d_widget_new(screen, wsize, wrapx, wrapy,
-	                      stretch_mode, stretch_factor,
+	       a3d_widget_new(screen, wsize, layout,
 	                      border, color, NULL,
 	                      a3d_layer_size, a3d_layer_click,
 	                      a3d_layer_layout, a3d_layer_drag,

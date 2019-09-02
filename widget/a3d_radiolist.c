@@ -65,9 +65,7 @@ static void a3d_radiolist_refresh(a3d_widget_t* widget)
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
                                    int orientation,
-                                   int wrapx, int wrapy,
-                                   int stretch_mode,
-                                   float stretch_factor,
+                                   a3d_widgetLayout_t* layout,
                                    int border,
                                    a3d_vec4f_t* color_fill,
                                    int text_wrapx,
@@ -87,16 +85,11 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_radiolist_t);
 	}
 
-	a3d_radiolist_t* self = (a3d_radiolist_t*) a3d_listbox_new(screen,
-	                                                           wsize,
-	                                                           orientation,
-	                                                           wrapx, wrapy,
-	                                                           stretch_mode,
-	                                                           stretch_factor,
-	                                                           border,
-	                                                           color_fill,
-	                                                           NULL,
-	                                                           a3d_radiolist_refresh);
+	a3d_radiolist_t* self;
+	self = (a3d_radiolist_t*)
+	       a3d_listbox_new(screen, wsize, orientation, layout,
+	                       border, color_fill, NULL,
+	                       a3d_radiolist_refresh);
 	if(self == NULL)
 	{
 		return NULL;

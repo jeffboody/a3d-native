@@ -275,6 +275,8 @@ static void a3d_listbox_layout(a3d_widget_t* widget,
 {
 	assert(widget);
 
+	a3d_widgetLayout_t* layout = &widget->layout;
+
 	a3d_listbox_t* self = (a3d_listbox_t*) widget;
 	if(a3d_list_empty(self->list))
 	{
@@ -283,7 +285,7 @@ static void a3d_listbox_layout(a3d_widget_t* widget,
 
 	if(self->orientation == A3D_LISTBOX_ORIENTATION_VERTICAL)
 	{
-		if(widget->wrapy == A3D_WIDGET_WRAP_SHRINK)
+		if(layout->wrapy == A3D_WIDGET_WRAP_SHRINK)
 		{
 			a3d_listbox_layoutVerticalShrink(self, dragx, dragy);
 		}
@@ -294,7 +296,7 @@ static void a3d_listbox_layout(a3d_widget_t* widget,
 	}
 	else
 	{
-		if(widget->wrapx == A3D_WIDGET_WRAP_SHRINK)
+		if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 		{
 			a3d_listbox_layoutHorizontalShrink(self, dragx, dragy);
 		}
@@ -365,9 +367,7 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
                                int orientation,
-                               int wrapx, int wrapy,
-                               int stretch_mode,
-                               float stretch_factor,
+                               a3d_widgetLayout_t* layout,
                                int border,
                                a3d_vec4f_t* color_fill,
                                a3d_widget_reflow_fn reflow_fn,
@@ -388,21 +388,17 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		refresh_fn = a3d_listbox_refresh;
 	}
 
-	a3d_listbox_t* self = (a3d_listbox_t*) a3d_widget_new(screen,
-	                                                      wsize,
-	                                                      wrapx,
-	                                                      wrapy,
-	                                                      stretch_mode,
-	                                                      stretch_factor,
-	                                                      border,
-	                                                      color_fill,
-	                                                      reflow_fn,
-	                                                      a3d_listbox_size,
-	                                                      a3d_listbox_click,
-	                                                      a3d_listbox_layout,
-	                                                      a3d_listbox_drag,
-	                                                      a3d_listbox_draw,
-	                                                      refresh_fn);
+	a3d_listbox_t* self;
+	self = (a3d_listbox_t*)
+	       a3d_widget_new(screen, wsize, layout,
+	                      border, color_fill,
+	                      reflow_fn,
+	                      a3d_listbox_size,
+	                      a3d_listbox_click,
+	                      a3d_listbox_layout,
+	                      a3d_listbox_drag,
+	                      a3d_listbox_draw,
+	                      refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;

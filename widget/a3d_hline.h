@@ -54,7 +54,7 @@ typedef struct
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
                            int style_line,
-                           a3d_vec4f_t* color_line,
+                           a3d_vec4f_t* color,
                            int max_len);
 void        a3d_hline_delete(a3d_hline_t** _self);
 int         a3d_hline_width(a3d_hline_t* self);

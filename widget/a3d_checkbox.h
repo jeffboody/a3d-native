@@ -38,8 +38,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int wsize,
                                  int border,
                                  int style_text,
-                                 a3d_vec4f_t* color_fill,
-                                 a3d_vec4f_t* color_text,
+                                 a3d_vec4f_t* color,
                                  int max_len,
                                  int* pvalue);
 void        a3d_checkbox_delete(a3d_checkbox_t** _self);

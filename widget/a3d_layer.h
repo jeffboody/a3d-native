@@ -45,7 +45,7 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int stretch_mode,
                            float stretch_factor,
                            int border,
-                           a3d_vec4f_t* color_fill,
+                           a3d_vec4f_t* color,
                            int mode);
 void         a3d_layer_delete(a3d_layer_t** _self);
 void         a3d_layer_clear(a3d_layer_t* self);

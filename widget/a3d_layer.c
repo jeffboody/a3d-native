@@ -215,32 +215,25 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int stretch_mode,
                            float stretch_factor,
                            int border,
-                           a3d_vec4f_t* color_fill,
+                           a3d_vec4f_t* color,
                            int mode)
 {
 	assert(screen);
-	assert(color_fill);
+	assert(color);
 
 	if(wsize == 0)
 	{
 		wsize = sizeof(a3d_layer_t);
 	}
 
-	a3d_layer_t* self = (a3d_layer_t*) a3d_widget_new(screen,
-	                                                  wsize,
-	                                                  wrapx,
-	                                                  wrapy,
-	                                                  stretch_mode,
-	                                                  stretch_factor,
-	                                                  border,
-	                                                  color_fill,
-	                                                  NULL,
-	                                                  a3d_layer_size,
-	                                                  a3d_layer_click,
-	                                                  a3d_layer_layout,
-	                                                  a3d_layer_drag,
-	                                                  a3d_layer_draw,
-	                                                  a3d_layer_refresh);
+	a3d_layer_t* self;
+	self = (a3d_layer_t*)
+	       a3d_widget_new(screen, wsize, wrapx, wrapy,
+	                      stretch_mode, stretch_factor,
+	                      border, color, NULL,
+	                      a3d_layer_size, a3d_layer_click,
+	                      a3d_layer_layout, a3d_layer_drag,
+	                      a3d_layer_draw, a3d_layer_refresh);
 	if(self == NULL)
 	{
 		return NULL;

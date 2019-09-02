@@ -169,15 +169,11 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	va_end(argptr);
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_radiobox_t* rb = a3d_radiobox_new(widget->screen,
-	                                      0,
-	                                      self->border,
-	                                      self->style_text,
-	                                      &(self->color_fill),
-	                                      &(self->color_text),
-	                                      self->max_len,
-	                                      value,
-	                                      self);
+	a3d_radiobox_t* rb;
+	rb = a3d_radiobox_new(widget->screen, 0,
+	                      self->border, self->style_text,
+	                      &self->color_text, self->max_len,
+	                      value, self);
 	if(rb == NULL)
 	{
 		goto fail_rb;

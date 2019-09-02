@@ -150,7 +150,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		.a = 0.0f
 	};
 
-
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*) a3d_widget_new(screen,
 	                                         wsize,
@@ -182,18 +181,11 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
 	}
 
-	self->icon = a3d_sprite_new(screen,
-	                            0,
-	                            wrap,
-	                            wrap,
+	self->icon = a3d_sprite_new(screen, 0, wrap, wrap,
 	                            A3D_WIDGET_STRETCH_SQUARE,
 	                            1.0f,
 	                            A3D_WIDGET_BORDER_NONE,
-	                            &clear,
-	                            color,
-	                            NULL,
-	                            NULL,
-	                            count);
+	                            color, NULL, NULL, count);
 	if(self->icon == NULL)
 	{
 		goto fail_icon;

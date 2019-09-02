@@ -57,15 +57,13 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  int wsize,
                                  int border,
                                  int style_text,
-                                 a3d_vec4f_t* color_fill,
-                                 a3d_vec4f_t* color_text,
+                                 a3d_vec4f_t* color,
                                  int max_len,
                                  int value,
                                  a3d_radiolist_t* parent)
 {
 	assert(screen);
-	assert(color_fill);
-	assert(color_text);
+	assert(color);
 	assert(parent);
 
 	if(wsize == 0)
@@ -76,8 +74,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	a3d_radiobox_t* self;
 	self = (a3d_radiobox_t*)
 	       a3d_bulletbox_new(screen, wsize, border,
-	                         style_text, color_text,
-	                         max_len, 2,
+	                         style_text, color, max_len, 2,
 	                         a3d_radiobox_click,
 	                         NULL);
 	if(self == NULL)

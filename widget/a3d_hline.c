@@ -144,11 +144,11 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
                            int style_line,
-                           a3d_vec4f_t* color_line,
+                           a3d_vec4f_t* color,
                            int max_len)
 {
 	assert(screen);
-	assert(color_line);
+	assert(color);
 
 	a3d_vec4f_t clear =
 	{
@@ -186,7 +186,7 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 	self->wrapx   = A3D_HLINE_WRAP_SHRINK;
 	self->max_len = max_len;
 	self->style   = style_line;
-	a3d_vec4f_copy(color_line, &self->color);
+	a3d_vec4f_copy(color, &self->color);
 
 	return self;
 }

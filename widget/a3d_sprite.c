@@ -324,16 +324,14 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int stretch_mode,
                              float stretch_factor,
                              int border,
-                             a3d_vec4f_t* color_fill,
-                             a3d_vec4f_t* color_sprite,
+                             a3d_vec4f_t* color,
                              a3d_widget_click_fn click_fn,
                              a3d_widget_refresh_fn refresh_fn,
                              int count)
 {
 	// click_fn and refresh_fn may be NULL
 	assert(screen);
-	assert(color_fill);
-	assert(color_sprite);
+	assert(color);
 
 	if(count <= 0)
 	{
@@ -353,21 +351,24 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_sprite_t);
 	}
 
-	a3d_sprite_t* self = (a3d_sprite_t*) a3d_widget_new(screen,
-	                                                    wsize,
-	                                                    wrapx,
-	                                                    wrapy,
-	                                                    stretch_mode,
-	                                                    stretch_factor,
-	                                                    border,
-	                                                    color_fill,
-	                                                    NULL,
-	                                                    NULL,
-	                                                    click_fn,
-	                                                    NULL,
-	                                                    NULL,
-	                                                    a3d_sprite_draw,
-	                                                    refresh_fn);
+	a3d_vec4f_t clear =
+	{
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f
+	};
+
+	a3d_sprite_t* self;
+	self = (a3d_sprite_t*)
+	       a3d_widget_new(screen, wsize,
+	                      wrapx, wrapy,
+	                      stretch_mode, stretch_factor,
+	                      border, &clear,
+	                      NULL, NULL,
+	                      click_fn, NULL, NULL,
+	                      a3d_sprite_draw,
+	                      refresh_fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -390,7 +391,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	self->index = 0;
 	self->count = count;
 	self->theta = 0.0f;
-	a3d_vec4f_copy(color_sprite, &self->color);
+	a3d_vec4f_copy(color, &self->color);
 
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);

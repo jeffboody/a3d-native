@@ -50,7 +50,7 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	a3d_text_t* text = a3d_text_new(widget->screen,
 	                                0,
 	                                self->border,
-	                                self->style_text,
+	                                self->text_size,
 	                                &clear,
 	                                &(self->color_text),
 	                                self->max_len,
@@ -157,7 +157,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	a3d_font_t* font   = a3d_screen_font(widget->screen,
 	                                     self->font_type);
 	float       size   = a3d_screen_layoutText(widget->screen,
-	                                           self->style_text);
+	                                           self->text_size);
 	float       height = (float) a3d_font_height(font);
 
 	// clear the text
@@ -268,7 +268,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* color_fill,
                                int text_wrapx,
                                int text_border,
-                               int text_style_text,
+                               int text_size,
                                a3d_vec4f_t* color_text,
                                int text_max_len)
 {
@@ -315,7 +315,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 
 	self->text_wrapx = text_wrapx;
 	self->border     = text_border;
-	self->style_text = text_style_text;
+	self->text_size  = text_size;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
 	self->max_len    = text_max_len;
 

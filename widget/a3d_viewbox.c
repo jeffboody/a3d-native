@@ -273,7 +273,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* color_fill,
                                a3d_vec4f_t* color_header,
                                int text_border,
-                               int text_style_text,
+                               int text_size,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
                                const char* sprite,
@@ -319,7 +319,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	a3d_widget_colorHeader((a3d_widget_t*) self, color_header);
 
 	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
-	                                 text_style_text,
+	                                 text_size,
 	                                 text_color_text,
 	                                 text_max_len, 2,
 	                                 click_fn, NULL);

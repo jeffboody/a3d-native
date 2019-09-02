@@ -29,9 +29,9 @@
 #include "../a3d_GL.h"
 #include "../math/a3d_vec4f.h"
 
-#define A3D_TEXT_STYLE_SMALL  0
-#define A3D_TEXT_STYLE_MEDIUM 1
-#define A3D_TEXT_STYLE_LARGE  2
+#define A3D_TEXT_SIZE_SMALL  0
+#define A3D_TEXT_SIZE_MEDIUM 1
+#define A3D_TEXT_SIZE_LARGE  2
 
 #define A3D_TEXT_WRAP_SHRINK         0
 #define A3D_TEXT_WRAP_STRETCH        1
@@ -57,7 +57,7 @@ typedef struct
 	int         font_type;
 	int         max_len;
 	char*       string;
-	int         style;
+	int         text_size;
 	a3d_vec4f_t color;
 
 	// rendering properties
@@ -70,7 +70,7 @@ typedef struct
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          int border,
-                         int style_text,
+                         int text_size,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
                          int max_len,

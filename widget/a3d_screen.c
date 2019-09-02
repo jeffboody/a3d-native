@@ -600,7 +600,7 @@ void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
 	*hborder = 0.0f;
 	*vborder = 0.0f;
 
-	float size = a3d_screen_layoutText(self, A3D_TEXT_STYLE_MEDIUM);
+	float size = a3d_screen_layoutText(self, A3D_TEXT_SIZE_MEDIUM);
 
 	// horizontal
 	if(style & A3D_WIDGET_BORDER_HSMALL)
@@ -653,11 +653,11 @@ float a3d_screen_layoutText(a3d_screen_t* self, int style)
 
 	// default size is 24 px at density 1.0
 	float size = 24.0f*self->density*a3d_screen_scalef(self);
-	if(style == A3D_TEXT_STYLE_SMALL)
+	if(style == A3D_TEXT_SIZE_SMALL)
 	{
 		return 0.66f*size;
 	}
-	else if(style == A3D_TEXT_STYLE_LARGE)
+	else if(style == A3D_TEXT_SIZE_LARGE)
 	{
 		return 1.5f*size;
 	}
@@ -726,7 +726,7 @@ int a3d_screen_pointerMove(a3d_screen_t* self,
 	{
 		// reject small motions
 		float d = sqrtf(dx*dx + dy*dy);
-		float s = 0.2f*a3d_screen_layoutText(self, A3D_TEXT_STYLE_MEDIUM);
+		float s = 0.2f*a3d_screen_layoutText(self, A3D_TEXT_SIZE_MEDIUM);
 		if(d < s)
 		{
 			// ignore

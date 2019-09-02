@@ -37,7 +37,7 @@ typedef struct
 a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int wsize,
                                  int border,
-                                 int style_text,
+                                 int text_size,
                                  a3d_vec4f_t* color,
                                  int max_len,
                                  int* pvalue);

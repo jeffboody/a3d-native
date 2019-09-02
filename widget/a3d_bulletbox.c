@@ -128,7 +128,7 @@ static void a3d_bulletbox_draw(a3d_widget_t* widget)
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
                                    int border,
-                                   int style_text,
+                                   int text_size,
                                    a3d_vec4f_t* color,
                                    int max_len, int count,
                                    a3d_widget_click_fn click_fn,
@@ -172,11 +172,11 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	}
 
 	int wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_MEDIUM;
-	if(style_text == A3D_TEXT_STYLE_LARGE)
+	if(text_size == A3D_TEXT_SIZE_LARGE)
 	{
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE;
 	}
-	else if(style_text == A3D_TEXT_STYLE_SMALL)
+	else if(text_size == A3D_TEXT_SIZE_SMALL)
 	{
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
 	}
@@ -194,7 +194,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	self->text = a3d_text_new(screen,
 	                          0,
 	                          A3D_WIDGET_BORDER_NONE,
-	                          style_text,
+	                          text_size,
 	                          &clear,
 	                          color,
 	                          max_len,

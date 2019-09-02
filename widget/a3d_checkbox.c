@@ -63,7 +63,7 @@ static void a3d_checkbox_refresh(a3d_widget_t* widget)
 
 a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int wsize, int border,
-                                 int style_text,
+                                 int text_size,
                                  a3d_vec4f_t* color,
                                  int max_len,
                                  int* pvalue)
@@ -80,7 +80,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	a3d_checkbox_t* self;
 	self = (a3d_checkbox_t*)
 	       a3d_bulletbox_new(screen, wsize,
-	                         border, style_text,
+	                         border, text_size,
 	                         color, max_len, 2,
 	                         a3d_checkbox_click,
 	                         a3d_checkbox_refresh);

@@ -38,7 +38,7 @@ typedef struct
 	// text properties
 	int         text_wrapx;
 	int         border;
-	int         style_text;
+	int         text_size;
 	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_text;
 	int         max_len;
@@ -54,7 +54,7 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    a3d_vec4f_t* color_fill,
                                    int text_wrapx,
                                    int text_border,
-                                   int text_style_text,
+                                   int text_size,
                                    a3d_vec4f_t* color_text,
                                    int text_max_len,
                                    int* pvalue);

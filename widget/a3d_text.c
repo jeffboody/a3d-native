@@ -64,7 +64,8 @@ static void a3d_text_size(a3d_widget_t* widget,
 	a3d_text_t* self = (a3d_text_t*) widget;
 	a3d_font_t* font = a3d_screen_font(widget->screen,
 	                                   self->font_type);
-	float       size = a3d_screen_layoutText(widget->screen, self->style);
+	float       size = a3d_screen_layoutText(widget->screen,
+	                                         self->text_size);
 	if(self->wrapx == A3D_TEXT_WRAP_STRETCH)
 	{
 		float aspect  = a3d_font_aspectRatioAvg(font);
@@ -288,7 +289,7 @@ static int a3d_text_keyPress(a3d_widget_t* widget,
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          int border,
-                         int style_text,
+                         int text_size,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
                          int max_len,
@@ -356,7 +357,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	self->wrapx      = A3D_TEXT_WRAP_SHRINK;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
 	self->max_len    = max_len;
-	self->style      = style_text;
+	self->text_size  = text_size;
 	a3d_vec4f_copy(color_text, &self->color);
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);

@@ -40,8 +40,9 @@ static void a3d_listbox_size(a3d_widget_t* widget,
 	assert(w);
 	assert(h);
 
-	a3d_listbox_t*  self  = (a3d_listbox_t*) widget;
-	a3d_listitem_t* iter  = a3d_list_head(self->list);
+	a3d_listbox_t*      self   = (a3d_listbox_t*) widget;
+	a3d_listitem_t*     iter   = a3d_list_head(self->list);
+	a3d_widgetLayout_t* layout = &widget->layout;
 
 	float cnt   = (float) a3d_list_size(self->list);
 	float dw    = *w/cnt;
@@ -55,32 +56,107 @@ static void a3d_listbox_size(a3d_widget_t* widget,
 		dh = *h;
 	}
 
-	float wmax  = 0.0f;
-	float hmax  = 0.0f;
-	float wsum  = 0.0f;
-	float hsum  = 0.0f;
-	float tmp_w = 0.0f;
-	float tmp_h = 0.0f;
-	while(iter)
+	// vertical lists that are shrink wrapped in x may have
+	// widgets that are stretch parent (e.g. hlines) so
+	// special handling is required to prevent the whole
+	// list from being stretched to parent
+	float               wmax  = 0.0f;
+	float               hmax  = 0.0f;
+	float               wsum  = 0.0f;
+	float               hsum  = 0.0f;
+	float               tmp_w = 0.0f;
+	float               tmp_h = 0.0f;
+	a3d_widget_t*       tmp_widget;
+	a3d_widgetLayout_t* tmp_layout;
+	if((layout->wrapx == A3D_WIDGET_WRAP_SHRINK) &&
+	   (self->orientation == A3D_LISTBOX_ORIENTATION_VERTICAL))
 	{
-		tmp_w  = dw;
-		tmp_h  = dh;
-		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-		a3d_widget_layoutSize(widget, &tmp_w, &tmp_h);
-
-		if(tmp_w > wmax)
+		// first pass computes size based on widgets
+		// that are not stretch parent
+		while(iter)
 		{
-			wmax = tmp_w;
-		}
-		wsum += tmp_w;
+			tmp_w  = dw;
+			tmp_h  = dh;
+			tmp_widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			tmp_layout = &tmp_widget->layout;
+			if(tmp_layout->wrapx == A3D_WIDGET_WRAP_STRETCH_PARENT)
+			{
+				iter = a3d_list_next(iter);
+				continue;
+			}
 
-		if(tmp_h > hmax)
+			a3d_widget_layoutSize(tmp_widget, &tmp_w, &tmp_h);
+
+			if(tmp_w > wmax)
+			{
+				wmax = tmp_w;
+			}
+			wsum += tmp_w;
+
+			if(tmp_h > hmax)
+			{
+				hmax = tmp_h;
+			}
+			hsum += tmp_h;
+
+			iter = a3d_list_next(iter);
+		}
+
+		// second pass computes size of widgets that are
+		// stretch parent
+		iter  = a3d_list_head(self->list);
+		while(iter)
 		{
-			hmax = tmp_h;
-		}
-		hsum += tmp_h;
+			tmp_w  = wmax;
+			tmp_h  = dh;
+			tmp_widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			tmp_layout = &tmp_widget->layout;
+			if(tmp_layout->wrapx != A3D_WIDGET_WRAP_STRETCH_PARENT)
+			{
+				iter = a3d_list_next(iter);
+				continue;
+			}
 
-		iter = a3d_list_next(iter);
+			a3d_widget_layoutSize(tmp_widget, &tmp_w, &tmp_h);
+
+			if(tmp_w > wmax)
+			{
+				wmax = tmp_w;
+			}
+			wsum += tmp_w;
+
+			if(tmp_h > hmax)
+			{
+				hmax = tmp_h;
+			}
+			hsum += tmp_h;
+
+			iter = a3d_list_next(iter);
+		}
+	}
+	else
+	{
+		while(iter)
+		{
+			tmp_w  = dw;
+			tmp_h  = dh;
+			tmp_widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+			a3d_widget_layoutSize(tmp_widget, &tmp_w, &tmp_h);
+
+			if(tmp_w > wmax)
+			{
+				wmax = tmp_w;
+			}
+			wsum += tmp_w;
+
+			if(tmp_h > hmax)
+			{
+				hmax = tmp_h;
+			}
+			hsum += tmp_h;
+
+			iter = a3d_list_next(iter);
+		}
 	}
 
 	if(self->orientation == A3D_LISTBOX_ORIENTATION_HORIZONTAL)

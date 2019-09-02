@@ -48,7 +48,5 @@ void        a3d_radiobox_delete(a3d_radiobox_t** _self);
 void        a3d_radiobox_refresh(a3d_radiobox_t* self);
 void        a3d_radiobox_textPrintf(a3d_radiobox_t* self,
                                     const char* fmt, ...);
-void        a3d_radiobox_textWrapx(a3d_radiobox_t* self,
-                                   int wrapx);
 
 #endif

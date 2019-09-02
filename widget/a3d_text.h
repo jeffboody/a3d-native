@@ -49,9 +49,6 @@ typedef struct
 	void*             enter_priv;
 	a3d_text_enter_fn enter_fn;
 
-	// layout/size properties
-	int wrapx;
-
 	// text properties
 	// max_len includes null terminator
 	int         font_type;
@@ -81,7 +78,6 @@ int         a3d_text_width(a3d_text_t* self, int cursor);
 int         a3d_text_height(a3d_text_t* self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
-void        a3d_text_wrapx(a3d_text_t* self, int wrapx);
 void        a3d_text_enterFn(a3d_text_t* self,
                              void* enter_priv,
                              a3d_text_enter_fn enter_fn);

@@ -40,36 +40,6 @@
 * private                                                  *
 ***********************************************************/
 
-static void a3d_hline_size(a3d_widget_t* widget,
-                           float* w, float* h)
-{
-	assert(widget);
-	assert(w);
-	assert(h);
-
-	a3d_hline_t* self = (a3d_hline_t*) widget;
-	a3d_font_t*  font = a3d_screen_font(widget->screen,
-	                                    A3D_SCREEN_FONT_REGULAR);
-	float       size = a3d_screen_layoutText(widget->screen, self->style);
-	if(self->wrapx == A3D_HLINE_WRAP_STRETCH)
-	{
-		float aspect  = a3d_font_aspectRatioAvg(font);
-		int   max_len = self->max_len;
-		*w = size*aspect*max_len;
-	}
-	else if(self->wrapx == A3D_HLINE_WRAP_STRETCH_PARENT)
-	{
-		// ignore
-	}
-	else
-	{
-		float width  = (float) a3d_hline_width(self);
-		float height = (float) a3d_hline_height(self);
-		*w = size*(width/height);
-	}
-	*h = size;
-}
-
 static void a3d_hline_draw(a3d_widget_t* widget)
 {
 	assert(widget);
@@ -144,8 +114,7 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
                            int style_line,
-                           a3d_vec4f_t* color,
-                           int max_len)
+                           a3d_vec4f_t* color)
 {
 	assert(screen);
 	assert(color);
@@ -163,19 +132,24 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_hline_t);
 	}
 
+	int wrapy = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL +
+	            style_line -
+	            A3D_HLINE_STYLE_SMALL;
 	a3d_widgetLayout_t layout =
 	{
-		.wrapx          = A3D_WIDGET_WRAP_SHRINK,
-		.wrapy          = A3D_WIDGET_WRAP_SHRINK,
-		.stretch_mode   = A3D_WIDGET_STRETCH_NA,
-		.stretch_factor = 1.0f
+		.wrapx    = A3D_WIDGET_WRAP_STRETCH_PARENT,
+		.wrapy    = wrapy,
+		.aspectx  = A3D_WIDGET_ASPECT_DEFAULT,
+		.aspecty  = A3D_WIDGET_ASPECT_DEFAULT,
+		.stretchx = 1.0f,
+		.stretchy = 1.0f
 	};
 
 	a3d_hline_t* self;
 	self = (a3d_hline_t*)
 	       a3d_widget_new(screen, wsize, &layout,
 	                      A3D_WIDGET_BORDER_NONE,
-	                      &clear, NULL, a3d_hline_size,
+	                      &clear, NULL, NULL,
 	                      NULL, NULL, NULL, a3d_hline_draw,
 	                      NULL);
 	if(self == NULL)
@@ -183,9 +157,7 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->wrapx   = A3D_HLINE_WRAP_SHRINK;
-	self->max_len = max_len;
-	self->style   = style_line;
+	self->style = style_line;
 	a3d_vec4f_copy(color, &self->color);
 
 	return self;
@@ -200,34 +172,4 @@ void a3d_hline_delete(a3d_hline_t** _self)
 	{
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
-}
-
-int a3d_hline_width(a3d_hline_t* self)
-{
-	assert(self);
-
-	return self->max_len - 1;
-}
-
-int a3d_hline_height(a3d_hline_t* self)
-{
-	assert(self);
-
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen,
-	                                       A3D_SCREEN_FONT_REGULAR);
-	return a3d_font_height(font);
-}
-
-void a3d_hline_wrapx(a3d_hline_t* self, int wrapx)
-{
-	assert(self);
-
-	if((wrapx < 0) || (wrapx >= A3D_HLINE_WRAP_COUNT))
-	{
-		LOGW("invalid wrapx=%i", wrapx);
-		return;
-	}
-
-	self->wrapx = wrapx;
 }

@@ -152,11 +152,3 @@ void a3d_radiobox_textPrintf(a3d_radiobox_t* self,
 
 	a3d_bulletbox_textPrintf(&self->bullet, "%s", string);
 }
-
-void a3d_radiobox_textWrapx(a3d_radiobox_t* self,
-                            int wrapx)
-{
-	assert(self);
-
-	a3d_bulletbox_textWrapx(&self->bullet, wrapx);
-}

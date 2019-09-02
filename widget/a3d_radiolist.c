@@ -171,7 +171,6 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	{
 		goto fail_rb;
 	}
-	a3d_radiobox_textWrapx(rb, self->text_wrapx);
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
 	if(a3d_list_enqueue(listbox->list, (const void*) rb) == 0)

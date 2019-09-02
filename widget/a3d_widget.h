@@ -44,9 +44,8 @@
 #define A3D_WIDGET_WRAP_STRETCH_TEXT_MEDIUM 4
 #define A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE  5
 
-#define A3D_WIDGET_STRETCH_NA     0
-#define A3D_WIDGET_STRETCH_SQUARE 1
-#define A3D_WIDGET_STRETCH_ASPECT 2
+#define A3D_WIDGET_ASPECT_DEFAULT 0
+#define A3D_WIDGET_ASPECT_SQUARE  1
 
 #define A3D_WIDGET_BORDER_NONE    0x0000
 #define A3D_WIDGET_BORDER_HSMALL  0x0001
@@ -101,8 +100,10 @@ typedef struct a3d_widgetLayout_s
 	//       top level widget must be stretch
 	int   wrapx;
 	int   wrapy;
-	int   stretch_mode;
-	float stretch_factor;
+	int   aspectx;
+	int   aspecty;
+	float stretchx;
+	float stretchy;
 } a3d_widgetLayout_t;
 
 typedef struct a3d_widget_s

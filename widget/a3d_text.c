@@ -62,34 +62,20 @@ static void a3d_text_size(a3d_widget_t* widget,
 	assert(h);
 
 	a3d_text_t* self = (a3d_text_t*) widget;
-	a3d_font_t* font = a3d_screen_font(widget->screen,
-	                                   self->font_type);
-	float       size = a3d_screen_layoutText(widget->screen,
-	                                         self->text_size);
-	if(self->wrapx == A3D_TEXT_WRAP_STRETCH)
+
+	float size   = a3d_screen_layoutText(widget->screen,
+	                                     self->text_size);
+	float width  = (float) 0.0f;
+	float height = (float) a3d_text_height(self);
+	if(a3d_widget_hasFocus(widget))
 	{
-		float aspect  = a3d_font_aspectRatioAvg(font);
-		int   max_len = self->max_len;
-		*w = size*aspect*max_len;
-	}
-	else if(self->wrapx == A3D_TEXT_WRAP_STRETCH_PARENT)
-	{
-		// ignore
+		width = (float) a3d_text_width(self, 1);
 	}
 	else
 	{
-		float width  = (float) 0.0f;
-		float height = (float) a3d_text_height(self);
-		if(a3d_widget_hasFocus(widget))
-		{
-			width = (float) a3d_text_width(self, 1);
-		}
-		else
-		{
-			width = (float) a3d_text_width(self, 0);
-		}
-		*w = size*(width/height);
+		width = (float) a3d_text_width(self, 0);
 	}
+	*w = size*(width/height);
 	*h = size;
 }
 
@@ -308,10 +294,12 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 
 	a3d_widgetLayout_t layout =
 	{
-		.wrapx          = A3D_WIDGET_WRAP_SHRINK,
-		.wrapy          = A3D_WIDGET_WRAP_SHRINK,
-		.stretch_mode   = A3D_WIDGET_STRETCH_NA,
-		.stretch_factor = 1.0f
+		.wrapx    = A3D_WIDGET_WRAP_SHRINK,
+		.wrapy    = A3D_WIDGET_WRAP_SHRINK,
+		.aspectx  = A3D_WIDGET_ASPECT_DEFAULT,
+		.aspecty  = A3D_WIDGET_ASPECT_DEFAULT,
+		.stretchx = 1.0f,
+		.stretchy = 1.0f
 	};
 
 	a3d_text_t* self;
@@ -353,7 +341,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 
 	self->enter_priv = NULL;
 	self->enter_fn   = NULL;
-	self->wrapx      = A3D_TEXT_WRAP_SHRINK;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
 	self->max_len    = max_len;
 	self->text_size  = text_size;
@@ -476,19 +463,6 @@ void a3d_text_printf(a3d_text_t* self,
 	{
 		a3d_screen_dirty(widget->screen);
 	}
-}
-
-void a3d_text_wrapx(a3d_text_t* self, int wrapx)
-{
-	assert(self);
-
-	if((wrapx < 0) || (wrapx >= A3D_TEXT_WRAP_COUNT))
-	{
-		LOGW("invalid wrapx=%i", wrapx);
-		return;
-	}
-
-	self->wrapx = wrapx;
 }
 
 void a3d_text_enterFn(a3d_text_t* self,

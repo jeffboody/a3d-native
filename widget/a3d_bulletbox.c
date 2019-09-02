@@ -152,10 +152,12 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_widgetLayout_t layout =
 	{
-		.wrapx          = A3D_WIDGET_WRAP_SHRINK,
-		.wrapy          = A3D_WIDGET_WRAP_SHRINK,
-		.stretch_mode   = A3D_WIDGET_STRETCH_NA,
-		.stretch_factor = 1.0f
+		.wrapx    = A3D_WIDGET_WRAP_SHRINK,
+		.wrapy    = A3D_WIDGET_WRAP_SHRINK,
+		.aspectx  = A3D_WIDGET_ASPECT_DEFAULT,
+		.aspecty  = A3D_WIDGET_ASPECT_DEFAULT,
+		.stretchx = 1.0f,
+		.stretchy = 1.0f
 	};
 
 	a3d_bulletbox_t* self;
@@ -183,10 +185,12 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_widgetLayout_t layout_sprite =
 	{
-		.wrapx          = wrap,
-		.wrapy          = wrap,
-		.stretch_mode   = A3D_WIDGET_STRETCH_SQUARE,
-		.stretch_factor = 1.0f
+		.wrapx    = wrap,
+		.wrapy    = wrap,
+		.aspectx  = A3D_WIDGET_ASPECT_SQUARE,
+		.aspecty  = A3D_WIDGET_ASPECT_SQUARE,
+		.stretchx = 1.0f,
+		.stretchy = 1.0f
 	};
 
 	self->icon = a3d_sprite_new(screen, 0, &layout_sprite,
@@ -266,14 +270,6 @@ void a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
 	va_end(argptr);
 
 	a3d_text_printf(self->text, "%s", string);
-}
-
-void a3d_bulletbox_textWrapx(a3d_bulletbox_t* self,
-                             int wrapx)
-{
-	assert(self);
-
-	a3d_text_wrapx(self->text, wrapx);
 }
 
 void a3d_bulletbox_font(a3d_bulletbox_t* self, int font_type)

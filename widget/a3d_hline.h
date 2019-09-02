@@ -34,19 +34,11 @@
 #define A3D_HLINE_STYLE_MEDIUM A3D_TEXT_SIZE_MEDIUM
 #define A3D_HLINE_STYLE_LARGE  A3D_TEXT_SIZE_LARGE
 
-#define A3D_HLINE_WRAP_SHRINK         A3D_TEXT_WRAP_SHRINK
-#define A3D_HLINE_WRAP_STRETCH        A3D_TEXT_WRAP_STRETCH
-#define A3D_HLINE_WRAP_STRETCH_PARENT A3D_TEXT_WRAP_STRETCH_PARENT
-#define A3D_HLINE_WRAP_COUNT          A3D_TEXT_WRAP_COUNT
-
 typedef struct
 {
 	a3d_widget_t widget;
 
 	// hline properties
-	// max_len includes null terminator
-	int         wrapx;
-	int         max_len;
 	int         style;
 	a3d_vec4f_t color;
 } a3d_hline_t;
@@ -54,11 +46,7 @@ typedef struct
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
                            int style_line,
-                           a3d_vec4f_t* color,
-                           int max_len);
+                           a3d_vec4f_t* color);
 void        a3d_hline_delete(a3d_hline_t** _self);
-int         a3d_hline_width(a3d_hline_t* self);
-int         a3d_hline_height(a3d_hline_t* self);
-void        a3d_hline_wrapx(a3d_hline_t* self, int wrapx);
 
 #endif

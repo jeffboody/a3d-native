@@ -59,7 +59,6 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	{
 		return;
 	}
-	a3d_text_wrapx(text, self->text_wrapx);
 	a3d_text_font(text, self->font_type);
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;

@@ -140,10 +140,3 @@ void a3d_checkbox_textPrintf(a3d_checkbox_t* self,
 
 	a3d_bulletbox_textPrintf(&self->bullet, "%s", string);
 }
-
-void a3d_checkbox_textWrapx(a3d_checkbox_t* self, int wrapx)
-{
-	assert(self);
-
-	a3d_bulletbox_textWrapx(&self->bullet, wrapx);
-}

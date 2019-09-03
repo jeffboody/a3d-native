@@ -145,13 +145,23 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
+	a3d_widgetFn_t fn =
+	{
+		.reflow_fn   = NULL,
+		.size_fn     = NULL,
+		.click_fn    = NULL,
+		.keyPress_fn = NULL,
+		.layout_fn   = NULL,
+		.drag_fn     = NULL,
+		.draw_fn     = a3d_hline_draw,
+		.refresh_fn  = NULL
+	};
+
 	a3d_hline_t* self;
 	self = (a3d_hline_t*)
 	       a3d_widget_new(screen, wsize, &layout,
 	                      A3D_WIDGET_BORDER_NONE,
-	                      &clear, NULL, NULL,
-	                      NULL, NULL, NULL, a3d_hline_draw,
-	                      NULL);
+	                      &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;

@@ -69,22 +69,22 @@ struct a3d_screen_s;
 
 // derived class functions
 struct a3d_widget_s;
-typedef void (*a3d_widget_reflow_fn)(struct a3d_widget_s* widget,
-                                     float w, float h);
-typedef void (*a3d_widget_size_fn)(struct a3d_widget_s* widget,
-                                   float* w, float* h);
-typedef int  (*a3d_widget_click_fn)(struct a3d_widget_s* widget,
-                                    int state,
-                                    float x, float y);
-typedef int  (*a3d_widget_keyPress_fn)(struct a3d_widget_s* widget,
-                                       int keycode, int meta);
-typedef void (*a3d_widget_layout_fn)(struct a3d_widget_s* widget,
-                                     int dragx, int dragy);
-typedef void (*a3d_widget_drag_fn)(struct a3d_widget_s* widget,
-                                   float x, float y,
-                                   float dx, float dy);
-typedef void (*a3d_widget_draw_fn)(struct a3d_widget_s* widget);
-typedef void (*a3d_widget_refresh_fn)(struct a3d_widget_s* widget);
+typedef void (*a3d_widget_reflowFn)(struct a3d_widget_s* widget,
+                                    float w, float h);
+typedef void (*a3d_widget_sizeFn)(struct a3d_widget_s* widget,
+                                  float* w, float* h);
+typedef int  (*a3d_widget_clickFn)(struct a3d_widget_s* widget,
+                                   int state,
+                                   float x, float y);
+typedef int  (*a3d_widget_keyPressFn)(struct a3d_widget_s* widget,
+                                      int keycode, int meta);
+typedef void (*a3d_widget_layoutFn)(struct a3d_widget_s* widget,
+                                    int dragx, int dragy);
+typedef void (*a3d_widget_dragFn)(struct a3d_widget_s* widget,
+                                  float x, float y,
+                                  float dx, float dy);
+typedef void (*a3d_widget_drawFn)(struct a3d_widget_s* widget);
+typedef void (*a3d_widget_refreshFn)(struct a3d_widget_s* widget);
 
 typedef struct a3d_widgetLayout_s
 {
@@ -105,6 +105,46 @@ typedef struct a3d_widgetLayout_s
 	float stretchx;
 	float stretchy;
 } a3d_widgetLayout_t;
+
+typedef struct a3d_widgetFn_s
+{
+	// functions may be NULL
+
+	// reflow_fn allows a derived widget to reflow
+	// it's content in a resize (e.g. textbox)
+	// called internally by a3d_widget_layoutSize()
+	a3d_widget_reflowFn reflow_fn;
+
+	// size_fn allows a derived widget to define
+	// it's internal size (e.g. ignoring borders)
+	// called internally by a3d_widget_layoutSize()
+	a3d_widget_sizeFn size_fn;
+
+	// click_fn allows a derived widget to define it's click behavior
+	// called internally by a3d_widget_click()
+	a3d_widget_clickFn click_fn;
+
+	// keyPress_fn allows a derived widget to define it's keyPress
+	// behavior called internally by a3d_widget_keyPress()
+	a3d_widget_keyPressFn keyPress_fn;
+
+	// layout_fn allows a derived widget to layout it's children
+	// called internally by a3d_widget_layoutXYClip
+	a3d_widget_layoutFn layout_fn;
+
+	// drag_fn allows a derived widget to drag it's children
+	// called internally by a3d_widget_drag
+	a3d_widget_dragFn drag_fn;
+
+	// draw_fn allows a derived widget to define
+	// it's draw behavior
+	// called internally by a3d_widget_draw
+	a3d_widget_drawFn draw_fn;
+
+	// refresh_fn allows a widget to refresh it's external state
+	// called internally by a3d_widget_refresh
+	a3d_widget_refreshFn refresh_fn;
+} a3d_widgetFn_t;
 
 typedef struct a3d_widget_s
 {
@@ -149,40 +189,8 @@ typedef struct a3d_widget_s
 	// sound fx for clicks
 	int sound_fx;
 
-	// reflow_fn allows a derived widget to reflow
-	// it's content in a resize (e.g. textbox)
-	// called internally by a3d_widget_layoutSize()
-	a3d_widget_reflow_fn reflow_fn;
-
-	// size_fn allows a derived widget to define
-	// it's internal size (e.g. ignoring borders)
-	// called internally by a3d_widget_layoutSize()
-	a3d_widget_size_fn size_fn;
-
-	// click_fn allows a derived widget to define it's click behavior
-	// called internally by a3d_widget_click()
-	a3d_widget_click_fn click_fn;
-
-	// keyPress_fn allows a derived widget to define it's keyPress
-	// behavior called internally by a3d_widget_keyPress()
-	a3d_widget_keyPress_fn keyPress_fn;
-
-	// layout_fn allows a derived widget to layout it's children
-	// called internally by a3d_widget_layoutXYClip
-	a3d_widget_layout_fn layout_fn;
-
-	// drag_fn allows a derived widget to drag it's children
-	// called internally by a3d_widget_drag
-	a3d_widget_drag_fn drag_fn;
-
-	// draw_fn allows a derived widget to define
-	// it's draw behavior
-	// called internally by a3d_widget_draw
-	a3d_widget_draw_fn draw_fn;
-
-	// refresh_fn allows a widget to refresh it's external state
-	// called internally by a3d_widget_refresh
-	a3d_widget_refresh_fn refresh_fn;
+	// widget callback functions
+	a3d_widgetFn_t fn;
 
 	// draw state
 	GLuint id_vtx_rect;
@@ -213,13 +221,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color_fill,
-                             a3d_widget_reflow_fn reflow_fn,
-                             a3d_widget_size_fn size_fn,
-                             a3d_widget_click_fn click_fn,
-                             a3d_widget_layout_fn layout_fn,
-                             a3d_widget_drag_fn drag_fn,
-                             a3d_widget_draw_fn draw_fn,
-                             a3d_widget_refresh_fn refresh_fn);
+                             a3d_widgetFn_t* fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_priv(a3d_widget_t* self, void* priv);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,
@@ -234,8 +236,6 @@ void          a3d_widget_layoutAnchor(a3d_widget_t* self,
 int           a3d_widget_click(a3d_widget_t* self,
                                int state,
                                float x, float y);
-void          a3d_widget_keyPressFn(a3d_widget_t* self,
-                                    a3d_widget_keyPress_fn keyPress_fn);
 int           a3d_widget_keyPress(a3d_widget_t* self,
                                int keycode, int meta);
 int           a3d_widget_hasFocus(a3d_widget_t* self);

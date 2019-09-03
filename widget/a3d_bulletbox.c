@@ -131,8 +131,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int text_size,
                                    a3d_vec4f_t* color,
                                    int max_len, int count,
-                                   a3d_widget_click_fn click_fn,
-                                   a3d_widget_refresh_fn refresh_fn)
+                                   a3d_widget_clickFn click_fn,
+                                   a3d_widget_refreshFn refresh_fn)
 {
 	assert(screen);
 	assert(color);
@@ -160,14 +160,22 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
+	a3d_widgetFn_t fn =
+	{
+		.reflow_fn   = NULL,
+		.size_fn     = a3d_bulletbox_size,
+		.click_fn    = click_fn,
+		.keyPress_fn = NULL,
+		.layout_fn   = a3d_bulletbox_layout,
+		.drag_fn     = a3d_bulletbox_drag,
+		.draw_fn     = a3d_bulletbox_draw,
+		.refresh_fn  = refresh_fn
+	};
+
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
 	       a3d_widget_new(screen, wsize, &layout, border,
-	                      &clear, NULL, a3d_bulletbox_size,
-	                      click_fn, a3d_bulletbox_layout,
-	                      a3d_bulletbox_drag,
-	                      a3d_bulletbox_draw,
-	                      refresh_fn);
+	                      &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -208,8 +216,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	                          &clear,
 	                          color,
 	                          max_len,
-	                          NULL,
-	                          NULL);
+	                          NULL, NULL,
+	                          NULL, NULL);
 	if(self->text == NULL)
 	{
 		goto fail_text;

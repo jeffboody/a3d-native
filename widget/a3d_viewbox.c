@@ -275,7 +275,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* text_color_text,
                                int text_max_len,
                                const char* sprite,
-                               a3d_widget_click_fn click_fn,
+                               a3d_widget_clickFn click_fn,
                                void* click_priv,
                                a3d_widget_t* body,
                                a3d_widget_t* footer)
@@ -293,16 +293,22 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_viewbox_t);
 	}
 
+	a3d_widgetFn_t fn =
+	{
+		.reflow_fn   = NULL,
+		.size_fn     = a3d_viewbox_size,
+		.click_fn    = a3d_viewbox_click,
+		.keyPress_fn = NULL,
+		.layout_fn   = a3d_viewbox_layout,
+		.drag_fn     = a3d_viewbox_drag,
+		.draw_fn     = a3d_viewbox_draw,
+		.refresh_fn  = a3d_viewbox_refresh
+	};
+
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*)
 	       a3d_widget_new(screen, wsize, layout, border,
-	                      color_fill, NULL,
-	                      a3d_viewbox_size,
-	                      a3d_viewbox_click,
-	                      a3d_viewbox_layout,
-	                      a3d_viewbox_drag,
-	                      a3d_viewbox_draw,
-	                      a3d_viewbox_refresh);
+	                      color_fill, &fn);
 	if(self == NULL)
 	{
 		return NULL;

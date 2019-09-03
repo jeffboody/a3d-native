@@ -323,8 +323,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color,
-                             a3d_widget_click_fn click_fn,
-                             a3d_widget_refresh_fn refresh_fn,
+                             a3d_widget_clickFn click_fn,
+                             a3d_widget_refreshFn refresh_fn,
                              int count)
 {
 	// click_fn and refresh_fn may be NULL
@@ -357,12 +357,22 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		.a = 0.0f
 	};
 
+	a3d_widgetFn_t fn =
+	{
+		.reflow_fn   = NULL,
+		.size_fn     = NULL,
+		.click_fn    = click_fn,
+		.keyPress_fn = NULL,
+		.layout_fn   = NULL,
+		.drag_fn     = NULL,
+		.draw_fn     = a3d_sprite_draw,
+		.refresh_fn  = refresh_fn
+	};
+
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)
 	       a3d_widget_new(screen, wsize, layout,
-	                      border, &clear, NULL, NULL,
-	                      click_fn, NULL, NULL,
-	                      a3d_sprite_draw, refresh_fn);
+	                      border, &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;

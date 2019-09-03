@@ -233,17 +233,11 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color_fill,
-                             a3d_widget_reflow_fn reflow_fn,
-                             a3d_widget_size_fn size_fn,
-                             a3d_widget_click_fn click_fn,
-                             a3d_widget_layout_fn layout_fn,
-                             a3d_widget_drag_fn drag_fn,
-                             a3d_widget_draw_fn draw_fn,
-                             a3d_widget_refresh_fn refresh_fn)
+                             a3d_widgetFn_t* fn)
 {
-	// reflow_fn, size_fn, click_fn, layout_fn, refresh_fn and draw_fn may be NULL
 	assert(screen);
 	assert(color_fill);
+	assert(fn);
 
 	if(wsize == 0)
 	{
@@ -264,16 +258,9 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->anchor         = A3D_WIDGET_ANCHOR_TL;
 	self->border         = border;
 	self->scroll_bar     = 0;
-	self->reflow_fn      = reflow_fn;
-	self->size_fn        = size_fn;
-	self->click_fn       = click_fn;
-	self->keyPress_fn    = NULL;
-	self->layout_fn      = layout_fn;
-	self->drag_fn        = drag_fn;
-	self->refresh_fn     = refresh_fn;
-	self->draw_fn        = draw_fn;
 	self->sound_fx       = 1;
 
+	memcpy(&self->fn, fn, sizeof(a3d_widgetFn_t));
 	memcpy(&self->layout, layout, sizeof(a3d_widgetLayout_t));
 
 	// check for invalid layouts
@@ -352,6 +339,8 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 {
 	assert(self);
 	assert(clip);
+
+	a3d_widgetFn_t* fn = &self->fn;
 
 	float w  = self->rect_border.w;
 	float h  = self->rect_border.h;
@@ -450,7 +439,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	self->rect_draw.l   = l + h_bo;
 
 	// allow the widget to layout it's children
-	a3d_widget_layout_fn layout_fn = self->layout_fn;
+	a3d_widget_layoutFn layout_fn = fn->layout_fn;
 	if(layout_fn)
 	{
 		(*layout_fn)(self, dragx, dragy);
@@ -513,6 +502,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	assert(h);
 
 	a3d_widgetLayout_t* layout = &self->layout;
+	a3d_widgetFn_t*     fn     = &self->fn;
 
 	float sw;
 	float sh;
@@ -617,7 +607,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// this makes the most sense for stretched widgets
 	float draw_w = self->rect_draw.w;
 	float draw_h = self->rect_draw.h;
-	a3d_widget_reflow_fn reflow_fn = self->reflow_fn;
+	a3d_widget_reflowFn reflow_fn = fn->reflow_fn;
 	if(reflow_fn)
 	{
 		(*reflow_fn)(self, draw_w, draw_h);
@@ -627,7 +617,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// recursively compute size of any children
 	// the draw size of the widget also becomes the border
 	// size of any children
-	a3d_widget_size_fn size_fn = self->size_fn;
+	a3d_widget_sizeFn size_fn = fn->size_fn;
 	if(size_fn)
 	{
 		(*size_fn)(self, &draw_w, &draw_h);
@@ -712,7 +702,9 @@ int a3d_widget_click(a3d_widget_t* self,
 {
 	assert(self);
 
-	a3d_widget_click_fn click_fn = self->click_fn;
+	a3d_widgetFn_t* fn = &self->fn;
+
+	a3d_widget_clickFn click_fn = fn->click_fn;
 	if(click_fn == NULL)
 	{
 		return 0;
@@ -735,21 +727,14 @@ int a3d_widget_click(a3d_widget_t* self,
 	return clicked;
 }
 
-void a3d_widget_keyPressFn(a3d_widget_t* self,
-                           a3d_widget_keyPress_fn keyPress_fn)
-{
-	// keyPress_fn may be NULL
-	assert(self);
-
-	self->keyPress_fn = keyPress_fn;
-}
-
 int a3d_widget_keyPress(a3d_widget_t* self,
                         int keycode, int meta)
 {
 	assert(self);
 
-	a3d_widget_keyPress_fn keyPress_fn = self->keyPress_fn;
+	a3d_widgetFn_t* fn = &self->fn;
+
+	a3d_widget_keyPressFn keyPress_fn = fn->keyPress_fn;
 	if(keyPress_fn == NULL)
 	{
 		return 0;
@@ -773,6 +758,7 @@ void a3d_widget_drag(a3d_widget_t* self,
 	assert(self);
 
 	a3d_widgetLayout_t* layout = &self->layout;
+	a3d_widgetFn_t*     fn     = &self->fn;
 
 	if((a3d_rect4f_contains(&self->rect_clip, x, y) == 0) ||
 	   (a3d_rect4f_contains(&self->rect_border, x, y) == 0))
@@ -795,7 +781,7 @@ void a3d_widget_drag(a3d_widget_t* self,
 
 	// a shrink wrapped widget drags it's children by
 	// changing it's own layout
-	a3d_widget_drag_fn drag_fn = self->drag_fn;
+	a3d_widget_dragFn drag_fn = fn->drag_fn;
 	if(drag_fn &&
 	   ((layout->wrapx > A3D_WIDGET_WRAP_SHRINK) ||
 	    (layout->wrapy > A3D_WIDGET_WRAP_SHRINK)))
@@ -807,6 +793,8 @@ void a3d_widget_drag(a3d_widget_t* self,
 void a3d_widget_draw(a3d_widget_t* self)
 {
 	assert(self);
+
+	a3d_widgetFn_t* fn = &self->fn;
 
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&self->rect_border,
@@ -877,7 +865,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 	                        &self->rect_clip,
 	                        &rect_draw_clip))
 	{
-		a3d_widget_draw_fn draw_fn = self->draw_fn;
+		a3d_widget_drawFn draw_fn = fn->draw_fn;
 		if(draw_fn)
 		{
 			a3d_screen_scissor(screen, &rect_draw_clip);
@@ -954,7 +942,9 @@ void a3d_widget_refresh(a3d_widget_t* self)
 {
 	assert(self);
 
-	a3d_widget_refresh_fn refresh_fn = self->refresh_fn;
+	a3d_widgetFn_t* fn = &self->fn;
+
+	a3d_widget_refreshFn refresh_fn = fn->refresh_fn;
 	if(refresh_fn)
 	{
 		(*refresh_fn)(self);

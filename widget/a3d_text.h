@@ -38,16 +38,16 @@
 #define A3D_TEXT_WRAP_STRETCH_PARENT 2
 #define A3D_TEXT_WRAP_COUNT          3
 
-typedef void (*a3d_text_enter_fn)(void* priv,
-                                  const char* string);
+typedef void (*a3d_text_enterFn)(void* priv,
+                                 const char* string);
 
 typedef struct
 {
 	a3d_widget_t widget;
 
 	// text entry callback
-	void*             enter_priv;
-	a3d_text_enter_fn enter_fn;
+	void*            enter_priv;
+	a3d_text_enterFn enter_fn;
 
 	// text properties
 	// max_len includes null terminator
@@ -71,16 +71,15 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
                          int max_len,
-                         a3d_widget_click_fn click_fn,
-                         a3d_widget_refresh_fn refresh_fn);
+                         void* enter_priv,
+                         a3d_text_enterFn enter_fn,
+                         a3d_widget_clickFn clickFn,
+                         a3d_widget_refreshFn refreshFn);
 void        a3d_text_delete(a3d_text_t** _self);
 int         a3d_text_width(a3d_text_t* self, int cursor);
 int         a3d_text_height(a3d_text_t* self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
-void        a3d_text_enterFn(a3d_text_t* self,
-                             void* enter_priv,
-                             a3d_text_enter_fn enter_fn);
 void        a3d_text_font(a3d_text_t* self, int font_type);
 
 #endif

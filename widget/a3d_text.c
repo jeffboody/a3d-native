@@ -200,7 +200,7 @@ static int a3d_text_keyPress(a3d_widget_t* widget,
 	assert(widget);
 
 	a3d_text_t* self = (a3d_text_t*) widget;
-	a3d_text_enter_fn enter_fn = self->enter_fn;
+	a3d_text_enterFn enter_fn = self->enter_fn;
 	if(enter_fn == NULL)
 	{
 		LOGE("enter_fn is NULL");
@@ -279,10 +279,12 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
                          int max_len,
-                         a3d_widget_click_fn click_fn,
-                         a3d_widget_refresh_fn refresh_fn)
+                         void* enter_priv,
+                         a3d_text_enterFn enter_fn,
+                         a3d_widget_clickFn click_fn,
+                         a3d_widget_refreshFn refresh_fn)
 {
-	// click_fn and refresh_fn may be NULL
+	// enter_fn, enter_priv, click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_text);
@@ -302,12 +304,22 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
+	a3d_widgetFn_t fn =
+	{
+		.reflow_fn   = NULL,
+		.size_fn     = a3d_text_size,
+		.click_fn    = click_fn,
+		.keyPress_fn = enter_fn ? a3d_text_keyPress : NULL,
+		.layout_fn   = NULL,
+		.drag_fn     = NULL,
+		.draw_fn     = a3d_text_draw,
+		.refresh_fn  = refresh_fn
+	};
+
 	a3d_text_t* self;
 	self = (a3d_text_t*)
 	       a3d_widget_new(screen, wsize, &layout, border,
-	                      color_fill, NULL, a3d_text_size,
-	                      click_fn, NULL, NULL, a3d_text_draw,
-	                      refresh_fn);
+	                      color_fill, &fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -339,8 +351,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_coords;
 	}
 
-	self->enter_priv = NULL;
-	self->enter_fn   = NULL;
+	self->enter_fn   = enter_fn;
+	self->enter_priv = enter_priv;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
 	self->max_len    = max_len;
 	self->text_size  = text_size;
@@ -463,35 +475,6 @@ void a3d_text_printf(a3d_text_t* self,
 	{
 		a3d_screen_dirty(widget->screen);
 	}
-}
-
-void a3d_text_enterFn(a3d_text_t* self,
-                      void* enter_priv,
-                      a3d_text_enter_fn enter_fn)
-{
-	// enter_fn may be NULL
-	assert(self);
-
-	self->enter_priv = enter_priv;
-	self->enter_fn   = enter_fn;
-
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	if(enter_fn)
-	{
-		a3d_widget_keyPressFn(widget, a3d_text_keyPress);
-	}
-	else if(a3d_widget_hasFocus(widget))
-	{
-		a3d_screen_focus(widget->screen, NULL);
-		a3d_widget_keyPressFn(widget, NULL);
-	}
-	else
-	{
-		a3d_widget_keyPressFn(widget, NULL);
-	}
-
-	// toggle cursor
-	a3d_screen_dirty(widget->screen);
 }
 
 void a3d_text_font(a3d_text_t* self, int font_type)

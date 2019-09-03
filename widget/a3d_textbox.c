@@ -54,6 +54,7 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	                                &clear,
 	                                &(self->color_text),
 	                                self->max_len,
+	                                NULL, NULL,
 	                                NULL, NULL);
 	if(text == NULL)
 	{
@@ -267,8 +268,10 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int text_border,
                                int text_size,
                                a3d_vec4f_t* color_text,
-                               int text_max_len)
+                               int text_max_len,
+                               a3d_widget_clickFn click_fn)
 {
+	// click_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_text);
@@ -278,7 +281,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_textbox_t);
 	}
 
-	a3d_widget_reflow_fn reflow_fn = a3d_textbox_reflow;
+	a3d_widget_reflowFn reflow_fn = a3d_textbox_reflow;
 	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
 		reflow_fn = NULL;
@@ -292,6 +295,10 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	{
 		return NULL;
 	}
+
+	// enable sound effects since textbox derives from listbox
+	a3d_widget_soundFx((a3d_widget_t*) self,
+	                   click_fn ? 1 : 0);
 
 	self->strings = a3d_list_new();
 	if(self->strings == NULL)
@@ -399,18 +406,4 @@ void a3d_textbox_font(a3d_textbox_t* self,
 	assert(self);
 
 	self->font_type = font_type;
-}
-
-void a3d_textbox_clickFn(a3d_textbox_t* self,
-                         a3d_widget_click_fn click_fn)
-{
-	// click_fn may be NULL
-	assert(self);
-
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	widget->click_fn = click_fn;
-
-	// enable sound effects since textbox derives from listbox
-	a3d_widget_soundFx((a3d_widget_t*) self,
-	                   click_fn ? 1 : 0);
 }

@@ -43,8 +43,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int text_size,
                                    a3d_vec4f_t* color,
                                    int max_len, int count,
-                                   a3d_widget_click_fn click_fn,
-                                   a3d_widget_refresh_fn refresh_fn);
+                                   a3d_widget_clickFn click_fn,
+                                   a3d_widget_refreshFn refresh_fn);
 void            a3d_bulletbox_delete(a3d_bulletbox_t** _self);
 int             a3d_bulletbox_spriteLoad(a3d_bulletbox_t* self,
                                          int index,

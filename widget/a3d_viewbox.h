@@ -49,7 +49,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                a3d_vec4f_t* color_text,
                                int text_max_len,
                                const char* sprite,
-                               a3d_widget_click_fn click_fn,
+                               a3d_widget_clickFn click_fn,
                                void* click_priv,
                                a3d_widget_t* body,
                                a3d_widget_t* footer);

@@ -446,8 +446,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                a3d_widgetLayout_t* layout,
                                int border,
                                a3d_vec4f_t* color_fill,
-                               a3d_widget_reflow_fn reflow_fn,
-                               a3d_widget_refresh_fn refresh_fn)
+                               a3d_widget_reflowFn reflow_fn,
+                               a3d_widget_refreshFn refresh_fn)
 {
 	// reflow_fn, refresh_fn may be NULL
 	assert(screen);
@@ -464,17 +464,22 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		refresh_fn = a3d_listbox_refresh;
 	}
 
+	a3d_widgetFn_t fn =
+	{
+		.reflow_fn   = reflow_fn,
+		.size_fn     = a3d_listbox_size,
+		.click_fn    = a3d_listbox_click,
+		.keyPress_fn = NULL,
+		.layout_fn   = a3d_listbox_layout,
+		.drag_fn     = a3d_listbox_drag,
+		.draw_fn     = a3d_listbox_draw,
+		.refresh_fn  = refresh_fn
+	};
+
 	a3d_listbox_t* self;
 	self = (a3d_listbox_t*)
 	       a3d_widget_new(screen, wsize, layout,
-	                      border, color_fill,
-	                      reflow_fn,
-	                      a3d_listbox_size,
-	                      a3d_listbox_click,
-	                      a3d_listbox_layout,
-	                      a3d_listbox_drag,
-	                      a3d_listbox_draw,
-	                      refresh_fn);
+	                      border, color_fill, &fn);
 	if(self == NULL)
 	{
 		return NULL;

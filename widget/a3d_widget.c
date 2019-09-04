@@ -21,6 +21,7 @@
  *
  */
 
+#include "../math/a3d_vec2f.h"
 #include "a3d_widget.h"
 #include "a3d_text.h"
 #include "a3d_screen.h"
@@ -37,12 +38,15 @@
 ***********************************************************/
 
 static const char* VSHADER =
-	"attribute vec2 vertex;\n"
+	"attribute vec2 xy;\n"
 	"uniform   mat4 mvp;\n"
+	"\n"
+	"varying vec2 varying_xy;\n"
 	"\n"
 	"void main()\n"
 	"{\n"
-	"	gl_Position = mvp*vec4(vertex, 0.0, 1.0);\n"
+	"	varying_xy= xy;\n"
+	"	gl_Position  = mvp*vec4(xy, 0.0, 1.0);\n"
 	"}\n";
 
 static const char* FSHADER =
@@ -51,78 +55,16 @@ static const char* FSHADER =
 	"precision mediump int;\n"
 	"#endif\n"
 	"\n"
-	"uniform vec4 color;\n"
+	"uniform vec4 color0;\n"
+	"uniform vec4 color1;\n"
+	"uniform vec2 ab;\n"
+	"\n"
+	"varying vec2 varying_xy;\n"
 	"\n"
 	"void main()\n"
 	"{\n"
-	"	gl_FragColor = color;\n"
-	"}\n";
-
-static const char* VSHADER2 =
-	"attribute vec2  vertex;\n"
-	"uniform   mat4  mvp;\n"
-	"\n"
-	"varying   float varying_y;\n"
-	"\n"
-	"void main()\n"
-	"{\n"
-	"	varying_y = vertex.y;\n"
-	"	gl_Position = mvp*vec4(vertex, 0.0, 1.0);\n"
-	"}\n";
-
-static const char* FSHADER2 =
-	"#ifdef GL_ES\n"
-	"precision mediump float;\n"
-	"precision mediump int;\n"
-	"#endif\n"
-	"\n"
-	"uniform vec4  colora;\n"
-	"uniform vec4  colorb;\n"
-	"uniform float y;\n"
-	"\n"
-	"varying float varying_y;\n"
-	"\n"
-	"void main()\n"
-	"{\n"
-	"	if(varying_y > y)\n"
-	"	{\n"
-	"		gl_FragColor = colora;\n"
-	"	}\n"
-	"	else\n"
-	"	{\n"
-	"		gl_FragColor = colorb;\n"
-	"	}\n"
-	"}\n";
-
-static const char* VSHADER_SCROLL =
-	"attribute vec4  xyuv;\n"
-	"uniform   mat4  mvp;\n"
-	"\n"
-	"varying   float varying_v;\n"
-	"\n"
-	"void main()\n"
-	"{\n"
-	"	varying_v = xyuv.w;\n"
-	"	gl_Position = mvp*vec4(xyuv.xy, 0.0, 1.0);\n"
-	"}\n";
-
-static const char* FSHADER_SCROLL =
-	"#ifdef GL_ES\n"
-	"precision mediump float;\n"
-	"precision mediump int;\n"
-	"#endif\n"
-	"\n"
-	"uniform vec4  color0;\n"
-	"uniform vec4  color1;\n"
-	"uniform float a;\n"
-	"uniform float b;\n"
-	"\n"
-	"varying float varying_v;\n"
-	"\n"
-	"void main()\n"
-	"{\n"
-	"	if((varying_v < a) ||\n"
-	"	   (varying_v > b))\n"
+	"	if((varying_xy.y < ab.x) ||\n"
+	"	   (varying_xy.y > ab.y))\n"
 	"	{\n"
 	"		gl_FragColor = color0;\n"
 	"	}\n"
@@ -142,51 +84,21 @@ static int a3d_widget_shaders(a3d_widget_t* self)
 		return 0;
 	}
 
-	self->prog2 = a3d_shader_make_source(VSHADER2, FSHADER2);
-	if(self->prog2 == 0)
-	{
-		goto fail_prog2;
-	}
+	self->attr_xy     = glGetAttribLocation(self->prog, "xy");
+	self->unif_mvp    = glGetUniformLocation(self->prog, "mvp");
+	self->unif_color0 = glGetUniformLocation(self->prog, "color0");
+	self->unif_color1 = glGetUniformLocation(self->prog, "color1");
+	self->unif_ab     = glGetUniformLocation(self->prog, "ab");
 
-	self->scroll_prog = a3d_shader_make_source(VSHADER_SCROLL,
-	                                           FSHADER_SCROLL);
-	if(self->scroll_prog == 0)
-	{
-		goto fail_scroll_prog;
-	}
-
-	self->attr_vertex  = glGetAttribLocation(self->prog, "vertex");
-	self->unif_mvp     = glGetUniformLocation(self->prog, "mvp");
-	self->unif_color   = glGetUniformLocation(self->prog, "color");
-	self->attr_vertex2 = glGetAttribLocation(self->prog2, "vertex");
-	self->unif_mvp2    = glGetUniformLocation(self->prog2, "mvp");
-	self->unif_color2a = glGetUniformLocation(self->prog2, "colora");
-	self->unif_color2b = glGetUniformLocation(self->prog2, "colorb");
-	self->unif_y2      = glGetUniformLocation(self->prog2, "y");
-	self->scroll_attr_vertex = glGetAttribLocation(self->scroll_prog, "xyuv");
-	self->scroll_unif_mvp    = glGetUniformLocation(self->scroll_prog, "mvp");
-	self->scroll_unif_color0 = glGetUniformLocation(self->scroll_prog, "color0");
-	self->scroll_unif_color1 = glGetUniformLocation(self->scroll_prog, "color1");
-	self->scroll_unif_a      = glGetUniformLocation(self->scroll_prog, "a");
-	self->scroll_unif_b      = glGetUniformLocation(self->scroll_prog, "b");
-
-	// success
 	return 1;
-
-	// failure
-	fail_scroll_prog:
-		glDeleteProgram(self->prog2);
-	fail_prog2:
-		glDeleteProgram(self->prog);
-	return 0;
 }
 
-static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
+static void a3d_widget_makeRoundRect(a3d_vec2f_t* xy, int steps,
                                      float t, float l,
                                      float b, float r,
                                      float radius)
 {
-	assert(vtx);
+	assert(xy);
 
 	// top-right
 	int   i;
@@ -195,32 +107,36 @@ static void a3d_widget_makeRoundRect(GLfloat* vtx, int steps,
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 0.0f + 90.0f*((float) i/s);
-		vtx[idx++] = r + radius*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = t - radius*sinf(ang*M_PI/180.0f);
+		xy[idx].x = r + radius*cosf(ang*M_PI/180.0f);
+		xy[idx].y = t - radius*sinf(ang*M_PI/180.0f);
+		idx++;
 	}
 
 	// top-left
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 90.0f + 90.0f*((float) i/s);
-		vtx[idx++] = l + radius*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = t - radius*sinf(ang*M_PI/180.0f);
+		xy[idx].x = l + radius*cosf(ang*M_PI/180.0f);
+		xy[idx].y = t - radius*sinf(ang*M_PI/180.0f);
+		idx++;
 	}
 
 	// bottom-left
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 180.0f + 90.0f*((float) i/s);
-		vtx[idx++] = l + radius*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = b - radius*sinf(ang*M_PI/180.0f);
+		xy[idx].x = l + radius*cosf(ang*M_PI/180.0f);
+		xy[idx].y = b - radius*sinf(ang*M_PI/180.0f);
+		idx++;
 	}
 
 	// bottom-right
 	for(i = 0; i < steps; ++i)
 	{
 		float ang = 270.0f + 90.0f*((float) i/s);
-		vtx[idx++] = r + radius*cosf(ang*M_PI/180.0f);
-		vtx[idx++] = b - radius*sinf(ang*M_PI/180.0f);
+		xy[idx].x = r + radius*cosf(ang*M_PI/180.0f);
+		xy[idx].y = b - radius*sinf(ang*M_PI/180.0f);
+		idx++;
 	}
 }
 
@@ -232,11 +148,11 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              int border,
-                             a3d_vec4f_t* color_fill,
+                             a3d_vec4f_t* color_body,
                              a3d_widgetFn_t* fn)
 {
 	assert(screen);
-	assert(color_fill);
+	assert(color_body);
 	assert(fn);
 
 	if(wsize == 0)
@@ -277,14 +193,14 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
-	a3d_vec4f_copy(color_fill, &self->color_fill);
+	a3d_vec4f_copy(color_body, &self->color_body);
 	a3d_vec4f_load(&self->color_header,  0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_load(&self->color_scroll0, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_load(&self->color_scroll1, 0.0f, 0.0f, 0.0f, 0.0f);
 	self->header_y = 0.0f;
 
-	glGenBuffers(1, &self->id_vtx_rect);
-	glGenBuffers(1, &self->scroll_id_vtx_rect);
+	glGenBuffers(1, &self->id_xy_widget);
+	glGenBuffers(1, &self->id_xy_scroll);
 
 	if(a3d_widget_shaders(self) == 0)
 	{
@@ -315,10 +231,8 @@ void a3d_widget_delete(a3d_widget_t** _self)
 		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &self->scroll_id_vtx_rect);
-		glDeleteBuffers(1, &self->id_vtx_rect);
-		glDeleteProgram(self->scroll_prog);
-		glDeleteProgram(self->prog2);
+		glDeleteBuffers(1, &self->id_xy_scroll);
+		glDeleteBuffers(1, &self->id_xy_widget);
 		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;
@@ -450,15 +364,15 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	float r = self->rect_border.l + self->rect_border.w;
 	float radius = (h_bo == v_bo) ? h_bo : 0.0f;
 	int steps    = A3D_WIDGET_BEZEL;
-	int size_rect = 4*steps*2;   // corners*steps*xy
-	GLfloat vtx_rect[size_rect];
-	a3d_widget_makeRoundRect(vtx_rect, steps,
+	int size_xy = 4*steps;   // corners*steps
+	a3d_vec2f_t xy[size_xy];
+	a3d_widget_makeRoundRect(xy, steps,
 	                         t + v_bo, l + h_bo,
 	                         b - v_bo, r - v_bo,
 	                         radius);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
-	glBufferData(GL_ARRAY_BUFFER, size_rect*sizeof(GLfloat),
-	             vtx_rect, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, self->id_xy_widget);
+	glBufferData(GL_ARRAY_BUFFER, size_xy*sizeof(a3d_vec2f_t),
+	             xy, GL_STATIC_DRAW);
 
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&self->rect_border,
@@ -479,17 +393,17 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 			float h  = rect_border_clip.h;
 			float b  = t + h;
 			float r  = l + w;
-			int   sz = 16;   // 4*xyuv
-			GLfloat xyuv[] =
+			int   sz = 8;   // 4*xy
+			GLfloat xy[] =
 			{
-				l, t, 0.0f, 0.0f,   // top-left
-				l, b, 0.0f, 1.0f,   // bottom-left
-				r, t, 1.0f, 0.0f,   // top-right
-				r, b, 1.0f, 1.0f,   // bottom-right
+				l, t,   // top-left
+				l, b,   // bottom-left
+				r, t,   // top-right
+				r, b,   // bottom-right
 			};
-			glBindBuffer(GL_ARRAY_BUFFER, self->scroll_id_vtx_rect);
+			glBindBuffer(GL_ARRAY_BUFFER, self->id_xy_scroll);
 			glBufferData(GL_ARRAY_BUFFER, sz*sizeof(GLfloat),
-			             xyuv, GL_STATIC_DRAW);
+			             xy, GL_STATIC_DRAW);
 		}
 	}
 }
@@ -804,10 +718,11 @@ void a3d_widget_draw(a3d_widget_t* self)
 		return;
 	}
 
-	// draw the fill
-	a3d_screen_t* screen = self->screen;
-	a3d_vec4f_t*  c      = &self->color_fill;
-	float         alpha  = c->a;
+	// fill the widget
+	a3d_screen_t* screen       = self->screen;
+	a3d_vec4f_t*  color_body   = &self->color_body;
+	a3d_vec4f_t*  color_header = &self->color_header;
+	float         alpha        = color_body->a;
 	if(alpha > 0.0f)
 	{
 		a3d_screen_scissor(screen, &rect_border_clip);
@@ -818,40 +733,21 @@ void a3d_widget_draw(a3d_widget_t* self)
 		}
 
 		a3d_mat4f_t mvp;
-		glBindBuffer(GL_ARRAY_BUFFER, self->id_vtx_rect);
+		glBindBuffer(GL_ARRAY_BUFFER, self->id_xy_widget);
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 
-		if(self->header_y == 0.0f)
-		{
-			glEnableVertexAttribArray(self->attr_vertex);
-			glVertexAttribPointer(self->attr_vertex, 2, GL_FLOAT, GL_FALSE, 0, 0);
-			glUseProgram(self->prog);
-			glUniform4f(self->unif_color, c->r, c->g, c->b, alpha);
-			glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		}
-		else
-		{
-			a3d_vec4f_t* c2     = &self->color_header;
-			float        alpha2 = c2->a;
-			glEnableVertexAttribArray(self->attr_vertex2);
-			glVertexAttribPointer(self->attr_vertex2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-			glUseProgram(self->prog2);
-			glUniform4f(self->unif_color2a, c->r, c->g, c->b, alpha);
-			glUniform4f(self->unif_color2b, c2->r, c2->g, c2->b, alpha2);
-			glUniform1f(self->unif_y2, self->header_y);
-			glUniformMatrix4fv(self->unif_mvp2, 1, GL_FALSE, (GLfloat*) &mvp);
-		}
+		glEnableVertexAttribArray(self->attr_xy);
+		glVertexAttribPointer(self->attr_xy, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glUseProgram(self->prog);
+		glUniform4fv(self->unif_color0, 1, (const GLfloat*) color_header);
+		glUniform4fv(self->unif_color1, 1, (const GLfloat*) color_body);
+		glUniform2f(self->unif_ab, self->header_y,
+		            rect_border_clip.t + rect_border_clip.h);
+		glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 		glDrawArrays(GL_TRIANGLE_FAN, 0, 4*A3D_WIDGET_BEZEL);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		if(self->header_y == 0.0f)
-		{
-			glDisableVertexAttribArray(self->attr_vertex);
-		}
-		else
-		{
-			glDisableVertexAttribArray(self->attr_vertex2);
-		}
+		glDisableVertexAttribArray(self->attr_xy);
 		glUseProgram(0);
 		if(alpha < 1.0f)
 		{
@@ -896,6 +792,8 @@ void a3d_widget_draw(a3d_widget_t* self)
 			{
 				b = 1.0f;
 			}
+			a = rect_border_clip.t + a*rect_border_clip.h;
+			b = rect_border_clip.t + b*rect_border_clip.h;
 
 			a3d_vec4f_t* c0 = &self->color_scroll0;
 			a3d_vec4f_t* c1 = &self->color_scroll1;
@@ -907,21 +805,20 @@ void a3d_widget_draw(a3d_widget_t* self)
 			}
 
 			a3d_mat4f_t mvp;
-			glBindBuffer(GL_ARRAY_BUFFER, self->scroll_id_vtx_rect);
+			glBindBuffer(GL_ARRAY_BUFFER, self->id_xy_scroll);
 			a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
 
-			glEnableVertexAttribArray(self->scroll_attr_vertex);
-			glVertexAttribPointer(self->scroll_attr_vertex, 4, GL_FLOAT, GL_FALSE, 0, 0);
-			glUseProgram(self->scroll_prog);
-			glUniform4f(self->scroll_unif_color0, c0->r, c0->g, c0->b, c0->a);
-			glUniform4f(self->scroll_unif_color1, c1->r, c1->g, c1->b, c1->a);
-			glUniform1f(self->scroll_unif_a, a);
-			glUniform1f(self->scroll_unif_b, b);
-			glUniformMatrix4fv(self->scroll_unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
+			glEnableVertexAttribArray(self->attr_xy);
+			glVertexAttribPointer(self->attr_xy, 2, GL_FLOAT, GL_FALSE, 0, 0);
+			glUseProgram(self->prog);
+			glUniform4f(self->unif_color0, c0->r, c0->g, c0->b, c0->a);
+			glUniform4f(self->unif_color1, c1->r, c1->g, c1->b, c1->a);
+			glUniform2f(self->unif_ab, a, b);
+			glUniformMatrix4fv(self->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glDisableVertexAttribArray(self->scroll_attr_vertex);
+			glDisableVertexAttribArray(self->attr_xy);
 			glUseProgram(0);
 			if((c0->a < 1.0f) || (c1->a < 1.0f))
 			{

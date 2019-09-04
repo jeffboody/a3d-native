@@ -178,8 +178,8 @@ typedef struct a3d_widget_s
 	// style
 	int         border;
 	int         scroll_bar;
-	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_header;
+	a3d_vec4f_t color_body;
 	a3d_vec4f_t color_scroll0;
 	a3d_vec4f_t color_scroll1;
 
@@ -193,34 +193,21 @@ typedef struct a3d_widget_s
 	a3d_widgetFn_t fn;
 
 	// draw state
-	GLuint id_vtx_rect;
+	GLuint id_xy_widget;
+	GLuint id_xy_scroll;
 	GLuint prog;
-	GLint  attr_vertex;
+	GLint  attr_xy;
 	GLint  unif_mvp;
-	GLint  unif_color;
-
-	GLuint prog2;
-	GLint  attr_vertex2;
-	GLint  unif_mvp2;
-	GLint  unif_color2a;
-	GLint  unif_color2b;
-	GLint  unif_y2;
-
-	GLuint scroll_id_vtx_rect;
-	GLuint scroll_prog;
-	GLint  scroll_attr_vertex;
-	GLint  scroll_unif_mvp;
-	GLint  scroll_unif_color0;
-	GLint  scroll_unif_color1;
-	GLint  scroll_unif_a;
-	GLint  scroll_unif_b;
+	GLint  unif_color0;
+	GLint  unif_color1;
+	GLint  unif_ab;
 } a3d_widget_t;
 
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              int border,
-                             a3d_vec4f_t* color_fill,
+                             a3d_vec4f_t* color_body,
                              a3d_widgetFn_t* fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_priv(a3d_widget_t* self, void* priv);

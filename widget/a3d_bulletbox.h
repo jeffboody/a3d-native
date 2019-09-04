@@ -42,7 +42,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int border,
                                    int text_size,
                                    a3d_vec4f_t* color,
-                                   int max_len, int count,
+                                   int count,
                                    a3d_widget_clickFn click_fn,
                                    a3d_widget_refreshFn refresh_fn);
 void            a3d_bulletbox_delete(a3d_bulletbox_t** _self);

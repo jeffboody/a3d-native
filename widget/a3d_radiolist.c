@@ -72,7 +72,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int text_border,
                                    int text_size,
                                    a3d_vec4f_t* color_text,
-                                   int text_max_len,
                                    int* pvalue)
 {
 	assert(screen);
@@ -98,7 +97,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	self->text_wrapx = text_wrapx;
 	self->border     = text_border;
 	self->text_size  = text_size;
-	self->max_len    = text_max_len;
 	self->pvalue     = pvalue;
 	self->value      = *pvalue;
 
@@ -148,28 +146,22 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	assert(self);
 	assert(fmt);
 
-	char* string = (char*) calloc(self->max_len, sizeof(char));
-	if(string == NULL)
-	{
-		LOGE("calloc failed");
-		return;
-	}
-
 	// decode string
+	char string[256];
 	va_list argptr;
 	va_start(argptr, fmt);
-	vsnprintf(string, self->max_len, fmt, argptr);
+	vsnprintf(string, 256, fmt, argptr);
 	va_end(argptr);
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_radiobox_t* rb;
 	rb = a3d_radiobox_new(widget->screen, 0,
 	                      self->border, self->text_size,
-	                      &self->color_text, self->max_len,
+	                      &self->color_text,
 	                      value, self);
 	if(rb == NULL)
 	{
-		goto fail_rb;
+		return;
 	}
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
@@ -179,7 +171,6 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	}
 
 	a3d_radiobox_textPrintf(rb, "%s", string);
-	free(string);
 
 	// success
 	return;
@@ -187,6 +178,4 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	// failure
 	fail_enqueue:
 		a3d_radiobox_delete(&rb);
-	fail_rb:
-		free(string);
 }

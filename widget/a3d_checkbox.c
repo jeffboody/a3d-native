@@ -65,7 +65,6 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
                                  int wsize, int border,
                                  int text_size,
                                  a3d_vec4f_t* color,
-                                 int max_len,
                                  int* pvalue)
 {
 	assert(screen);
@@ -81,7 +80,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	self = (a3d_checkbox_t*)
 	       a3d_bulletbox_new(screen, wsize,
 	                         border, text_size,
-	                         color, max_len, 2,
+	                         color, 2,
 	                         a3d_checkbox_click,
 	                         a3d_checkbox_refresh);
 	if(self == NULL)

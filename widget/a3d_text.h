@@ -50,9 +50,8 @@ typedef struct
 	a3d_text_enterFn enter_fn;
 
 	// text properties
-	// max_len includes null terminator
 	int         font_type;
-	int         max_len;
+	size_t      string_size;
 	char*       string;
 	int         text_size;
 	a3d_vec4f_t color;
@@ -70,7 +69,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int text_size,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
-                         int max_len,
                          void* enter_priv,
                          a3d_text_enterFn enter_fn,
                          a3d_widget_clickFn clickFn,

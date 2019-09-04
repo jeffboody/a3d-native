@@ -53,7 +53,6 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	                                self->text_size,
 	                                &clear,
 	                                &(self->color_text),
-	                                self->max_len,
 	                                NULL, NULL,
 	                                NULL, NULL);
 	if(text == NULL)
@@ -268,7 +267,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int text_border,
                                int text_size,
                                a3d_vec4f_t* color_text,
-                               int text_max_len,
+                               int max_len,
                                a3d_widget_clickFn click_fn)
 {
 	// click_fn may be NULL
@@ -314,7 +313,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->border     = text_border;
 	self->text_size  = text_size;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
-	self->max_len    = text_max_len;
+	self->max_len    = max_len;
 
 	a3d_vec4f_copy(color_text, &self->color_text);
 

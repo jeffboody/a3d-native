@@ -59,7 +59,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int text_border,
                                int text_size,
                                a3d_vec4f_t* color_text,
-                               int text_max_len,
+                               int max_len,
                                a3d_widget_clickFn click_fn);
 void           a3d_textbox_delete(a3d_textbox_t** _self);
 void           a3d_textbox_clear(a3d_textbox_t* self);

@@ -41,17 +41,50 @@
 * private                                                  *
 ***********************************************************/
 
-static int a3d_text_strlen(a3d_text_t* self)
+static int a3d_text_resize(a3d_text_t* self, size_t string_size)
 {
 	assert(self);
 
-	int len = strlen(self->string);
-	if(len >= self->max_len)
+	if(self->string_size >= string_size)
 	{
-		len = self->max_len - 1;
+		return 1;
 	}
 
-	return len;
+	char* string = (char*) realloc(self->string, string_size);
+	if(string == NULL)
+	{
+		LOGE("realloc failed");
+		return 0;
+	}
+	string[string_size - 1] = '\0';
+
+	// allocate size for string and cursor character
+	// which is stored in place of the null character
+	int vertex_size = 18*string_size;   // 2*3*xyz
+	GLfloat* vertex;
+	vertex = (GLfloat*)
+	         realloc(self->vertex, sizeof(GLfloat)*vertex_size);
+	if(vertex == NULL)
+	{
+		LOGE("realloc failed");
+		return 0;
+	}
+
+	int coords_size = 12*string_size;   // 2*3*uv
+	GLfloat* coords;
+	coords = (GLfloat*)
+	         realloc(self->coords, sizeof(GLfloat)*coords_size);
+	if(coords == NULL)
+	{
+		LOGE("realloc failed");
+		return 0;
+	}
+
+	self->string      = string;
+	self->string_size = string_size;
+	self->vertex      = vertex;
+	self->coords      = coords;
+	return 1;
 }
 
 static void a3d_text_size(a3d_widget_t* widget,
@@ -85,7 +118,7 @@ static void a3d_text_draw(a3d_widget_t* widget)
 
 	a3d_text_t* self = (a3d_text_t*) widget;
 
-	int len = a3d_text_strlen(self);
+	int len = strlen(self->string);
 	if(a3d_widget_hasFocus(widget))
 	{
 		// add the cursor
@@ -230,9 +263,7 @@ static int a3d_text_keyPress(a3d_widget_t* widget,
 	}
 	else
 	{
-		// max_len includes null terminator
-		// but strlen does not
-		if(len < (self->max_len - 1))
+		if(a3d_text_resize(self, len + 1))
 		{
 			self->string[len]     = (char) keycode;
 			self->string[len + 1] = '\0';
@@ -240,6 +271,7 @@ static int a3d_text_keyPress(a3d_widget_t* widget,
 		}
 		else
 		{
+			// accept the keypress but ignore error
 			return 1;
 		}
 	}
@@ -278,7 +310,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int text_size,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
-                         int max_len,
                          void* enter_priv,
                          a3d_text_enterFn enter_fn,
                          a3d_widget_clickFn click_fn,
@@ -325,17 +356,17 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->string = calloc(max_len, sizeof(char));
+	self->string_size = 16;
+	self->string = calloc(self->string_size, sizeof(char));
 	if(self->string == NULL)
 	{
 		LOGE("calloc failed");
 		goto fail_string;
 	}
 
-	// allocate size for string and cursor
-	// where max_len includes cursor character
+	// allocate size for string and cursor character
 	// which is stored in place of the null character
-	int vertex_size = 18*max_len;   // 2*3*xyz
+	int vertex_size = 18*self->string_size;   // 2*3*xyz
 	self->vertex = (GLfloat*) malloc(sizeof(GLfloat)*vertex_size);
 	if(self->vertex == NULL)
 	{
@@ -343,7 +374,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_vertex;
 	}
 
-	int coords_size = 12*max_len;   // 2*3*uv
+	int coords_size = 12*self->string_size;   // 2*3*uv
 	self->coords = (GLfloat*) malloc(sizeof(GLfloat)*coords_size);
 	if(self->coords == NULL)
 	{
@@ -354,7 +385,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	self->enter_fn   = enter_fn;
 	self->enter_priv = enter_priv;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
-	self->max_len    = max_len;
 	self->text_size  = text_size;
 	a3d_vec4f_copy(color_text, &self->color);
 	glGenBuffers(1, &self->id_vertex);
@@ -434,19 +464,23 @@ void a3d_text_printf(a3d_text_t* self,
 	assert(self);
 	assert(fmt);
 
-	int len0 = strlen(self->string);
+	a3d_widget_t* widget = (a3d_widget_t*) self;
 
 	// decode string
+	char tmp_string[256];
 	va_list argptr;
 	va_start(argptr, fmt);
-	vsnprintf(self->string, self->max_len, fmt, argptr);
+	vsnprintf(tmp_string, 256, fmt, argptr);
 	va_end(argptr);
 
-	int len1 = strlen(self->string);
-	if(len1 >= self->max_len)
+	// fill the string
+	size_t len1        = strlen(tmp_string);
+	size_t string_size = len1 + 1;
+	if(a3d_text_resize(self, string_size) == 0)
 	{
-		len1 = self->max_len - 1;
+		return;
 	}
+	snprintf(self->string, string_size, "%s", tmp_string);
 
 	int   i;
 	float offset = 0.0f;
@@ -468,13 +502,7 @@ void a3d_text_printf(a3d_text_t* self,
 	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
 	             self->coords, GL_STATIC_DRAW);
 
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-
-	// check for text resizes which need to trigger screen layout
-	if(len0 != len1)
-	{
-		a3d_screen_dirty(widget->screen);
-	}
+	a3d_screen_dirty(widget->screen);
 }
 
 void a3d_text_font(a3d_text_t* self, int font_type)

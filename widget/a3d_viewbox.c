@@ -273,7 +273,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int text_border,
                                int text_size,
                                a3d_vec4f_t* text_color_text,
-                               int text_max_len,
                                const char* sprite,
                                a3d_widget_clickFn click_fn,
                                void* click_priv,
@@ -319,8 +318,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
 	                                 text_size,
 	                                 text_color_text,
-	                                 text_max_len, 2,
-	                                 click_fn, NULL);
+	                                 2, click_fn, NULL);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;

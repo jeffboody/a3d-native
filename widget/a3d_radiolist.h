@@ -41,7 +41,6 @@ typedef struct
 	int         text_size;
 	a3d_vec4f_t color_fill;
 	a3d_vec4f_t color_text;
-	int         max_len;
 } a3d_radiolist_t;
 
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
@@ -54,7 +53,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int text_border,
                                    int text_size,
                                    a3d_vec4f_t* color_text,
-                                   int text_max_len,
                                    int* pvalue);
 void            a3d_radiolist_delete(a3d_radiolist_t** _self);
 void            a3d_radiolist_clear(a3d_radiolist_t* self);

@@ -213,6 +213,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              int border,
+                             a3d_vec4f_t* color_header,
                              a3d_vec4f_t* color_body,
                              int scroll_bar,
                              a3d_vec4f_t* color_scroll0,
@@ -244,8 +245,6 @@ void          a3d_widget_anchor(a3d_widget_t* self,
                                 int anchor);
 void          a3d_widget_soundFx(a3d_widget_t* self,
                                  int sound_fx);
-void          a3d_widget_colorHeader(a3d_widget_t* self,
-                                     a3d_vec4f_t* color_header);
 void          a3d_widget_headerY(a3d_widget_t* self, float y);
 void          a3d_widget_scrollTop(a3d_widget_t* self);
 

@@ -480,10 +480,18 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		.refresh_fn = refresh_fn
 	};
 
+	a3d_vec4f_t clear =
+	{
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f
+	};
+
 	a3d_listbox_t* self;
 	self = (a3d_listbox_t*)
 	       a3d_widget_new(screen, wsize, layout, border,
-	                      color_fill, scroll_bar,
+	                      &clear, color_fill, scroll_bar,
 	                      color_scroll0, color_scroll1, &fn);
 	if(self == NULL)
 	{

@@ -173,7 +173,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
 	       a3d_widget_new(screen, wsize, &layout, border,
-	                      &clear, 0, &clear, &clear, &fn);
+	                      &clear, &clear, 0, &clear, &clear,
+	                      &fn);
 	if(self == NULL)
 	{
 		return NULL;

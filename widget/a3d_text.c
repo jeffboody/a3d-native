@@ -355,7 +355,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	a3d_text_t* self;
 	self = (a3d_text_t*)
 	       a3d_widget_new(screen, wsize, &layout, border,
-	                      color_fill, 0, &clear, &clear, &fn);
+	                      &clear, color_fill, 0, &clear,
+	                      &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;

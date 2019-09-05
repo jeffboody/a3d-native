@@ -244,8 +244,9 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 
 	a3d_layer_t* self;
 	self = (a3d_layer_t*)
-	       a3d_widget_new(screen, wsize, layout, border, color,
-	                      0, &clear, &clear, &fn);
+	       a3d_widget_new(screen, wsize, layout, border,
+	                      &clear, color, 0, &clear, &clear,
+	                      &fn);
 	if(self == NULL)
 	{
 		return NULL;

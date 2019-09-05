@@ -148,6 +148,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              int border,
+                             a3d_vec4f_t* color_header,
                              a3d_vec4f_t* color_body,
                              int scroll_bar,
                              a3d_vec4f_t* color_scroll0,
@@ -155,6 +156,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widgetFn_t* fn)
 {
 	assert(screen);
+	assert(color_header);
 	assert(color_body);
 	assert(color_scroll0);
 	assert(color_scroll1);
@@ -165,17 +167,14 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 		wsize = sizeof(a3d_widget_t);
 	}
 
-	a3d_widget_t* self = (a3d_widget_t*) malloc(wsize);
+	a3d_widget_t* self = (a3d_widget_t*) calloc(1, wsize);
 	if(self == NULL)
 	{
-		LOGE("malloc failed");
+		LOGE("calloc failed");
 		return NULL;
 	}
 
 	self->screen         = screen;
-	self->priv           = NULL;
-	self->drag_dx        = 0.0f;
-	self->drag_dy        = 0.0f;
 	self->anchor         = A3D_WIDGET_ANCHOR_TL;
 	self->border         = border;
 	self->scroll_bar     = scroll_bar;
@@ -195,14 +194,10 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 		assert(layout->aspecty != A3D_WIDGET_ASPECT_SQUARE);
 	}
 
-	a3d_rect4f_init(&self->rect_draw, 0.0f, 0.0f, 0.0f, 0.0f);
-	a3d_rect4f_init(&self->rect_clip, 0.0f, 0.0f, 0.0f, 0.0f);
-	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
+	a3d_vec4f_copy(color_header, &self->color_header);
 	a3d_vec4f_copy(color_body, &self->color_body);
-	a3d_vec4f_load(&self->color_header,  0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_copy(color_scroll0, &self->color_scroll0);
 	a3d_vec4f_copy(color_scroll1, &self->color_scroll1);
-	self->header_y = 0.0f;
 
 	glGenBuffers(1, &self->id_xy_widget);
 	glGenBuffers(1, &self->id_xy_scroll);
@@ -859,15 +854,6 @@ void a3d_widget_soundFx(a3d_widget_t* self,
 	assert(self);
 
 	self->sound_fx = sound_fx;
-}
-
-void a3d_widget_colorHeader(a3d_widget_t* self,
-                            a3d_vec4f_t* color_header)
-{
-	assert(self);
-	assert(color_header);
-
-	a3d_vec4f_copy(color_header, &self->color_header);
 }
 
 void a3d_widget_headerY(a3d_widget_t* self, float y)

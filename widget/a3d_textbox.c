@@ -268,12 +268,17 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int text_size,
                                a3d_vec4f_t* color_text,
                                int max_len,
+                               int scroll_bar,
+                               a3d_vec4f_t* color_scroll0,
+                               a3d_vec4f_t* color_scroll1,
                                a3d_widget_clickFn click_fn)
 {
 	// click_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_text);
+	assert(color_scroll0);
+	assert(color_scroll1);
 
 	if(wsize == 0)
 	{
@@ -289,7 +294,8 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	a3d_textbox_t* self;
 	self = (a3d_textbox_t*)
 	a3d_listbox_new(screen, wsize, orientation, layout, border,
-	                color_fill, reflow_fn, NULL);
+	                color_fill, scroll_bar, color_scroll0,
+	                color_scroll1, reflow_fn, NULL);
 	if(self == NULL)
 	{
 		return NULL;

@@ -72,12 +72,17 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int text_border,
                                    int text_size,
                                    a3d_vec4f_t* color_text,
-                                   int* pvalue)
+                                   int* pvalue,
+                                   int scroll_bar,
+                                   a3d_vec4f_t* color_scroll0,
+                                   a3d_vec4f_t* color_scroll1)
 {
 	assert(screen);
 	assert(color_fill);
 	assert(color_text);
 	assert(pvalue);
+	assert(color_scroll0);
+	assert(color_scroll1);
 
 	if(wsize == 0)
 	{
@@ -87,7 +92,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	a3d_radiolist_t* self;
 	self = (a3d_radiolist_t*)
 	       a3d_listbox_new(screen, wsize, orientation, layout,
-	                       border, color_fill, NULL,
+	                       border, color_fill, scroll_bar,
+	                       color_scroll0, color_scroll1, NULL,
 	                       a3d_radiolist_refresh);
 	if(self == NULL)
 	{

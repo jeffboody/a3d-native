@@ -154,7 +154,7 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 	self = (a3d_hline_t*)
 	       a3d_widget_new(screen, wsize, &layout,
 	                      A3D_WIDGET_BORDER_NONE,
-	                      &clear, &fn);
+	                      &clear, 0, &clear, &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;

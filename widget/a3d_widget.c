@@ -149,10 +149,15 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color_body,
+                             int scroll_bar,
+                             a3d_vec4f_t* color_scroll0,
+                             a3d_vec4f_t* color_scroll1,
                              a3d_widgetFn_t* fn)
 {
 	assert(screen);
 	assert(color_body);
+	assert(color_scroll0);
+	assert(color_scroll1);
 	assert(fn);
 
 	if(wsize == 0)
@@ -173,7 +178,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	self->drag_dy        = 0.0f;
 	self->anchor         = A3D_WIDGET_ANCHOR_TL;
 	self->border         = border;
-	self->scroll_bar     = 0;
+	self->scroll_bar     = scroll_bar;
 	self->sound_fx       = 1;
 
 	memcpy(&self->fn, fn, sizeof(a3d_widgetFn_t));
@@ -195,8 +200,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	a3d_rect4f_init(&self->rect_border, 0.0f, 0.0f, 0.0f, 0.0f);
 	a3d_vec4f_copy(color_body, &self->color_body);
 	a3d_vec4f_load(&self->color_header,  0.0f, 0.0f, 0.0f, 0.0f);
-	a3d_vec4f_load(&self->color_scroll0, 0.0f, 0.0f, 0.0f, 0.0f);
-	a3d_vec4f_load(&self->color_scroll1, 0.0f, 0.0f, 0.0f, 0.0f);
+	a3d_vec4f_copy(color_scroll0, &self->color_scroll0);
+	a3d_vec4f_copy(color_scroll1, &self->color_scroll1);
 	self->header_y = 0.0f;
 
 	glGenBuffers(1, &self->id_xy_widget);
@@ -870,19 +875,6 @@ void a3d_widget_headerY(a3d_widget_t* self, float y)
 	assert(self);
 
 	self->header_y = y;
-}
-
-void a3d_widget_scrollbar(a3d_widget_t* self,
-                          a3d_vec4f_t* color_scroll0,
-                          a3d_vec4f_t* color_scroll1)
-{
-	assert(self);
-	assert(color_scroll0);
-	assert(color_scroll1);
-
-	self->scroll_bar = 1;
-	a3d_vec4f_copy(color_scroll0, &self->color_scroll0);
-	a3d_vec4f_copy(color_scroll1, &self->color_scroll1);
 }
 
 void a3d_widget_scrollTop(a3d_widget_t* self)

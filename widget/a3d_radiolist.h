@@ -53,7 +53,10 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int text_border,
                                    int text_size,
                                    a3d_vec4f_t* color_text,
-                                   int* pvalue);
+                                   int* pvalue,
+                                   int scroll_bar,
+                                   a3d_vec4f_t* color_scroll0,
+                                   a3d_vec4f_t* color_scroll1);
 void            a3d_radiolist_delete(a3d_radiolist_t** _self);
 void            a3d_radiolist_clear(a3d_radiolist_t* self);
 void            a3d_radiolist_value(a3d_radiolist_t* self, int value);

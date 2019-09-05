@@ -147,14 +147,7 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
-		.reflow_fn   = NULL,
-		.size_fn     = NULL,
-		.click_fn    = NULL,
-		.keyPress_fn = NULL,
-		.layout_fn   = NULL,
-		.drag_fn     = NULL,
-		.draw_fn     = a3d_hline_draw,
-		.refresh_fn  = NULL
+		.draw_fn = a3d_hline_draw,
 	};
 
 	a3d_hline_t* self;

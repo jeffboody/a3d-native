@@ -466,14 +466,13 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
-		.reflow_fn   = reflow_fn,
-		.size_fn     = a3d_listbox_size,
-		.click_fn    = a3d_listbox_click,
-		.keyPress_fn = NULL,
-		.layout_fn   = a3d_listbox_layout,
-		.drag_fn     = a3d_listbox_drag,
-		.draw_fn     = a3d_listbox_draw,
-		.refresh_fn  = refresh_fn
+		.reflow_fn  = reflow_fn,
+		.size_fn    = a3d_listbox_size,
+		.click_fn   = a3d_listbox_click,
+		.layout_fn  = a3d_listbox_layout,
+		.drag_fn    = a3d_listbox_drag,
+		.draw_fn    = a3d_listbox_draw,
+		.refresh_fn = refresh_fn
 	};
 
 	a3d_listbox_t* self;
@@ -526,11 +525,4 @@ void a3d_listbox_clear(a3d_listbox_t* self)
 	assert(self);
 
 	a3d_list_discard(self->list);
-}
-
-void a3d_listbox_scrollTop(a3d_listbox_t* self)
-{
-	assert(self);
-
-	a3d_widget_scrollTop((a3d_widget_t*) self);
 }

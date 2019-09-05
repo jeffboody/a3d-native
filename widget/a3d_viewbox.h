@@ -56,6 +56,5 @@ void            a3d_viewbox_delete(a3d_viewbox_t** _self);
 void            a3d_viewbox_textPrintf(a3d_viewbox_t* self,
                                        const char* fmt, ...);
 void            a3d_viewbox_font(a3d_viewbox_t* self, int font_type);
-void            a3d_viewbox_scrollTop(a3d_viewbox_t* self);
 
 #endif

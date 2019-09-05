@@ -162,14 +162,12 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
-		.reflow_fn   = NULL,
-		.size_fn     = a3d_bulletbox_size,
-		.click_fn    = click_fn,
-		.keyPress_fn = NULL,
-		.layout_fn   = a3d_bulletbox_layout,
-		.drag_fn     = a3d_bulletbox_drag,
-		.draw_fn     = a3d_bulletbox_draw,
-		.refresh_fn  = refresh_fn
+		.size_fn    = a3d_bulletbox_size,
+		.click_fn   = click_fn,
+		.layout_fn  = a3d_bulletbox_layout,
+		.drag_fn    = a3d_bulletbox_drag,
+		.draw_fn    = a3d_bulletbox_draw,
+		.refresh_fn = refresh_fn
 	};
 
 	a3d_bulletbox_t* self;

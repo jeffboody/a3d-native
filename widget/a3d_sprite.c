@@ -359,14 +359,9 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
-		.reflow_fn   = NULL,
-		.size_fn     = NULL,
-		.click_fn    = click_fn,
-		.keyPress_fn = NULL,
-		.layout_fn   = NULL,
-		.drag_fn     = NULL,
-		.draw_fn     = a3d_sprite_draw,
-		.refresh_fn  = refresh_fn
+		.click_fn   = click_fn,
+		.draw_fn    = a3d_sprite_draw,
+		.refresh_fn = refresh_fn
 	};
 
 	a3d_sprite_t* self;

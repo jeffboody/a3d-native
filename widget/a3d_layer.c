@@ -226,14 +226,12 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
-		.reflow_fn   = NULL,
-		.size_fn     = a3d_layer_size,
-		.click_fn    = a3d_layer_click,
-		.keyPress_fn = NULL,
-		.layout_fn   = a3d_layer_layout,
-		.drag_fn     = a3d_layer_drag,
-		.draw_fn     = a3d_layer_draw,
-		.refresh_fn  = a3d_layer_refresh
+		.size_fn    = a3d_layer_size,
+		.click_fn   = a3d_layer_click,
+		.layout_fn  = a3d_layer_layout,
+		.drag_fn    = a3d_layer_drag,
+		.draw_fn    = a3d_layer_draw,
+		.refresh_fn = a3d_layer_refresh
 	};
 
 	a3d_layer_t* self;
@@ -297,4 +295,5 @@ void a3d_layer_bringFront(a3d_layer_t* self,
 
 	a3d_list_discard(self->list);
 	a3d_list_push(self->list, (const void*) widget);
+	a3d_widget_scrollTop(widget);
 }

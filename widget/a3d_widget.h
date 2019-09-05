@@ -83,6 +83,7 @@ typedef void (*a3d_widget_layoutFn)(struct a3d_widget_s* widget,
 typedef void (*a3d_widget_dragFn)(struct a3d_widget_s* widget,
                                   float x, float y,
                                   float dx, float dy);
+typedef void (*a3d_widget_scrollTopFn)(struct a3d_widget_s* widget);
 typedef void (*a3d_widget_drawFn)(struct a3d_widget_s* widget);
 typedef void (*a3d_widget_refreshFn)(struct a3d_widget_s* widget);
 
@@ -135,6 +136,11 @@ typedef struct a3d_widgetFn_s
 	// drag_fn allows a derived widget to drag it's children
 	// called internally by a3d_widget_drag
 	a3d_widget_dragFn drag_fn;
+
+	// scrollTop_fn ensures widgets are at the top when
+	// brought forward in a layer
+	// called internally by a3d_widget_scrollTop
+	a3d_widget_scrollTopFn scrollTop_fn;
 
 	// draw_fn allows a derived widget to define
 	// it's draw behavior

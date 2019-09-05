@@ -889,6 +889,14 @@ void a3d_widget_scrollTop(a3d_widget_t* self)
 {
 	assert(self);
 
+	a3d_widgetFn_t* fn = &self->fn;
+
 	self->drag_dx = 0.0f;
 	self->drag_dy = 0.0f;
+
+	a3d_widget_scrollTopFn scrollTop_fn = fn->scrollTop_fn;
+	if(scrollTop_fn)
+	{
+		(*scrollTop_fn)(self);
+	}
 }

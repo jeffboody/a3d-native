@@ -337,12 +337,9 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
-		.reflow_fn   = NULL,
 		.size_fn     = a3d_text_size,
 		.click_fn    = click_fn,
 		.keyPress_fn = enter_fn ? a3d_text_keyPress : NULL,
-		.layout_fn   = NULL,
-		.drag_fn     = NULL,
 		.draw_fn     = a3d_text_draw,
 		.refresh_fn  = refresh_fn
 	};

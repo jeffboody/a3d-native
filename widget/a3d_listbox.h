@@ -50,6 +50,5 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                a3d_widget_refreshFn refresh_fn);
 void            a3d_listbox_delete(a3d_listbox_t** _self);
 void            a3d_listbox_clear(a3d_listbox_t* self);
-void            a3d_listbox_scrollTop(a3d_listbox_t* self);
 
 #endif

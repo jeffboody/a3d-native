@@ -239,13 +239,6 @@ void a3d_widget_delete(a3d_widget_t** _self)
 	}
 }
 
-void a3d_widget_priv(a3d_widget_t* self, void* priv)
-{
-	assert(self);
-
-	self->priv = priv;
-}
-
 void a3d_widget_layoutXYClip(a3d_widget_t* self,
                              float x, float y,
                              a3d_rect4f_t* clip,
@@ -631,7 +624,7 @@ int a3d_widget_click(a3d_widget_t* self,
 		return 0;
 	}
 
-	int clicked = (*click_fn)(self, state, x, y);
+	int clicked = (*click_fn)(self, self->fn.priv, state, x, y);
 	if(clicked && self->sound_fx &&
 	   (state == A3D_WIDGET_POINTER_UP))
 	{
@@ -654,7 +647,7 @@ int a3d_widget_keyPress(a3d_widget_t* self,
 		return 0;
 	}
 
-	return (*keyPress_fn)(self, keycode, meta);
+	return (*keyPress_fn)(self, self->fn.priv, keycode, meta);
 }
 
 int a3d_widget_hasFocus(a3d_widget_t* self)
@@ -844,7 +837,7 @@ void a3d_widget_refresh(a3d_widget_t* self)
 	a3d_widget_refreshFn refresh_fn = fn->refresh_fn;
 	if(refresh_fn)
 	{
-		(*refresh_fn)(self);
+		(*refresh_fn)(self, self->fn.priv);
 	}
 }
 

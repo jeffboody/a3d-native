@@ -63,6 +63,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
+                               void* priv,
                                a3d_widget_clickFn click_fn);
 void           a3d_textbox_delete(a3d_textbox_t** _self);
 void           a3d_textbox_clear(a3d_textbox_t* self);

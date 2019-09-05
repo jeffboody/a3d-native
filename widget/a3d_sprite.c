@@ -323,11 +323,12 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color,
+                             void* priv,
                              a3d_widget_clickFn click_fn,
                              a3d_widget_refreshFn refresh_fn,
                              int count)
 {
-	// click_fn and refresh_fn may be NULL
+	// priv, click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(color);
 
@@ -359,6 +360,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
+		.priv       = priv,
 		.click_fn   = click_fn,
 		.draw_fn    = a3d_sprite_draw,
 		.refresh_fn = refresh_fn

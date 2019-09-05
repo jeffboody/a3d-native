@@ -35,9 +35,10 @@
 ***********************************************************/
 
 static int a3d_checkbox_click(a3d_widget_t* widget,
-                              int state,
+                              void* priv, int state,
                               float x, float y)
 {
+	// priv may be NULL
 	assert(widget);
 
 	a3d_checkbox_t* self = (a3d_checkbox_t*) widget;
@@ -48,8 +49,10 @@ static int a3d_checkbox_click(a3d_widget_t* widget,
 	return 1;
 }
 
-static void a3d_checkbox_refresh(a3d_widget_t* widget)
+static void
+a3d_checkbox_refresh(a3d_widget_t* widget, void* priv)
 {
+	// priv may be NULL
 	assert(widget);
 
 	a3d_checkbox_t*  self   = (a3d_checkbox_t*) widget;
@@ -81,6 +84,7 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 	       a3d_bulletbox_new(screen, wsize,
 	                         border, text_size,
 	                         color, 2,
+	                         NULL,
 	                         a3d_checkbox_click,
 	                         a3d_checkbox_refresh);
 	if(self == NULL)

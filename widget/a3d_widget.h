@@ -74,10 +74,10 @@ typedef void (*a3d_widget_reflowFn)(struct a3d_widget_s* widget,
 typedef void (*a3d_widget_sizeFn)(struct a3d_widget_s* widget,
                                   float* w, float* h);
 typedef int  (*a3d_widget_clickFn)(struct a3d_widget_s* widget,
-                                   int state,
+                                   void* priv, int state,
                                    float x, float y);
 typedef int  (*a3d_widget_keyPressFn)(struct a3d_widget_s* widget,
-                                      int keycode, int meta);
+                                      void* priv, int keycode, int meta);
 typedef void (*a3d_widget_layoutFn)(struct a3d_widget_s* widget,
                                     int dragx, int dragy);
 typedef void (*a3d_widget_dragFn)(struct a3d_widget_s* widget,
@@ -85,7 +85,8 @@ typedef void (*a3d_widget_dragFn)(struct a3d_widget_s* widget,
                                   float dx, float dy);
 typedef void (*a3d_widget_scrollTopFn)(struct a3d_widget_s* widget);
 typedef void (*a3d_widget_drawFn)(struct a3d_widget_s* widget);
-typedef void (*a3d_widget_refreshFn)(struct a3d_widget_s* widget);
+typedef void (*a3d_widget_refreshFn)(struct a3d_widget_s* widget,
+                                     void* priv);
 
 typedef struct a3d_widgetLayout_s
 {
@@ -109,7 +110,9 @@ typedef struct a3d_widgetLayout_s
 
 typedef struct a3d_widgetFn_s
 {
-	// functions may be NULL
+	// functions and priv may be NULL
+
+	void* priv;
 
 	// reflow_fn allows a derived widget to reflow
 	// it's content in a resize (e.g. textbox)
@@ -155,9 +158,6 @@ typedef struct a3d_widgetFn_s
 typedef struct a3d_widget_s
 {
 	struct a3d_screen_s* screen;
-
-	// optional priv data
-	void* priv;
 
 	// dragable rules (implicit widget property of drag event)
 	// 1. wrapping must be shrink
@@ -220,7 +220,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              a3d_vec4f_t* color_scroll1,
                              a3d_widgetFn_t* fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
-void          a3d_widget_priv(a3d_widget_t* self, void* priv);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,
                                       float x, float y,
                                       a3d_rect4f_t* clip,
@@ -235,7 +234,6 @@ int           a3d_widget_click(a3d_widget_t* self,
                                float x, float y);
 int           a3d_widget_keyPress(a3d_widget_t* self,
                                int keycode, int meta);
-int           a3d_widget_hasFocus(a3d_widget_t* self);
 void          a3d_widget_drag(a3d_widget_t* self,
                               float x, float y,
                               float dx, float dy);
@@ -247,5 +245,6 @@ void          a3d_widget_soundFx(a3d_widget_t* self,
                                  int sound_fx);
 void          a3d_widget_headerY(a3d_widget_t* self, float y);
 void          a3d_widget_scrollTop(a3d_widget_t* self);
+int           a3d_widget_hasFocus(a3d_widget_t* self);
 
 #endif

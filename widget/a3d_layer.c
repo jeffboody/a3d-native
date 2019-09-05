@@ -72,10 +72,11 @@ static void a3d_layer_size(a3d_widget_t* widget,
 }
 
 static int a3d_layer_click(a3d_widget_t* widget,
-                           int state,
+                           void* priv, int state,
                            float x, float y)
 {
 	assert(widget);
+	assert(priv == NULL);
 
 	// send events front-to-back
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
@@ -182,9 +183,11 @@ static void a3d_layer_draw(a3d_widget_t* widget)
 	}
 }
 
-static void a3d_layer_refresh(a3d_widget_t* widget)
+static void
+a3d_layer_refresh(a3d_widget_t* widget, void* priv)
 {
 	assert(widget);
+	assert(priv == NULL);
 
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
 	a3d_listitem_t* iter = a3d_list_head(self->list);

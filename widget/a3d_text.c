@@ -227,8 +227,9 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 	*_offset += vc.r;
 }
 
-static int a3d_text_keyPress(a3d_widget_t* widget,
-                             int keycode, int meta)
+static int
+a3d_text_keyPress(a3d_widget_t* widget, void* priv,
+                  int keycode, int meta)
 {
 	assert(widget);
 
@@ -243,7 +244,7 @@ static int a3d_text_keyPress(a3d_widget_t* widget,
 	int len = strlen(self->string);
 	if(keycode == A3D_KEY_ENTER)
 	{
-		(*enter_fn)(self->enter_priv, self->string);
+		(*enter_fn)(priv, self->string);
 	}
 	else if(keycode == A3D_KEY_ESCAPE)
 	{
@@ -310,12 +311,12 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int text_size,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
-                         void* enter_priv,
+                         void* priv,
                          a3d_text_enterFn enter_fn,
                          a3d_widget_clickFn click_fn,
                          a3d_widget_refreshFn refresh_fn)
 {
-	// enter_fn, enter_priv, click_fn and refresh_fn may be NULL
+	// priv, enter_fn, click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(color_fill);
 	assert(color_text);
@@ -337,9 +338,10 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
+		.priv        = priv,
 		.size_fn     = a3d_text_size,
 		.click_fn    = click_fn,
-		.keyPress_fn = enter_fn ? a3d_text_keyPress : NULL,
+		.keyPress_fn = a3d_text_keyPress,
 		.draw_fn     = a3d_text_draw,
 		.refresh_fn  = refresh_fn
 	};
@@ -389,7 +391,6 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	}
 
 	self->enter_fn   = enter_fn;
-	self->enter_priv = enter_priv;
 	self->font_type  = A3D_SCREEN_FONT_REGULAR;
 	self->text_size  = text_size;
 	a3d_vec4f_copy(color_text, &self->color);

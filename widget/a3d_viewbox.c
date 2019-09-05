@@ -110,9 +110,10 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 }
 
 static int a3d_viewbox_click(a3d_widget_t* widget,
-                             int state,
+                             void* priv, int state,
                              float x, float y)
 {
+	// priv may be NULL
 	assert(widget);
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
@@ -256,8 +257,10 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 	a3d_widget_headerY(widget, y);
 }
 
-static void a3d_viewbox_refresh(a3d_widget_t* widget)
+static void
+a3d_viewbox_refresh(a3d_widget_t* widget, void* priv)
 {
+	// priv may be NULL
 	assert(widget);
 
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
@@ -283,8 +286,8 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int text_size,
                                a3d_vec4f_t* text_color_text,
                                const char* sprite,
+                               void* priv,
                                a3d_widget_clickFn click_fn,
-                               void* click_priv,
                                a3d_widget_t* body,
                                a3d_widget_t* footer)
 {
@@ -334,12 +337,11 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
 	                                 text_size,
 	                                 text_color_text,
-	                                 2, click_fn, NULL);
+	                                 2, priv, click_fn, NULL);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;
 	}
-	a3d_widget_priv((a3d_widget_t*) self->bullet, click_priv);
 	a3d_text_font(self->bullet->text, A3D_SCREEN_FONT_BOLD);
 
 	if(a3d_bulletbox_spriteLoad(self->bullet, 0, sprite) == 0)

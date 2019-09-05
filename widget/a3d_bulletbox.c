@@ -131,6 +131,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int text_size,
                                    a3d_vec4f_t* color,
                                    int count,
+                                   void* priv,
                                    a3d_widget_clickFn click_fn,
                                    a3d_widget_refreshFn refresh_fn)
 {
@@ -162,6 +163,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_widgetFn_t fn =
 	{
+		.priv       = priv,
 		.size_fn    = a3d_bulletbox_size,
 		.click_fn   = click_fn,
 		.layout_fn  = a3d_bulletbox_layout,
@@ -202,7 +204,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	self->icon = a3d_sprite_new(screen, 0, &layout_sprite,
 	                            A3D_WIDGET_BORDER_NONE,
-	                            color, NULL, NULL, count);
+	                            color, NULL, NULL, NULL,
+	                            count);
 	if(self->icon == NULL)
 	{
 		goto fail_icon;

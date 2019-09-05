@@ -49,6 +49,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
+                               void* priv,
+                               a3d_widget_clickFn click_fn,
                                a3d_widget_reflowFn reflow_fn,
                                a3d_widget_refreshFn refresh_fn);
 void            a3d_listbox_delete(a3d_listbox_t** _self);

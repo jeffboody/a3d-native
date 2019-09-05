@@ -48,8 +48,8 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int text_size,
                                a3d_vec4f_t* color_text,
                                const char* sprite,
+                               void* priv,
                                a3d_widget_clickFn click_fn,
-                               void* click_priv,
                                a3d_widget_t* body,
                                a3d_widget_t* footer);
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);

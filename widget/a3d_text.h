@@ -46,7 +46,6 @@ typedef struct
 	a3d_widget_t widget;
 
 	// text entry callback
-	void*            enter_priv;
 	a3d_text_enterFn enter_fn;
 
 	// text properties
@@ -69,7 +68,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int text_size,
                          a3d_vec4f_t* color_fill,
                          a3d_vec4f_t* color_text,
-                         void* enter_priv,
+                         void* priv,
                          a3d_text_enterFn enter_fn,
                          a3d_widget_clickFn clickFn,
                          a3d_widget_refreshFn refreshFn);

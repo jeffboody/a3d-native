@@ -38,9 +38,11 @@
 * private                                                  *
 ***********************************************************/
 
-static void a3d_radiolist_refresh(a3d_widget_t* widget)
+static void
+a3d_radiolist_refresh(a3d_widget_t* widget, void* priv)
 {
 	assert(widget);
+	assert(priv == NULL);
 
 	a3d_radiolist_t* self = (a3d_radiolist_t*) widget;
 	if(self->value != *(self->pvalue))
@@ -93,7 +95,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	self = (a3d_radiolist_t*)
 	       a3d_listbox_new(screen, wsize, orientation, layout,
 	                       border, color_fill, scroll_bar,
-	                       color_scroll0, color_scroll1, NULL,
+	                       color_scroll0, color_scroll1,
+	                       NULL, NULL, NULL,
 	                       a3d_radiolist_refresh);
 	if(self == NULL)
 	{

@@ -84,6 +84,7 @@ a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              a3d_widgetLayout_t* layout,
                              int border,
                              a3d_vec4f_t* color,
+                             void* priv,
                              a3d_widget_clickFn click_fn,
                              a3d_widget_refreshFn refresh_fn,
                              int count);

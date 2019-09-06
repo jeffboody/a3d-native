@@ -43,23 +43,18 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	assert(self);
 	assert(string);
 
-	a3d_vec4f_t clear;
-	a3d_vec4f_load(&clear, 0.0f, 0.0f, 0.0f, 0.0f);
+	a3d_textFn_t text_fn;
+	memset(&text_fn, 0, sizeof(a3d_textFn_t));
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_text_t* text = a3d_text_new(widget->screen,
-	                                0,
-	                                self->border,
-	                                self->text_size,
-	                                &clear,
-	                                &(self->color_text),
-	                                NULL, NULL,
-	                                NULL, NULL);
+	a3d_text_t* text = a3d_text_new(widget->screen, 0,
+	                                self->text_border,
+	                                &self->text_style,
+	                                &text_fn);
 	if(text == NULL)
 	{
 		return;
 	}
-	a3d_text_font(text, self->font_type);
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
 	if(a3d_list_enqueue(listbox->list, (const void*) text) == 0)
@@ -130,14 +125,15 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 {
 	assert(widget);
 
-	a3d_textbox_t* self = (a3d_textbox_t*) widget;
+	a3d_textbox_t*   self       = (a3d_textbox_t*) widget;
+	a3d_textStyle_t* text_style = &self->text_style;
 
 	// subtract the text_border which is added when
 	// printing text lines
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
-	                        self->border,
+	                        self->text_border,
 	                        &h_bo, &v_bo);
 	w = w - 2.0f*h_bo;
 
@@ -154,9 +150,9 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 	// reflow text for variable width font
 	a3d_font_t* font   = a3d_screen_font(widget->screen,
-	                                     self->font_type);
+	                                     text_style->font_type);
 	float       size   = a3d_screen_layoutText(widget->screen,
-	                                           self->text_size);
+	                                           text_style->size);
 	float       height = (float) a3d_font_height(font);
 
 	// clear the text
@@ -259,14 +255,10 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int orientation,
-                               a3d_widgetLayout_t* layout,
                                int border,
-                               a3d_vec4f_t* color_fill,
-                               int text_wrapx,
+                               a3d_widgetLayout_t* layout,
                                int text_border,
-                               int text_size,
-                               a3d_vec4f_t* color_text,
+                               a3d_textStyle_t* text_style,
                                int max_len,
                                int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
@@ -276,8 +268,8 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 {
 	// priv, click_fn may be NULL
 	assert(screen);
-	assert(color_fill);
-	assert(color_text);
+	assert(layout);
+	assert(text_style);
 	assert(color_scroll0);
 	assert(color_scroll1);
 
@@ -294,10 +286,11 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 
 	a3d_textbox_t* self;
 	self = (a3d_textbox_t*)
-	a3d_listbox_new(screen, wsize, orientation, layout, border,
-	                color_fill, scroll_bar, color_scroll0,
-	                color_scroll1, priv, click_fn, reflow_fn,
-	                NULL);
+	a3d_listbox_new(screen, wsize,
+	                border, layout,
+	                A3D_LISTBOX_ORIENTATION_VERTICAL,
+	                scroll_bar, color_scroll0, color_scroll1,
+	                priv, click_fn, reflow_fn, NULL);
 	if(self == NULL)
 	{
 		return NULL;
@@ -317,13 +310,11 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->last_w = 0.0f;
 	self->last_h = 0.0f;
 
-	self->text_wrapx = text_wrapx;
-	self->border     = text_border;
-	self->text_size  = text_size;
-	self->font_type  = A3D_SCREEN_FONT_REGULAR;
-	self->max_len    = max_len;
+	self->text_border = text_border;
+	self->max_len     = max_len;
 
-	a3d_vec4f_copy(color_text, &self->color_text);
+	memcpy(&self->text_style, text_style,
+	       sizeof(a3d_textStyle_t));
 
 	// success
 	return self;
@@ -405,12 +396,4 @@ void a3d_textbox_printf(a3d_textbox_t* self,
 	// failure
 	fail_enqueue:
 		free(string);
-}
-
-void a3d_textbox_font(a3d_textbox_t* self,
-                      int font_type)
-{
-	assert(self);
-
-	self->font_type = font_type;
 }

@@ -39,8 +39,7 @@ typedef struct
 a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
                                  int wsize,
                                  int border,
-                                 int text_size,
-                                 a3d_vec4f_t* color,
+                                 a3d_textStyle_t* text_style,
                                  int value,
                                  a3d_radiolist_t* parent);
 void        a3d_radiobox_delete(a3d_radiobox_t** _self);

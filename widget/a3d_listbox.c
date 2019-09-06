@@ -445,10 +445,9 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int orientation,
-                               a3d_widgetLayout_t* layout,
                                int border,
-                               a3d_vec4f_t* color_fill,
+                               a3d_widgetLayout_t* layout,
+                               int orientation,
                                int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
@@ -459,7 +458,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 {
 	// priv, click_fn, reflow_fn, refresh_fn may be NULL
 	assert(screen);
-	assert(color_fill);
+	assert(layout);
 	assert(color_scroll0);
 	assert(color_scroll1);
 
@@ -470,13 +469,6 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 
 	a3d_widgetStyle_t style =
 	{
-		.color_body =
-		{
-			.r = color_fill->r,
-			.g = color_fill->g,
-			.b = color_fill->b,
-			.a = color_fill->a,
-		},
 		.color_scroll0 =
 		{
 			.r = color_scroll0->r,

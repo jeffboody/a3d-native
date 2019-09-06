@@ -320,21 +320,22 @@ int a3d_spriteTex_decRef(a3d_spriteTex_t* self)
 
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
-                             a3d_widgetLayout_t* layout,
                              int border,
+                             a3d_widgetLayout_t* layout,
                              a3d_vec4f_t* color,
+                             int sprite_count,
                              void* priv,
                              a3d_widget_clickFn click_fn,
-                             a3d_widget_refreshFn refresh_fn,
-                             int count)
+                             a3d_widget_refreshFn refresh_fn)
 {
 	// priv, click_fn and refresh_fn may be NULL
 	assert(screen);
+	assert(layout);
 	assert(color);
 
-	if(count <= 0)
+	if(sprite_count <= 0)
 	{
-		LOGE("invalid count=%i", count);
+		LOGE("invalid sprite_count=%i", sprite_count);
 		return NULL;
 	}
 
@@ -373,23 +374,23 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->format = (int*) calloc(count, sizeof(int));
+	self->format = (int*) calloc(sprite_count, sizeof(int));
 	if(self->format == NULL)
 	{
 		LOGE("malloc failed");
 		goto fail_format;
 	}
 
-	self->id_tex = (GLuint*) calloc(count, sizeof(GLuint));
+	self->id_tex = (GLuint*) calloc(sprite_count, sizeof(GLuint));
 	if(self->id_tex == NULL)
 	{
 		LOGE("malloc failed");
 		goto fail_tex;
 	}
 
-	self->index = 0;
-	self->count = count;
-	self->theta = 0.0f;
+	self->sprite_count = sprite_count;
+	self->index        = 0;
+	self->theta        = 0.0f;
 	a3d_vec4f_copy(color, &self->color);
 
 	glGenBuffers(1, &self->id_vertex);
@@ -423,7 +424,7 @@ void a3d_sprite_delete(a3d_sprite_t** _self)
 		int i;
 		a3d_widget_t* widget = (a3d_widget_t*) self;
 		a3d_screen_t* screen = widget->screen;
-		for(i = 0; i < self->count; ++i)
+		for(i = 0; i < self->sprite_count; ++i)
 		{
 			a3d_screen_spriteTexUnmap(screen, &(self->id_tex[i]));
 		}
@@ -444,9 +445,10 @@ int a3d_sprite_load(a3d_sprite_t* self, int index, const char* fname)
 	assert(fname);
 
 	// check for invalid index
-	if((index < 0) || (index >= self->count))
+	if((index < 0) || (index >= self->sprite_count))
 	{
-		LOGW("invalid index=%i, count=%i", index, self->count);
+		LOGW("invalid index=%i, sprite_count=%i", index,
+		     self->sprite_count);
 		return 0;
 	}
 
@@ -469,9 +471,10 @@ void a3d_sprite_select(a3d_sprite_t* self, int index)
 	assert(self);
 
 	// check for invalid index
-	if((index < 0) || (index >= self->count))
+	if((index < 0) || (index >= self->sprite_count))
 	{
-		LOGW("invalid index=%i, count=%i", index, self->count);
+		LOGW("invalid index=%i, sprite_count=%i", index,
+		     self->sprite_count);
 		return;
 	}
 

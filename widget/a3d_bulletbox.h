@@ -40,9 +40,8 @@ typedef struct
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
                                    int border,
-                                   int text_size,
-                                   a3d_vec4f_t* color,
-                                   int count,
+                                   a3d_textStyle_t* text_style,
+                                   int sprite_count,
                                    void* priv,
                                    a3d_widget_clickFn click_fn,
                                    a3d_widget_refreshFn refresh_fn);
@@ -54,6 +53,5 @@ void            a3d_bulletbox_spriteSelect(a3d_bulletbox_t* self,
                                            int index);
 void            a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
                                          const char* fmt, ...);
-void            a3d_bulletbox_font(a3d_bulletbox_t* self, int font_type);
 
 #endif

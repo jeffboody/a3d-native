@@ -32,31 +32,24 @@
 typedef struct
 {
 	a3d_listbox_t listbox;
-	int*          pvalue;
-	int           value;
 
 	// text properties
-	int         text_wrapx;
-	int         border;
-	int         text_size;
-	a3d_vec4f_t color_fill;
-	a3d_vec4f_t color_text;
+	int             text_border;
+	a3d_textStyle_t text_style;
+
+	// radiolist value
+	int* pvalue;
+	int  value;
 } a3d_radiolist_t;
 
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int orientation,
-                                   a3d_widgetLayout_t* layout,
                                    int border,
-                                   a3d_vec4f_t* color_fill,
-                                   int text_wrapx,
+                                   a3d_widgetLayout_t* widget_layout,
+                                   int orientation,
                                    int text_border,
-                                   int text_size,
-                                   a3d_vec4f_t* color_text,
-                                   int* pvalue,
-                                   int scroll_bar,
-                                   a3d_vec4f_t* color_scroll0,
-                                   a3d_vec4f_t* color_scroll1);
+                                   a3d_textStyle_t* text_style,
+                                   int* pvalue);
 void            a3d_radiolist_delete(a3d_radiolist_t** _self);
 void            a3d_radiolist_clear(a3d_radiolist_t* self);
 void            a3d_radiolist_value(a3d_radiolist_t* self, int value);

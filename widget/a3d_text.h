@@ -33,27 +33,37 @@
 #define A3D_TEXT_SIZE_MEDIUM 1
 #define A3D_TEXT_SIZE_LARGE  2
 
-#define A3D_TEXT_WRAP_SHRINK         0
-#define A3D_TEXT_WRAP_STRETCH        1
-#define A3D_TEXT_WRAP_STRETCH_PARENT 2
-#define A3D_TEXT_WRAP_COUNT          3
-
 typedef void (*a3d_text_enterFn)(void* priv,
                                  const char* string);
+
+typedef struct a3d_textFn_s
+{
+	// functions and priv may be NULL
+
+	void*                priv;
+	a3d_text_enterFn     enter_fn;
+	a3d_widget_clickFn   click_fn;
+	a3d_widget_refreshFn refresh_fn;
+} a3d_textFn_t;
+
+typedef struct a3d_textStyle_s
+{
+	int         font_type;
+	int         size;
+	a3d_vec4f_t color;
+} a3d_textStyle_t;
 
 typedef struct
 {
 	a3d_widget_t widget;
 
-	// text entry callback
-	a3d_text_enterFn enter_fn;
-
 	// text properties
-	int         font_type;
-	size_t      string_size;
-	char*       string;
-	int         text_size;
-	a3d_vec4f_t color;
+	a3d_text_enterFn enter_fn;
+	a3d_textStyle_t  style;
+
+	// string data
+	size_t string_size;
+	char*  string;
 
 	// rendering properties
 	GLfloat* vertex;
@@ -65,18 +75,12 @@ typedef struct
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          int border,
-                         int text_size,
-                         a3d_vec4f_t* color_fill,
-                         a3d_vec4f_t* color_text,
-                         void* priv,
-                         a3d_text_enterFn enter_fn,
-                         a3d_widget_clickFn clickFn,
-                         a3d_widget_refreshFn refreshFn);
+                         a3d_textStyle_t* style,
+                         a3d_textFn_t* fn);
 void        a3d_text_delete(a3d_text_t** _self);
 int         a3d_text_width(a3d_text_t* self, int cursor);
 int         a3d_text_height(a3d_text_t* self);
 void        a3d_text_printf(a3d_text_t* self,
                             const char* fmt, ...);
-void        a3d_text_font(a3d_text_t* self, int font_type);
 
 #endif

@@ -35,10 +35,8 @@ typedef struct
 } a3d_checkbox_t;
 
 a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
-                                 int wsize,
-                                 int border,
-                                 int text_size,
-                                 a3d_vec4f_t* color,
+                                 int wsize, int border,
+                                 a3d_textStyle_t* text_style,
                                  int* pvalue);
 void        a3d_checkbox_delete(a3d_checkbox_t** _self);
 void        a3d_checkbox_textPrintf(a3d_checkbox_t* self,

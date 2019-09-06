@@ -65,7 +65,7 @@ typedef struct
 	a3d_widget_t widget;
 
 	// texture(s)
-	int count;
+	int sprite_count;
 	int index;
 
 	// GL properties
@@ -81,13 +81,13 @@ typedef struct
 
 a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              int wsize,
-                             a3d_widgetLayout_t* layout,
                              int border,
+                             a3d_widgetLayout_t* layout,
                              a3d_vec4f_t* color,
+                             int sprite_count,
                              void* priv,
                              a3d_widget_clickFn click_fn,
-                             a3d_widget_refreshFn refresh_fn,
-                             int count);
+                             a3d_widget_refreshFn refresh_fn);
 void          a3d_sprite_delete(a3d_sprite_t** _self);
 int           a3d_sprite_load(a3d_sprite_t* self,
                               int index,

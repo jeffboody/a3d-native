@@ -281,24 +281,24 @@ a3d_viewbox_refresh(a3d_widget_t* widget, void* priv)
 
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
-                               a3d_widgetLayout_t* layout,
                                int border,
-                               a3d_vec4f_t* color_fill,
+                               a3d_widgetLayout_t* layout,
                                a3d_vec4f_t* color_header,
+                               a3d_vec4f_t* color_body,
                                int text_border,
-                               int text_size,
-                               a3d_vec4f_t* text_color_text,
+                               a3d_textStyle_t* text_style,
                                const char* sprite,
-                               void* priv,
-                               a3d_widget_clickFn click_fn,
                                a3d_widget_t* body,
-                               a3d_widget_t* footer)
+                               a3d_widget_t* footer,
+                               void* priv,
+                               a3d_widget_clickFn click_fn)
 {
-	// footer may be NULL
+	// footer, priv, click_fn may be NULL
 	assert(screen);
-	assert(color_fill);
+	assert(layout);
 	assert(color_header);
-	assert(text_color_text);
+	assert(color_body);
+	assert(text_style);
 	assert(sprite);
 	assert(body);
 
@@ -318,10 +318,10 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		},
 		.color_body =
 		{
-			.r = color_fill->r,
-			.g = color_fill->g,
-			.b = color_fill->b,
-			.a = color_fill->a,
+			.r = color_body->r,
+			.g = color_body->g,
+			.b = color_body->b,
+			.a = color_body->a,
 		}
 	};
 
@@ -350,14 +350,12 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
 	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
-	                                 text_size,
-	                                 text_color_text,
+	                                 text_style,
 	                                 2, priv, click_fn, NULL);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;
 	}
-	a3d_text_font(self->bullet->text, A3D_SCREEN_FONT_BOLD);
 
 	if(a3d_bulletbox_spriteLoad(self->bullet, 0, sprite) == 0)
 	{
@@ -404,11 +402,4 @@ void a3d_viewbox_textPrintf(a3d_viewbox_t* self,
 	va_end(argptr);
 
 	a3d_bulletbox_textPrintf(self->bullet, "%s", string);
-}
-
-void a3d_viewbox_font(a3d_viewbox_t* self, int font_type)
-{
-	assert(self);
-
-	a3d_bulletbox_font(self->bullet, font_type);
 }

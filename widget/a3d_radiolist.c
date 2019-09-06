@@ -66,36 +66,36 @@ a3d_radiolist_refresh(a3d_widget_t* widget, void* priv)
 
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int orientation,
-                                   a3d_widgetLayout_t* layout,
                                    int border,
-                                   a3d_vec4f_t* color_fill,
-                                   int text_wrapx,
+                                   a3d_widgetLayout_t* widget_layout,
+                                   int orientation,
                                    int text_border,
-                                   int text_size,
-                                   a3d_vec4f_t* color_text,
-                                   int* pvalue,
-                                   int scroll_bar,
-                                   a3d_vec4f_t* color_scroll0,
-                                   a3d_vec4f_t* color_scroll1)
+                                   a3d_textStyle_t* text_style,
+                                   int* pvalue)
 {
 	assert(screen);
-	assert(color_fill);
-	assert(color_text);
+	assert(widget_layout);
+	assert(text_style);
 	assert(pvalue);
-	assert(color_scroll0);
-	assert(color_scroll1);
 
 	if(wsize == 0)
 	{
 		wsize = sizeof(a3d_radiolist_t);
 	}
 
+	a3d_vec4f_t clear =
+	{
+		.r = 0.0f,
+		.g = 0.0f,
+		.b = 0.0f,
+		.a = 0.0f,
+	};
+
 	a3d_radiolist_t* self;
 	self = (a3d_radiolist_t*)
-	       a3d_listbox_new(screen, wsize, orientation, layout,
-	                       border, color_fill, scroll_bar,
-	                       color_scroll0, color_scroll1,
+	       a3d_listbox_new(screen, wsize, border,
+	                       widget_layout, orientation,
+	                       0, &clear, &clear,
 	                       NULL, NULL, NULL,
 	                       a3d_radiolist_refresh);
 	if(self == NULL)
@@ -103,13 +103,12 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->text_wrapx = text_wrapx;
-	self->border     = text_border;
-	self->text_size  = text_size;
-	self->pvalue     = pvalue;
-	self->value      = *pvalue;
+	self->text_border = text_border;
+	self->pvalue      = pvalue;
+	self->value       = *pvalue;
 
-	a3d_vec4f_copy(color_text, &self->color_text);
+	memcpy(&self->text_style, text_style,
+	       sizeof(a3d_textStyle_t));
 
 	return self;
 }
@@ -165,8 +164,7 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_radiobox_t* rb;
 	rb = a3d_radiobox_new(widget->screen, 0,
-	                      self->border, self->text_size,
-	                      &self->color_text,
+	                      self->text_border, &self->text_style,
 	                      value, self);
 	if(rb == NULL)
 	{

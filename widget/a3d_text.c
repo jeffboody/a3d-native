@@ -94,10 +94,11 @@ static void a3d_text_size(a3d_widget_t* widget,
 	assert(w);
 	assert(h);
 
-	a3d_text_t* self = (a3d_text_t*) widget;
+	a3d_text_t*      self  = (a3d_text_t*) widget;
+	a3d_textStyle_t* style = &self->style;
 
 	float size   = a3d_screen_layoutText(widget->screen,
-	                                     self->text_size);
+	                                     style->size);
 	float width  = (float) 0.0f;
 	float height = (float) a3d_text_height(self);
 	if(a3d_widget_hasFocus(widget))
@@ -116,7 +117,8 @@ static void a3d_text_draw(a3d_widget_t* widget)
 {
 	assert(widget);
 
-	a3d_text_t* self = (a3d_text_t*) widget;
+	a3d_text_t*      self  = (a3d_text_t*) widget;
+	a3d_textStyle_t* style = &self->style;
 
 	int len = strlen(self->string);
 	if(a3d_widget_hasFocus(widget))
@@ -134,7 +136,7 @@ static void a3d_text_draw(a3d_widget_t* widget)
 		return;
 	}
 
-	a3d_vec4f_t* c     = &self->color;
+	a3d_vec4f_t* c     = &style->color;
 	float        alpha = c->a;
 	if(alpha > 0.0f)
 	{
@@ -145,7 +147,7 @@ static void a3d_text_draw(a3d_widget_t* widget)
 		float       y    = widget->rect_draw.t;
 		float       size = widget->rect_draw.h;
 		a3d_font_t* font = a3d_screen_font(widget->screen,
-		                                   self->font_type);
+		                                   style->font_type);
 		a3d_screen_sizef(widget->screen, &w, &h);
 		a3d_mat4f_ortho(&mvp, 1, 0.0f, w, h, 0.0f, 0.0f, 2.0f);
 		a3d_mat4f_translate(&mvp, 0, x, y, -1.0f);
@@ -176,10 +178,11 @@ static void a3d_text_addc(a3d_text_t* self, char c,
 {
 	assert(self);
 
-	float         offset = *_offset;
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen,
-	                                       self->font_type);
+	float            offset = *_offset;
+	a3d_widget_t*    widget = (a3d_widget_t*) self;
+	a3d_textStyle_t* style  = &self->style;
+	a3d_font_t*      font   = a3d_screen_font(widget->screen,
+	                                          style->font_type);
 
 	a3d_regionf_t tc;
 	a3d_regionf_t vc;
@@ -308,18 +311,12 @@ a3d_text_keyPress(a3d_widget_t* widget, void* priv,
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          int border,
-                         int text_size,
-                         a3d_vec4f_t* color_fill,
-                         a3d_vec4f_t* color_text,
-                         void* priv,
-                         a3d_text_enterFn enter_fn,
-                         a3d_widget_clickFn click_fn,
-                         a3d_widget_refreshFn refresh_fn)
+                         a3d_textStyle_t* style,
+                         a3d_textFn_t* fn)
 {
-	// priv, enter_fn, click_fn and refresh_fn may be NULL
 	assert(screen);
-	assert(color_fill);
-	assert(color_text);
+	assert(style);
+	assert(fn);
 
 	if(wsize == 0)
 	{
@@ -338,30 +335,23 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
-	a3d_widgetStyle_t style =
-	{
-		.color_body =
-		{
-			.r = color_fill->r,
-			.g = color_fill->g,
-			.b = color_fill->b,
-			.a = color_fill->a,
-		}
-	};
+	a3d_widgetStyle_t widget_style;
+	memset(&widget_style, 0, sizeof(a3d_widgetStyle_t));
 
-	a3d_widgetFn_t fn =
+	a3d_widgetFn_t widget_fn =
 	{
-		.priv        = priv,
+		.priv        = fn->priv,
 		.size_fn     = a3d_text_size,
-		.click_fn    = click_fn,
+		.click_fn    = fn->click_fn,
 		.keyPress_fn = a3d_text_keyPress,
 		.draw_fn     = a3d_text_draw,
-		.refresh_fn  = refresh_fn
+		.refresh_fn  = fn->refresh_fn
 	};
 
 	a3d_text_t* self;
 	self = (a3d_text_t*)
-	       a3d_widget_new(screen, wsize, &layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, &layout,
+	                      &widget_style, &widget_fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -393,10 +383,9 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_coords;
 	}
 
-	self->enter_fn   = enter_fn;
-	self->font_type  = A3D_SCREEN_FONT_REGULAR;
-	self->text_size  = text_size;
-	a3d_vec4f_copy(color_text, &self->color);
+	self->enter_fn = fn->enter_fn;
+	memcpy(&self->style, style, sizeof(a3d_textStyle_t));
+
 	glGenBuffers(1, &self->id_vertex);
 	glGenBuffers(1, &self->id_coords);
 
@@ -438,9 +427,10 @@ int a3d_text_width(a3d_text_t* self, int cursor)
 {
 	assert(self);
 
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen,
-	                                       self->font_type);
+	a3d_widget_t*    widget = (a3d_widget_t*) self;
+	a3d_textStyle_t* style  = &self->style;
+	a3d_font_t*      font   = a3d_screen_font(widget->screen,
+	                                          style->font_type);
 
 	int   width = 0;
 	char* s     = self->string;
@@ -462,9 +452,10 @@ int a3d_text_height(a3d_text_t* self)
 {
 	assert(self);
 
-	a3d_widget_t* widget = (a3d_widget_t*) self;
-	a3d_font_t*   font   = a3d_screen_font(widget->screen,
-	                                       self->font_type);
+	a3d_widget_t*    widget = (a3d_widget_t*) self;
+	a3d_textStyle_t* style  = &self->style;
+	a3d_font_t*      font   = a3d_screen_font(widget->screen,
+	                                          style->font_type);
 	return a3d_font_height(font);
 }
 
@@ -513,11 +504,4 @@ void a3d_text_printf(a3d_text_t* self,
 	             self->coords, GL_STATIC_DRAW);
 
 	a3d_screen_dirty(widget->screen);
-}
-
-void a3d_text_font(a3d_text_t* self, int font_type)
-{
-	assert(self);
-
-	self->font_type = font_type;
 }

@@ -40,25 +40,17 @@ typedef struct
 	float       last_h;
 
 	// text properties
-	int         text_wrapx;
-	int         border;
-	int         text_size;
-	a3d_vec4f_t color_fill;
-	a3d_vec4f_t color_text;
-	int         font_type;
-	int         max_len;
+	int             text_border;
+	a3d_textStyle_t text_style;
+	int             max_len;
 } a3d_textbox_t;
 
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int orientation,
-                               a3d_widgetLayout_t* layout,
                                int border,
-                               a3d_vec4f_t* color_fill,
-                               int text_wrapx,
+                               a3d_widgetLayout_t* layout,
                                int text_border,
-                               int text_size,
-                               a3d_vec4f_t* color_text,
+                               a3d_textStyle_t* text_style,
                                int max_len,
                                int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
@@ -69,7 +61,5 @@ void           a3d_textbox_delete(a3d_textbox_t** _self);
 void           a3d_textbox_clear(a3d_textbox_t* self);
 void           a3d_textbox_printf(a3d_textbox_t* self,
                                   const char* fmt, ...);
-void           a3d_textbox_font(a3d_textbox_t* self,
-                                int font_type);
 
 #endif

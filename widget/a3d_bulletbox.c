@@ -128,31 +128,22 @@ static void a3d_bulletbox_draw(a3d_widget_t* widget)
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
                                    int border,
-                                   int text_size,
-                                   a3d_vec4f_t* color,
-                                   int count,
+                                   a3d_textStyle_t* text_style,
+                                   int sprite_count,
                                    void* priv,
                                    a3d_widget_clickFn click_fn,
                                    a3d_widget_refreshFn refresh_fn)
 {
+	// priv, click_fn and refresh_fn may be NULL
 	assert(screen);
-	assert(color);
+	assert(text_style);
 
 	if(wsize == 0)
 	{
 		wsize = sizeof(a3d_bulletbox_t);
 	}
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
-	// TODO - bulletbox layout
-	a3d_widgetLayout_t layout =
+	a3d_widgetLayout_t widget_layout =
 	{
 		.border     = border,
 		.wrapx      = A3D_WIDGET_WRAP_SHRINK,
@@ -179,23 +170,23 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
-	       a3d_widget_new(screen, wsize, &layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, &widget_layout, &style, &fn);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
 	int wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_MEDIUM;
-	if(text_size == A3D_TEXT_SIZE_LARGE)
+	if(text_style->size == A3D_TEXT_SIZE_LARGE)
 	{
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_LARGE;
 	}
-	else if(text_size == A3D_TEXT_SIZE_SMALL)
+	else if(text_style->size == A3D_TEXT_SIZE_SMALL)
 	{
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
 	}
 
-	a3d_widgetLayout_t layout_sprite =
+	a3d_widgetLayout_t sprite_layout =
 	{
 		.wrapx    = wrap,
 		.wrapy    = wrap,
@@ -205,23 +196,22 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
-	self->icon = a3d_sprite_new(screen, 0, &layout_sprite,
+	self->icon = a3d_sprite_new(screen, 0,
 	                            A3D_WIDGET_BORDER_NONE,
-	                            color, NULL, NULL, NULL,
-	                            count);
+	                            &sprite_layout,
+	                            &text_style->color, sprite_count,
+	                            NULL, NULL, NULL);
 	if(self->icon == NULL)
 	{
 		goto fail_icon;
 	}
 
-	self->text = a3d_text_new(screen,
-	                          0,
+	a3d_textFn_t text_fn;
+	memset(&text_fn, 0, sizeof(a3d_textFn_t));
+
+	self->text = a3d_text_new(screen, 0,
 	                          A3D_WIDGET_BORDER_NONE,
-	                          text_size,
-	                          &clear,
-	                          color,
-	                          NULL, NULL,
-	                          NULL, NULL);
+	                          text_style, &text_fn);
 	if(self->text == NULL)
 	{
 		goto fail_text;
@@ -282,11 +272,4 @@ void a3d_bulletbox_textPrintf(a3d_bulletbox_t* self,
 	va_end(argptr);
 
 	a3d_text_printf(self->text, "%s", string);
-}
-
-void a3d_bulletbox_font(a3d_bulletbox_t* self, int font_type)
-{
-	assert(self);
-
-	a3d_text_font(self->text, font_type);
 }

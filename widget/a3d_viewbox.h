@@ -40,18 +40,17 @@ typedef struct
 
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
-                               a3d_widgetLayout_t* layout,
                                int border,
-                               a3d_vec4f_t* color_fill,
+                               a3d_widgetLayout_t* layout,
                                a3d_vec4f_t* color_header,
+                               a3d_vec4f_t* color_body,
                                int text_border,
-                               int text_size,
-                               a3d_vec4f_t* color_text,
+                               a3d_textStyle_t* text_style,
                                const char* sprite,
-                               void* priv,
-                               a3d_widget_clickFn click_fn,
                                a3d_widget_t* body,
-                               a3d_widget_t* footer);
+                               a3d_widget_t* footer,
+                               void* priv,
+                               a3d_widget_clickFn click_fn);
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);
 void            a3d_viewbox_textPrintf(a3d_viewbox_t* self,
                                        const char* fmt, ...);

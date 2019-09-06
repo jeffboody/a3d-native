@@ -92,14 +92,17 @@ typedef struct a3d_widgetLayout_s
 {
 	// horizontal/vertical wrapping
 	//    shrink:
-	//       size of children
-	//       outset border
+	//       size of children plus border
+	//       border is outset from children
 	//       children must be shrink
+	//       (except lists which may have both)
 	//    stretch:
 	//       size of container
-	//       inset border
+	//       border is inset from container
 	//       children may be stretch or shrink
 	//       top level widget must be stretch
+	int   border;
+	int   scroll_bar;
 	int   wrapx;
 	int   wrapy;
 	int   aspectx;
@@ -182,8 +185,6 @@ typedef struct a3d_widget_s
 	a3d_widgetLayout_t layout;
 
 	// style
-	int         border;
-	int         scroll_bar;
 	a3d_vec4f_t color_header;
 	a3d_vec4f_t color_body;
 	a3d_vec4f_t color_scroll0;
@@ -212,10 +213,8 @@ typedef struct a3d_widget_s
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
-                             int border,
                              a3d_vec4f_t* color_header,
                              a3d_vec4f_t* color_body,
-                             int scroll_bar,
                              a3d_vec4f_t* color_scroll0,
                              a3d_vec4f_t* color_scroll1,
                              a3d_widgetFn_t* fn);

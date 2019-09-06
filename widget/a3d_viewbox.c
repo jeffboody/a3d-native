@@ -41,10 +41,11 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 	assert(w);
 	assert(h);
 
-	a3d_viewbox_t* self   = (a3d_viewbox_t*) widget;
-	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
-	a3d_widget_t*  body   = self->body;
-	a3d_widget_t*  footer = self->footer;
+	a3d_widgetLayout_t* layout = &widget->layout;
+	a3d_viewbox_t*      self   = (a3d_viewbox_t*) widget;
+	a3d_widget_t*       bullet = (a3d_widget_t*) self->bullet;
+	a3d_widget_t*       body   = self->body;
+	a3d_widget_t*       footer = self->footer;
 
 	float wmax     = 0.0f;
 	float hsum     = 0.0f;
@@ -59,8 +60,7 @@ static void a3d_viewbox_size(a3d_widget_t* widget,
 	// layout separator(s)
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
-	a3d_screen_layoutBorder(widget->screen,
-	                        widget->border,
+	a3d_screen_layoutBorder(widget->screen, layout->border,
 	                        &h_bo, &v_bo);
 	if(footer)
 	{
@@ -136,10 +136,11 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 {
 	assert(widget);
 
-	a3d_viewbox_t* self   = (a3d_viewbox_t*) widget;
-	a3d_widget_t*  bullet = (a3d_widget_t*) self->bullet;
-	a3d_widget_t*  body   = self->body;
-	a3d_widget_t*  footer = self->footer;
+	a3d_widgetLayout_t* layout = &widget->layout;
+	a3d_viewbox_t*      self   = (a3d_viewbox_t*) widget;
+	a3d_widget_t*       bullet = (a3d_widget_t*) self->bullet;
+	a3d_widget_t*       body   = self->body;
+	a3d_widget_t*       footer = self->footer;
 
 	// initialize the layout
 	float x  = 0.0f;
@@ -169,7 +170,7 @@ static void a3d_viewbox_layout(a3d_widget_t* widget,
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
-	                        widget->border,
+	                        layout->border,
 	                        &h_bo, &v_bo);
 
 	// layout body
@@ -238,12 +239,14 @@ static void a3d_viewbox_draw(a3d_widget_t* widget)
 {
 	assert(widget);
 
+	a3d_widgetLayout_t* layout = &widget->layout;
+
 	// bullet separator y
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_viewbox_t* self = (a3d_viewbox_t*) widget;
 	a3d_screen_layoutBorder(widget->screen,
-	                        widget->border,
+	                        layout->border,
 	                        &h_bo, &v_bo);
 	a3d_widget_t* w = &(self->bullet->widget);
 	float         y = w->rect_border.t + w->rect_border.h + v_bo;
@@ -323,10 +326,14 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		.a = 0.0f
 	};
 
+	// TODO - viewbox layout
+	layout->border     = border;
+	layout->scroll_bar = 0;
+
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*)
-	       a3d_widget_new(screen, wsize, layout, border,
-	                      color_header, color_fill, 0, &clear,
+	       a3d_widget_new(screen, wsize, layout,
+	                      color_header, color_fill, &clear,
 	                      &clear, &fn);
 	if(self == NULL)
 	{

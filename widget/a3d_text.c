@@ -326,8 +326,10 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_text_t);
 	}
 
+	// TODO - text layout
 	a3d_widgetLayout_t layout =
 	{
+		.border   = border,
 		.wrapx    = A3D_WIDGET_WRAP_SHRINK,
 		.wrapy    = A3D_WIDGET_WRAP_SHRINK,
 		.aspectx  = A3D_WIDGET_ASPECT_DEFAULT,
@@ -356,8 +358,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 
 	a3d_text_t* self;
 	self = (a3d_text_t*)
-	       a3d_widget_new(screen, wsize, &layout, border,
-	                      &clear, color_fill, 0, &clear,
+	       a3d_widget_new(screen, wsize, &layout,
+	                      &clear, color_fill, &clear,
 	                      &clear, &fn);
 	if(self == NULL)
 	{

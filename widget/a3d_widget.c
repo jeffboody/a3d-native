@@ -147,10 +147,8 @@ static void a3d_widget_makeRoundRect(a3d_vec2f_t* xy, int steps,
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
-                             int border,
                              a3d_vec4f_t* color_header,
                              a3d_vec4f_t* color_body,
-                             int scroll_bar,
                              a3d_vec4f_t* color_scroll0,
                              a3d_vec4f_t* color_scroll1,
                              a3d_widgetFn_t* fn)
@@ -176,8 +174,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 
 	self->screen         = screen;
 	self->anchor         = A3D_WIDGET_ANCHOR_TL;
-	self->border         = border;
-	self->scroll_bar     = scroll_bar;
 	self->sound_fx       = 1;
 
 	memcpy(&self->fn, fn, sizeof(a3d_widgetFn_t));
@@ -247,7 +243,8 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	assert(self);
 	assert(clip);
 
-	a3d_widgetFn_t* fn = &self->fn;
+	a3d_widgetLayout_t* layout = &self->layout;
+	a3d_widgetFn_t*     fn     = &self->fn;
 
 	float w  = self->rect_border.w;
 	float h  = self->rect_border.h;
@@ -338,7 +335,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	// set the layout
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
-	a3d_screen_layoutBorder(self->screen, self->border,
+	a3d_screen_layoutBorder(self->screen, layout->border,
 	                        &h_bo, &v_bo);
 	self->rect_border.t = t;
 	self->rect_border.l = l;
@@ -372,7 +369,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	                        &self->rect_clip,
 	                        &rect_border_clip))
 	{
-		if(self->scroll_bar)
+		if(layout->scroll_bar)
 		{
 			float h_bo = 0.0f;
 			float v_bo = 0.0f;
@@ -432,7 +429,7 @@ void a3d_widget_layoutSize(a3d_widget_t* self,
 	// initialize size
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
-	a3d_screen_layoutBorder(self->screen, self->border,
+	a3d_screen_layoutBorder(self->screen, layout->border,
 	                        &h_bo, &v_bo);
 	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
 	{
@@ -701,7 +698,8 @@ void a3d_widget_draw(a3d_widget_t* self)
 {
 	assert(self);
 
-	a3d_widgetFn_t* fn = &self->fn;
+	a3d_widgetLayout_t* layout = &self->layout;
+	a3d_widgetFn_t*     fn     = &self->fn;
 
 	a3d_rect4f_t rect_border_clip;
 	if(a3d_rect4f_intersect(&self->rect_border,
@@ -763,7 +761,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 
 		// draw the scroll bar
 		float s = rect_draw_clip.h/self->rect_draw.h;
-		if(self->scroll_bar && (s < 1.0f))
+		if(layout->scroll_bar && (s < 1.0f))
 		{
 			// clamp the start/end points
 			float a = -self->drag_dy/self->rect_draw.h;

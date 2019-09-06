@@ -151,14 +151,16 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		.a = 0.0f
 	};
 
+	// TODO - bulletbox layout
 	a3d_widgetLayout_t layout =
 	{
-		.wrapx    = A3D_WIDGET_WRAP_SHRINK,
-		.wrapy    = A3D_WIDGET_WRAP_SHRINK,
-		.aspectx  = A3D_WIDGET_ASPECT_DEFAULT,
-		.aspecty  = A3D_WIDGET_ASPECT_DEFAULT,
-		.stretchx = 1.0f,
-		.stretchy = 1.0f
+		.border     = border,
+		.wrapx      = A3D_WIDGET_WRAP_SHRINK,
+		.wrapy      = A3D_WIDGET_WRAP_SHRINK,
+		.aspectx    = A3D_WIDGET_ASPECT_DEFAULT,
+		.aspecty    = A3D_WIDGET_ASPECT_DEFAULT,
+		.stretchx   = 1.0f,
+		.stretchy   = 1.0f
 	};
 
 	a3d_widgetFn_t fn =
@@ -174,8 +176,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
-	       a3d_widget_new(screen, wsize, &layout, border,
-	                      &clear, &clear, 0, &clear, &clear,
+	       a3d_widget_new(screen, wsize, &layout,
+	                      &clear, &clear, &clear, &clear,
 	                      &fn);
 	if(self == NULL)
 	{

@@ -366,10 +366,14 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		.refresh_fn = refresh_fn
 	};
 
+	// TODO - sprite layout
+	layout->border     = border;
+	layout->scroll_bar = 0;
+
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)
-	       a3d_widget_new(screen, wsize, layout, border,
-	                      &clear, &clear, 0, &clear, &clear, &fn);
+	       a3d_widget_new(screen, wsize, layout,
+	                      &clear, &clear, &clear, &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;

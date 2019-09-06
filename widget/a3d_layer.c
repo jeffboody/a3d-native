@@ -245,10 +245,14 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		.a = 0.0f
 	};
 
+	// TODO - layer layout
+	layout->border     = border;
+	layout->scroll_bar = 0;
+
 	a3d_layer_t* self;
 	self = (a3d_layer_t*)
-	       a3d_widget_new(screen, wsize, layout, border,
-	                      &clear, color, 0, &clear, &clear,
+	       a3d_widget_new(screen, wsize, layout,
+	                      &clear, color, &clear, &clear,
 	                      &fn);
 	if(self == NULL)
 	{

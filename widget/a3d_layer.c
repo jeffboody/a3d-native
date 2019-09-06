@@ -227,6 +227,17 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_layer_t);
 	}
 
+	a3d_widgetStyle_t style =
+	{
+		.color_body =
+		{
+			.r = color->r,
+			.g = color->g,
+			.b = color->b,
+			.a = color->a,
+		}
+	};
+
 	a3d_widgetFn_t fn =
 	{
 		.size_fn    = a3d_layer_size,
@@ -237,23 +248,13 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		.refresh_fn = a3d_layer_refresh
 	};
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
 	// TODO - layer layout
 	layout->border     = border;
 	layout->scroll_bar = 0;
 
 	a3d_layer_t* self;
 	self = (a3d_layer_t*)
-	       a3d_widget_new(screen, wsize, layout,
-	                      &clear, color, &clear, &clear,
-	                      &fn);
+	       a3d_widget_new(screen, wsize, layout, &style, &fn);
 	if(self == NULL)
 	{
 		return NULL;

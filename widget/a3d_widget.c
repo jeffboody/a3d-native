@@ -147,17 +147,12 @@ static void a3d_widget_makeRoundRect(a3d_vec2f_t* xy, int steps,
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
-                             a3d_vec4f_t* color_header,
-                             a3d_vec4f_t* color_body,
-                             a3d_vec4f_t* color_scroll0,
-                             a3d_vec4f_t* color_scroll1,
+                             a3d_widgetStyle_t* style,
                              a3d_widgetFn_t* fn)
 {
 	assert(screen);
-	assert(color_header);
-	assert(color_body);
-	assert(color_scroll0);
-	assert(color_scroll1);
+	assert(layout);
+	assert(style);
 	assert(fn);
 
 	if(wsize == 0)
@@ -172,12 +167,13 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 		return NULL;
 	}
 
-	self->screen         = screen;
-	self->anchor         = A3D_WIDGET_ANCHOR_TL;
-	self->sound_fx       = 1;
+	self->screen   = screen;
+	self->anchor   = A3D_WIDGET_ANCHOR_TL;
+	self->sound_fx = 1;
 
-	memcpy(&self->fn, fn, sizeof(a3d_widgetFn_t));
 	memcpy(&self->layout, layout, sizeof(a3d_widgetLayout_t));
+	memcpy(&self->style, style, sizeof(a3d_widgetStyle_t));
+	memcpy(&self->fn, fn, sizeof(a3d_widgetFn_t));
 
 	// check for invalid layouts
 	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
@@ -189,11 +185,6 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 	{
 		assert(layout->aspecty != A3D_WIDGET_ASPECT_SQUARE);
 	}
-
-	a3d_vec4f_copy(color_header, &self->color_header);
-	a3d_vec4f_copy(color_body, &self->color_body);
-	a3d_vec4f_copy(color_scroll0, &self->color_scroll0);
-	a3d_vec4f_copy(color_scroll1, &self->color_scroll1);
 
 	glGenBuffers(1, &self->id_xy_widget);
 	glGenBuffers(1, &self->id_xy_scroll);
@@ -699,6 +690,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 	assert(self);
 
 	a3d_widgetLayout_t* layout = &self->layout;
+	a3d_widgetStyle_t*  style  = &self->style;
 	a3d_widgetFn_t*     fn     = &self->fn;
 
 	a3d_rect4f_t rect_border_clip;
@@ -711,8 +703,8 @@ void a3d_widget_draw(a3d_widget_t* self)
 
 	// fill the widget
 	a3d_screen_t* screen       = self->screen;
-	a3d_vec4f_t*  color_body   = &self->color_body;
-	a3d_vec4f_t*  color_header = &self->color_header;
+	a3d_vec4f_t*  color_body   = &style->color_body;
+	a3d_vec4f_t*  color_header = &style->color_header;
 	float         alpha        = color_body->a;
 	if(alpha > 0.0f)
 	{
@@ -786,8 +778,8 @@ void a3d_widget_draw(a3d_widget_t* self)
 			a = rect_border_clip.t + a*rect_border_clip.h;
 			b = rect_border_clip.t + b*rect_border_clip.h;
 
-			a3d_vec4f_t* c0 = &self->color_scroll0;
-			a3d_vec4f_t* c1 = &self->color_scroll1;
+			a3d_vec4f_t* c0 = &style->color_scroll0;
+			a3d_vec4f_t* c1 = &style->color_scroll1;
 			a3d_screen_scissor(screen, &rect_border_clip);
 			if((c0->a < 1.0f) || (c1->a < 1.0f))
 			{

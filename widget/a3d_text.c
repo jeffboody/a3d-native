@@ -338,6 +338,17 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
+	a3d_widgetStyle_t style =
+	{
+		.color_body =
+		{
+			.r = color_fill->r,
+			.g = color_fill->g,
+			.b = color_fill->b,
+			.a = color_fill->a,
+		}
+	};
+
 	a3d_widgetFn_t fn =
 	{
 		.priv        = priv,
@@ -348,19 +359,9 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		.refresh_fn  = refresh_fn
 	};
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
 	a3d_text_t* self;
 	self = (a3d_text_t*)
-	       a3d_widget_new(screen, wsize, &layout,
-	                      &clear, color_fill, &clear,
-	                      &clear, &fn);
+	       a3d_widget_new(screen, wsize, &layout, &style, &fn);
 	if(self == NULL)
 	{
 		return NULL;

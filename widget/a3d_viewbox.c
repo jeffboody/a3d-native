@@ -307,6 +307,24 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_viewbox_t);
 	}
 
+	a3d_widgetStyle_t style =
+	{
+		.color_header =
+		{
+			.r = color_header->r,
+			.g = color_header->g,
+			.b = color_header->b,
+			.a = color_header->a,
+		},
+		.color_body =
+		{
+			.r = color_fill->r,
+			.g = color_fill->g,
+			.b = color_fill->b,
+			.a = color_fill->a,
+		}
+	};
+
 	a3d_widgetFn_t fn =
 	{
 		.size_fn      = a3d_viewbox_size,
@@ -318,23 +336,13 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		.refresh_fn   = a3d_viewbox_refresh
 	};
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
 	// TODO - viewbox layout
 	layout->border     = border;
 	layout->scroll_bar = 0;
 
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*)
-	       a3d_widget_new(screen, wsize, layout,
-	                      color_header, color_fill, &clear,
-	                      &clear, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style, &fn);
 	if(self == NULL)
 	{
 		return NULL;

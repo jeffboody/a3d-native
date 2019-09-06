@@ -468,6 +468,31 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_listbox_t);
 	}
 
+	a3d_widgetStyle_t style =
+	{
+		.color_body =
+		{
+			.r = color_fill->r,
+			.g = color_fill->g,
+			.b = color_fill->b,
+			.a = color_fill->a,
+		},
+		.color_scroll0 =
+		{
+			.r = color_scroll0->r,
+			.g = color_scroll0->g,
+			.b = color_scroll0->b,
+			.a = color_scroll0->a,
+		},
+		.color_scroll1 =
+		{
+			.r = color_scroll1->r,
+			.g = color_scroll1->g,
+			.b = color_scroll1->b,
+			.a = color_scroll1->a,
+		}
+	};
+
 	a3d_widgetFn_t fn =
 	{
 		.priv       = priv,
@@ -480,23 +505,13 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		.refresh_fn = refresh_fn ? refresh_fn : a3d_listbox_refresh
 	};
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
-
 	// TODO - listbox layout
 	layout->border     = border;
 	layout->scroll_bar = scroll_bar;
 
 	a3d_listbox_t* self;
 	self = (a3d_listbox_t*)
-	       a3d_widget_new(screen, wsize, layout, &clear,
-	                      color_fill, color_scroll0,
-	                      color_scroll1, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style, &fn);
 	if(self == NULL)
 	{
 		return NULL;

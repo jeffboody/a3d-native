@@ -350,13 +350,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_sprite_t);
 	}
 
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f
-	};
+	a3d_widgetStyle_t style;
+	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
 	a3d_widgetFn_t fn =
 	{
@@ -372,8 +367,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)
-	       a3d_widget_new(screen, wsize, layout,
-	                      &clear, &clear, &clear, &clear, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style, &fn);
 	if(self == NULL)
 	{
 		return NULL;

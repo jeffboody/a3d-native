@@ -111,6 +111,14 @@ typedef struct a3d_widgetLayout_s
 	float stretchy;
 } a3d_widgetLayout_t;
 
+typedef struct a3d_widgetStyle_s
+{
+	a3d_vec4f_t color_header;
+	a3d_vec4f_t color_body;
+	a3d_vec4f_t color_scroll0;
+	a3d_vec4f_t color_scroll1;
+} a3d_widgetStyle_t;
+
 typedef struct a3d_widgetFn_s
 {
 	// functions and priv may be NULL
@@ -176,28 +184,21 @@ typedef struct a3d_widget_s
 	a3d_rect4f_t rect_clip;
 	a3d_rect4f_t rect_border;
 
+	// widget properties
+	a3d_widgetLayout_t layout;
+	a3d_widgetStyle_t  style;
+	a3d_widgetFn_t     fn;
+
 	// anchor to the widget parent
 	// anchor is not part of the layout since it is only
 	// relevant for layers and defaults to TL otherwise
 	int anchor;
 
-	// widget layout
-	a3d_widgetLayout_t layout;
-
-	// style
-	a3d_vec4f_t color_header;
-	a3d_vec4f_t color_body;
-	a3d_vec4f_t color_scroll0;
-	a3d_vec4f_t color_scroll1;
-
-	// header
+	// header position
 	float header_y;
 
 	// sound fx for clicks
 	int sound_fx;
-
-	// widget callback functions
-	a3d_widgetFn_t fn;
 
 	// draw state
 	GLuint id_xy_widget;
@@ -213,10 +214,7 @@ typedef struct a3d_widget_s
 a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
-                             a3d_vec4f_t* color_header,
-                             a3d_vec4f_t* color_body,
-                             a3d_vec4f_t* color_scroll0,
-                             a3d_vec4f_t* color_scroll1,
+                             a3d_widgetStyle_t* style,
                              a3d_widgetFn_t* fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,

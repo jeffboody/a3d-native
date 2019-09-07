@@ -70,12 +70,16 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_radiobox_t);
 	}
 
+	a3d_bulletboxFn_t bulletbox_fn =
+	{
+		.click_fn = a3d_radiobox_click
+	};
+
 	a3d_radiobox_t* self;
 	self = (a3d_radiobox_t*)
 	       a3d_bulletbox_new(screen, wsize, border,
 	                         text_style, 2,
-	                         NULL, a3d_radiobox_click,
-	                         NULL);
+	                         &bulletbox_fn);
 	if(self == NULL)
 	{
 		return NULL;

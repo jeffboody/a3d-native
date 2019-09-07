@@ -349,9 +349,15 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	}
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
+	a3d_bulletboxFn_t bulletbox_fn =
+	{
+		.priv     = priv,
+		.click_fn = click_fn,
+	};
+
 	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
-	                                 text_style,
-	                                 2, priv, click_fn, NULL);
+	                                 text_style, 2,
+	                                 &bulletbox_fn);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;

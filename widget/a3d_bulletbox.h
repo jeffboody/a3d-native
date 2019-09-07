@@ -29,6 +29,15 @@
 #include "a3d_screen.h"
 #include "../math/a3d_vec4f.h"
 
+typedef struct a3d_bulletboxFn_s
+{
+	// functions and priv may be NULL
+
+	void*                priv;
+	a3d_widget_clickFn   click_fn;
+	a3d_widget_refreshFn refresh_fn;
+} a3d_bulletboxFn_t;
+
 typedef struct
 {
 	a3d_widget_t widget;
@@ -42,9 +51,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int border,
                                    a3d_textStyle_t* text_style,
                                    int sprite_count,
-                                   void* priv,
-                                   a3d_widget_clickFn click_fn,
-                                   a3d_widget_refreshFn refresh_fn);
+                                   a3d_bulletboxFn_t* fn);
 void            a3d_bulletbox_delete(a3d_bulletbox_t** _self);
 int             a3d_bulletbox_spriteLoad(a3d_bulletbox_t* self,
                                          int index,

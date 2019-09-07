@@ -130,13 +130,11 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int border,
                                    a3d_textStyle_t* text_style,
                                    int sprite_count,
-                                   void* priv,
-                                   a3d_widget_clickFn click_fn,
-                                   a3d_widget_refreshFn refresh_fn)
+                                   a3d_bulletboxFn_t* fn)
 {
-	// priv, click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(text_style);
+	assert(fn);
 
 	if(wsize == 0)
 	{
@@ -157,20 +155,21 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t style;
 	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
-	a3d_widgetFn_t fn =
+	a3d_widgetFn_t widget_fn =
 	{
-		.priv       = priv,
+		.priv       = fn->priv,
 		.size_fn    = a3d_bulletbox_size,
-		.click_fn   = click_fn,
+		.click_fn   = fn->click_fn,
 		.layout_fn  = a3d_bulletbox_layout,
 		.drag_fn    = a3d_bulletbox_drag,
 		.draw_fn    = a3d_bulletbox_draw,
-		.refresh_fn = refresh_fn
+		.refresh_fn = fn->refresh_fn
 	};
 
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
-	       a3d_widget_new(screen, wsize, &widget_layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, &widget_layout, &style,
+	                      &widget_fn);
 	if(self == NULL)
 	{
 		return NULL;

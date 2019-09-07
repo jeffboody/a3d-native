@@ -60,6 +60,15 @@ void             a3d_spriteTex_delete(a3d_spriteTex_t** _self);
 void             a3d_spriteTex_incRef(a3d_spriteTex_t* self);
 int              a3d_spriteTex_decRef(a3d_spriteTex_t* self);
 
+typedef struct a3d_spriteFn_s
+{
+	// functions and priv may be NULL
+
+	void* priv;
+	a3d_widget_clickFn   click_fn;
+	a3d_widget_refreshFn refresh_fn;
+} a3d_spriteFn_t;
+
 typedef struct
 {
 	a3d_widget_t widget;
@@ -85,9 +94,7 @@ a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              a3d_widgetLayout_t* layout,
                              a3d_vec4f_t* color,
                              int sprite_count,
-                             void* priv,
-                             a3d_widget_clickFn click_fn,
-                             a3d_widget_refreshFn refresh_fn);
+                             a3d_spriteFn_t* fn);
 void          a3d_sprite_delete(a3d_sprite_t** _self);
 int           a3d_sprite_load(a3d_sprite_t* self,
                               int index,

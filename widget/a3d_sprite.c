@@ -324,14 +324,12 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              a3d_widgetLayout_t* layout,
                              a3d_vec4f_t* color,
                              int sprite_count,
-                             void* priv,
-                             a3d_widget_clickFn click_fn,
-                             a3d_widget_refreshFn refresh_fn)
+                             a3d_spriteFn_t* fn)
 {
-	// priv, click_fn and refresh_fn may be NULL
 	assert(screen);
 	assert(layout);
 	assert(color);
+	assert(fn);
 
 	if(sprite_count <= 0)
 	{
@@ -354,12 +352,12 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t style;
 	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
-	a3d_widgetFn_t fn =
+	a3d_widgetFn_t widget_fn =
 	{
-		.priv       = priv,
-		.click_fn   = click_fn,
+		.priv       = fn->priv,
+		.click_fn   = fn->click_fn,
 		.draw_fn    = a3d_sprite_draw,
-		.refresh_fn = refresh_fn
+		.refresh_fn = fn->refresh_fn
 	};
 
 	// TODO - sprite layout
@@ -368,7 +366,8 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)
-	       a3d_widget_new(screen, wsize, layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style,
+	                      &widget_fn);
 	if(self == NULL)
 	{
 		return NULL;

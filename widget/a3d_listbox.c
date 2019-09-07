@@ -449,16 +449,13 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int orientation,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
-                               void* priv,
-                               a3d_widget_clickFn click_fn,
-                               a3d_widget_reflowFn reflow_fn,
-                               a3d_widget_refreshFn refresh_fn)
+                               a3d_widgetFn_t* fn)
 {
-	// priv, click_fn, reflow_fn, refresh_fn may be NULL
 	assert(screen);
 	assert(layout);
 	assert(color_scroll0);
 	assert(color_scroll1);
+	assert(fn);
 
 	if(wsize == 0)
 	{
@@ -483,21 +480,30 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		}
 	};
 
-	a3d_widgetFn_t fn =
+	// optionally set click/refresh functions
+	a3d_widgetFn_t list_fn;
+	memcpy(&list_fn, fn, sizeof(a3d_widgetFn_t));
+	if(fn->click_fn == NULL)
 	{
-		.priv       = priv,
-		.reflow_fn  = reflow_fn,
-		.size_fn    = a3d_listbox_size,
-		.click_fn   = click_fn ? click_fn : a3d_listbox_click,
-		.layout_fn  = a3d_listbox_layout,
-		.drag_fn    = a3d_listbox_drag,
-		.draw_fn    = a3d_listbox_draw,
-		.refresh_fn = refresh_fn ? refresh_fn : a3d_listbox_refresh
+		list_fn.click_fn = a3d_listbox_click;
+	}
+	if(fn->refresh_fn == NULL)
+	{
+		list_fn.refresh_fn = a3d_listbox_refresh;
+	}
+
+	a3d_widgetPrivFn_t priv_fn =
+	{
+		.size_fn   = a3d_listbox_size,
+		.layout_fn = a3d_listbox_layout,
+		.drag_fn   = a3d_listbox_drag,
+		.draw_fn   = a3d_listbox_draw,
 	};
 
 	a3d_listbox_t* self;
 	self = (a3d_listbox_t*)
-	       a3d_widget_new(screen, wsize, layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style,
+	                      &list_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

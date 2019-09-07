@@ -237,19 +237,24 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		}
 	};
 
-	a3d_widgetFn_t fn =
+	a3d_widgetFn_t layer_fn =
+	{
+		.click_fn   = a3d_layer_click,
+		.refresh_fn = a3d_layer_refresh
+	};
+
+	a3d_widgetPrivFn_t priv_fn =
 	{
 		.size_fn    = a3d_layer_size,
-		.click_fn   = a3d_layer_click,
 		.layout_fn  = a3d_layer_layout,
 		.drag_fn    = a3d_layer_drag,
 		.draw_fn    = a3d_layer_draw,
-		.refresh_fn = a3d_layer_refresh
 	};
 
 	a3d_layer_t* self;
 	self = (a3d_layer_t*)
-	       a3d_widget_new(screen, wsize, layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style,
+	                      &layer_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

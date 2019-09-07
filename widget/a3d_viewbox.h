@@ -47,11 +47,9 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                const char* sprite,
                                a3d_widget_t* body,
                                a3d_widget_t* footer,
-                               void* priv,
-                               a3d_widget_clickFn click_fn);
+                               a3d_widgetFn_t* fn);
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);
 void            a3d_viewbox_textPrintf(a3d_viewbox_t* self,
                                        const char* fmt, ...);
-void            a3d_viewbox_font(a3d_viewbox_t* self, int font_type);
 
 #endif

@@ -46,12 +46,10 @@ typedef void (*a3d_text_enterFn)(void* priv,
 
 typedef struct a3d_textFn_s
 {
-	// functions and priv may be NULL
+	// functions may be NULL
 
-	void*                priv;
-	a3d_text_enterFn     enter_fn;
-	a3d_widget_clickFn   click_fn;
-	a3d_widget_refreshFn refresh_fn;
+	a3d_widgetFn_t   fn;
+	a3d_text_enterFn enter_fn;
 } a3d_textFn_t;
 
 typedef struct a3d_textStyle_s
@@ -84,7 +82,7 @@ typedef struct
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          a3d_textStyle_t* style,
-                         a3d_textFn_t* fn);
+                         a3d_textFn_t* text_fn);
 void        a3d_text_delete(a3d_text_t** _self);
 int         a3d_text_width(a3d_text_t* self, int cursor);
 int         a3d_text_height(a3d_text_t* self);

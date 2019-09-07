@@ -259,41 +259,41 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int max_len,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
-                               void* priv,
-                               a3d_widget_clickFn click_fn)
+                               a3d_widgetFn_t* fn)
 {
-	// priv, click_fn may be NULL
 	assert(screen);
 	assert(layout);
 	assert(text_style);
 	assert(color_scroll0);
 	assert(color_scroll1);
+	assert(fn);
 
 	if(wsize == 0)
 	{
 		wsize = sizeof(a3d_textbox_t);
 	}
 
-	a3d_widget_reflowFn reflow_fn = a3d_textbox_reflow;
-	if(layout->wrapx == A3D_WIDGET_WRAP_SHRINK)
-	{
-		reflow_fn = NULL;
-	}
-
 	a3d_textbox_t* self;
 	self = (a3d_textbox_t*)
 	a3d_listbox_new(screen, wsize, layout,
 	                A3D_LISTBOX_ORIENTATION_VERTICAL,
-	                color_scroll0, color_scroll1,
-	                priv, click_fn, reflow_fn, NULL);
+	                color_scroll0, color_scroll1, fn);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+
+	// optionially set the reflow function
+	if(layout->wrapx != A3D_WIDGET_WRAP_SHRINK)
+	{
+		a3d_widget_privReflowFn(widget, a3d_textbox_reflow);
+	}
+
 	// enable sound effects since textbox derives from listbox
 	a3d_widget_soundFx((a3d_widget_t*) self,
-	                   click_fn ? 1 : 0);
+	                   fn->click_fn ? 1 : 0);
 
 	self->strings = a3d_list_new();
 	if(self->strings == NULL)

@@ -88,14 +88,17 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 		.a = 0.0f,
 	};
 
+	a3d_widgetFn_t fn =
+	{
+		.refresh_fn = a3d_radiolist_refresh,
+	};
+
 	a3d_radiolist_t* self;
 	self = (a3d_radiolist_t*)
 	       a3d_listbox_new(screen, wsize,
 	                       widget_layout,
 	                       A3D_LISTBOX_ORIENTATION_VERTICAL,
-	                       &clear, &clear,
-	                       NULL, NULL, NULL,
-	                       a3d_radiolist_refresh);
+	                       &clear, &clear, &fn);
 	if(self == NULL)
 	{
 		return NULL;

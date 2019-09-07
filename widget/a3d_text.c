@@ -234,6 +234,7 @@ static int
 a3d_text_keyPress(a3d_widget_t* widget, void* priv,
                   int keycode, int meta)
 {
+	// priv may be NULL
 	assert(widget);
 
 	a3d_text_t* self = (a3d_text_t*) widget;
@@ -311,11 +312,11 @@ a3d_text_keyPress(a3d_widget_t* widget, void* priv,
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
                          a3d_textStyle_t* style,
-                         a3d_textFn_t* fn)
+                         a3d_textFn_t* text_fn)
 {
 	assert(screen);
 	assert(style);
-	assert(fn);
+	assert(text_fn);
 
 	if(wsize == 0)
 	{
@@ -336,20 +337,18 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t widget_style;
 	memset(&widget_style, 0, sizeof(a3d_widgetStyle_t));
 
-	a3d_widgetFn_t widget_fn =
+	a3d_widgetPrivFn_t priv_fn =
 	{
-		.priv        = fn->priv,
 		.size_fn     = a3d_text_size,
-		.click_fn    = fn->click_fn,
 		.keyPress_fn = a3d_text_keyPress,
 		.draw_fn     = a3d_text_draw,
-		.refresh_fn  = fn->refresh_fn
 	};
 
 	a3d_text_t* self;
 	self = (a3d_text_t*)
 	       a3d_widget_new(screen, wsize, &layout,
-	                      &widget_style, &widget_fn);
+	                      &widget_style, &text_fn->fn,
+	                      &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -381,7 +380,7 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		goto fail_coords;
 	}
 
-	self->enter_fn = fn->enter_fn;
+	self->enter_fn = text_fn->enter_fn;
 	memcpy(&self->style, style, sizeof(a3d_textStyle_t));
 
 	glGenBuffers(1, &self->id_vertex);

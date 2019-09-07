@@ -69,13 +69,15 @@ struct a3d_screen_s;
 
 // derived class functions
 struct a3d_widget_s;
+typedef int  (*a3d_widget_clickFn)(struct a3d_widget_s* widget,
+                                   void* priv, int state,
+                                   float x, float y);
+typedef void (*a3d_widget_refreshFn)(struct a3d_widget_s* widget,
+                                     void* priv);
 typedef void (*a3d_widget_reflowFn)(struct a3d_widget_s* widget,
                                     float w, float h);
 typedef void (*a3d_widget_sizeFn)(struct a3d_widget_s* widget,
                                   float* w, float* h);
-typedef int  (*a3d_widget_clickFn)(struct a3d_widget_s* widget,
-                                   void* priv, int state,
-                                   float x, float y);
 typedef int  (*a3d_widget_keyPressFn)(struct a3d_widget_s* widget,
                                       void* priv, int keycode, int meta);
 typedef void (*a3d_widget_layoutFn)(struct a3d_widget_s* widget,
@@ -85,8 +87,6 @@ typedef void (*a3d_widget_dragFn)(struct a3d_widget_s* widget,
                                   float dx, float dy);
 typedef void (*a3d_widget_scrollTopFn)(struct a3d_widget_s* widget);
 typedef void (*a3d_widget_drawFn)(struct a3d_widget_s* widget);
-typedef void (*a3d_widget_refreshFn)(struct a3d_widget_s* widget,
-                                     void* priv);
 
 typedef struct a3d_widgetLayout_s
 {
@@ -121,9 +121,23 @@ typedef struct a3d_widgetStyle_s
 
 typedef struct a3d_widgetFn_s
 {
-	// functions and priv may be NULL
+	// priv and functions may be NULL
 
+	// priv data
 	void* priv;
+
+	// click_fn allows a derived widget to define it's click behavior
+	// called internally by a3d_widget_click()
+	a3d_widget_clickFn click_fn;
+
+	// refresh_fn allows a widget to refresh it's external state
+	// called internally by a3d_widget_refresh
+	a3d_widget_refreshFn refresh_fn;
+} a3d_widgetFn_t;
+
+typedef struct a3d_widgetPrivFn_s
+{
+	// functions may be NULL
 
 	// reflow_fn allows a derived widget to reflow
 	// it's content in a resize (e.g. textbox)
@@ -135,12 +149,9 @@ typedef struct a3d_widgetFn_s
 	// called internally by a3d_widget_layoutSize()
 	a3d_widget_sizeFn size_fn;
 
-	// click_fn allows a derived widget to define it's click behavior
-	// called internally by a3d_widget_click()
-	a3d_widget_clickFn click_fn;
-
 	// keyPress_fn allows a derived widget to define it's keyPress
 	// behavior called internally by a3d_widget_keyPress()
+	// keyPress_fn uses the priv member from widgetFn base
 	a3d_widget_keyPressFn keyPress_fn;
 
 	// layout_fn allows a derived widget to layout it's children
@@ -160,11 +171,7 @@ typedef struct a3d_widgetFn_s
 	// it's draw behavior
 	// called internally by a3d_widget_draw
 	a3d_widget_drawFn draw_fn;
-
-	// refresh_fn allows a widget to refresh it's external state
-	// called internally by a3d_widget_refresh
-	a3d_widget_refreshFn refresh_fn;
-} a3d_widgetFn_t;
+} a3d_widgetPrivFn_t;
 
 typedef struct a3d_widget_s
 {
@@ -188,6 +195,7 @@ typedef struct a3d_widget_s
 	a3d_widgetLayout_t layout;
 	a3d_widgetStyle_t  style;
 	a3d_widgetFn_t     fn;
+	a3d_widgetPrivFn_t priv_fn;
 
 	// anchor to the widget parent
 	// anchor is not part of the layout since it is only
@@ -215,7 +223,8 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              a3d_widgetStyle_t* style,
-                             a3d_widgetFn_t* fn);
+                             a3d_widgetFn_t* fn,
+                             a3d_widgetPrivFn_t* priv_fn);
 void          a3d_widget_delete(a3d_widget_t** _self);
 void          a3d_widget_layoutXYClip(a3d_widget_t* self,
                                       float x, float y,
@@ -243,5 +252,7 @@ void          a3d_widget_soundFx(a3d_widget_t* self,
 void          a3d_widget_headerY(a3d_widget_t* self, float y);
 void          a3d_widget_scrollTop(a3d_widget_t* self);
 int           a3d_widget_hasFocus(a3d_widget_t* self);
+void          a3d_widget_privReflowFn(a3d_widget_t* self,
+                                      a3d_widget_reflowFn reflow_fn);
 
 #endif

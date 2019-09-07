@@ -69,7 +69,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_radiobox_t);
 	}
 
-	a3d_bulletboxFn_t bulletbox_fn =
+	a3d_widgetFn_t widget_fn =
 	{
 		.click_fn = a3d_radiobox_click
 	};
@@ -77,7 +77,7 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 	a3d_radiobox_t* self;
 	self = (a3d_radiobox_t*)
 	       a3d_bulletbox_new(screen, wsize, text_style, 2,
-	                         &bulletbox_fn);
+	                         &widget_fn);
 	if(self == NULL)
 	{
 		return NULL;

@@ -77,7 +77,7 @@ a3d_checkbox_new(a3d_screen_t* screen, int wsize,
 		wsize = sizeof(a3d_checkbox_t);
 	}
 
-	a3d_bulletboxFn_t bulletbox_fn =
+	a3d_widgetFn_t widget_fn =
 	{
 		.click_fn   = a3d_checkbox_click,
 		.refresh_fn = a3d_checkbox_refresh,
@@ -86,7 +86,7 @@ a3d_checkbox_new(a3d_screen_t* screen, int wsize,
 	a3d_checkbox_t* self;
 	self = (a3d_checkbox_t*)
 	       a3d_bulletbox_new(screen, wsize, text_style, 2,
-	                         &bulletbox_fn);
+	                         &widget_fn);
 	if(self == NULL)
 	{
 		return NULL;

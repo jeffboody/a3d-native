@@ -140,14 +140,18 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t style;
 	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
-	a3d_widgetFn_t fn =
+	a3d_widgetFn_t fn;
+	memset(&fn, 0, sizeof(a3d_widgetFn_t));
+
+	a3d_widgetPrivFn_t priv_fn =
 	{
 		.draw_fn = a3d_hline_draw,
 	};
 
 	a3d_hline_t* self;
 	self = (a3d_hline_t*)
-	       a3d_widget_new(screen, wsize, &layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, &layout, &style,
+	                      &fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

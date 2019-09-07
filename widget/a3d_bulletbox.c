@@ -129,7 +129,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
                                    a3d_textStyle_t* text_style,
                                    int sprite_count,
-                                   a3d_bulletboxFn_t* fn)
+                                   a3d_widgetFn_t* fn)
 {
 	assert(screen);
 	assert(text_style);
@@ -153,21 +153,18 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t style;
 	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
-	a3d_widgetFn_t widget_fn =
+	a3d_widgetPrivFn_t priv_fn =
 	{
-		.priv       = fn->priv,
-		.size_fn    = a3d_bulletbox_size,
-		.click_fn   = fn->click_fn,
-		.layout_fn  = a3d_bulletbox_layout,
-		.drag_fn    = a3d_bulletbox_drag,
-		.draw_fn    = a3d_bulletbox_draw,
-		.refresh_fn = fn->refresh_fn
+		.size_fn   = a3d_bulletbox_size,
+		.layout_fn = a3d_bulletbox_layout,
+		.drag_fn   = a3d_bulletbox_drag,
+		.draw_fn   = a3d_bulletbox_draw,
 	};
 
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
-	       a3d_widget_new(screen, wsize, &widget_layout, &style,
-	                      &widget_fn);
+	       a3d_widget_new(screen, wsize, &widget_layout,
+	                      &style, fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;
@@ -194,8 +191,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		.stretchy = 1.0f
 	};
 
-	a3d_spriteFn_t sprite_fn;
-	memset(&sprite_fn, 0, sizeof(a3d_spriteFn_t));
+	a3d_widgetFn_t sprite_fn;
+	memset(&sprite_fn, 0, sizeof(a3d_widgetFn_t));
 
 	self->icon = a3d_sprite_new(screen, 0,
 	                            &sprite_layout,

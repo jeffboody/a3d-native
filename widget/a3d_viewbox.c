@@ -288,10 +288,9 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                const char* sprite,
                                a3d_widget_t* body,
                                a3d_widget_t* footer,
-                               void* priv,
-                               a3d_widget_clickFn click_fn)
+                               a3d_widgetFn_t* fn)
 {
-	// footer, priv, click_fn may be NULL
+	// footer may be NULL
 	assert(screen);
 	assert(layout);
 	assert(color_header);
@@ -299,6 +298,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	assert(text_style);
 	assert(sprite);
 	assert(body);
+	assert(fn);
 
 	if(wsize == 0)
 	{
@@ -323,34 +323,33 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		}
 	};
 
-	a3d_widgetFn_t fn =
+	a3d_widgetFn_t viewbox_fn =
+	{
+		.click_fn   = a3d_viewbox_click,
+		.refresh_fn = a3d_viewbox_refresh
+	};
+
+	a3d_widgetPrivFn_t priv_fn =
 	{
 		.size_fn      = a3d_viewbox_size,
-		.click_fn     = a3d_viewbox_click,
 		.layout_fn    = a3d_viewbox_layout,
 		.drag_fn      = a3d_viewbox_drag,
 		.scrollTop_fn = a3d_viewbox_scrollTop,
 		.draw_fn      = a3d_viewbox_draw,
-		.refresh_fn   = a3d_viewbox_refresh
 	};
 
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*)
-	       a3d_widget_new(screen, wsize, layout, &style, &fn);
+	       a3d_widget_new(screen, wsize, layout, &style,
+	                      &viewbox_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
-	a3d_bulletboxFn_t bulletbox_fn =
-	{
-		.priv     = priv,
-		.click_fn = click_fn,
-	};
-
 	self->bullet = a3d_bulletbox_new(screen, 0, text_style, 2,
-	                                 &bulletbox_fn);
+	                                 fn);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;

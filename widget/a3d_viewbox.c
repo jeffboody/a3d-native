@@ -284,7 +284,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                a3d_widgetLayout_t* layout,
                                a3d_vec4f_t* color_header,
                                a3d_vec4f_t* color_body,
-                               int text_border,
                                a3d_textStyle_t* text_style,
                                const char* sprite,
                                a3d_widget_t* body,
@@ -350,8 +349,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		.click_fn = click_fn,
 	};
 
-	self->bullet = a3d_bulletbox_new(screen, 0, text_border,
-	                                 text_style, 2,
+	self->bullet = a3d_bulletbox_new(screen, 0, text_style, 2,
 	                                 &bulletbox_fn);
 	if(self->bullet == NULL)
 	{

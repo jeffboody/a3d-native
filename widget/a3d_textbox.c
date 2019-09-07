@@ -48,7 +48,6 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_text_t* text = a3d_text_new(widget->screen, 0,
-	                                self->text_border,
 	                                &self->text_style,
 	                                &text_fn);
 	if(text == NULL)
@@ -128,12 +127,12 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	a3d_textbox_t*   self       = (a3d_textbox_t*) widget;
 	a3d_textStyle_t* text_style = &self->text_style;
 
-	// subtract the text_border which is added when
+	// subtract the spacing which is added when
 	// printing text lines
 	float h_bo = 0.0f;
 	float v_bo = 0.0f;
 	a3d_screen_layoutBorder(widget->screen,
-	                        self->text_border,
+	                        text_style->spacing,
 	                        &h_bo, &v_bo);
 	w = w - 2.0f*h_bo;
 
@@ -256,7 +255,6 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
-                               int text_border,
                                a3d_textStyle_t* text_style,
                                int max_len,
                                a3d_vec4f_t* color_scroll0,
@@ -307,8 +305,7 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->last_w = 0.0f;
 	self->last_h = 0.0f;
 
-	self->text_border = text_border;
-	self->max_len     = max_len;
+	self->max_len = max_len;
 
 	memcpy(&self->text_style, text_style,
 	       sizeof(a3d_textStyle_t));

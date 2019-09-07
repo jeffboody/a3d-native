@@ -37,9 +37,6 @@
 #define A3D_SCREEN_SCALE_LARGE  4
 #define A3D_SCREEN_SCALE_XLARGE 5
 
-#define A3D_SCREEN_FONT_REGULAR 0
-#define A3D_SCREEN_FONT_BOLD    1
-
 typedef void (*a3d_screen_playClickFn)(void* sound_fx);
 
 typedef struct a3d_screen_s

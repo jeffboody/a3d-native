@@ -64,10 +64,9 @@ a3d_checkbox_refresh(a3d_widget_t* widget, void* priv)
 * public                                                   *
 ***********************************************************/
 
-a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
-                                 int wsize, int border,
-                                 a3d_textStyle_t* text_style,
-                                 int* pvalue)
+a3d_checkbox_t*
+a3d_checkbox_new(a3d_screen_t* screen, int wsize,
+                 a3d_textStyle_t* text_style, int* pvalue)
 {
 	assert(screen);
 	assert(text_style);
@@ -86,9 +85,8 @@ a3d_checkbox_t* a3d_checkbox_new(a3d_screen_t* screen,
 
 	a3d_checkbox_t* self;
 	self = (a3d_checkbox_t*)
-	       a3d_bulletbox_new(screen, wsize,
-	                         border, text_style,
-	                         2, &bulletbox_fn);
+	       a3d_bulletbox_new(screen, wsize, text_style, 2,
+	                         &bulletbox_fn);
 	if(self == NULL)
 	{
 		return NULL;

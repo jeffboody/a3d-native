@@ -29,9 +29,17 @@
 #include "../a3d_GL.h"
 #include "../math/a3d_vec4f.h"
 
+#define A3D_TEXT_FONTTYPE_REGULAR 0
+#define A3D_TEXT_FONTTYPE_BOLD    1
+
 #define A3D_TEXT_SIZE_SMALL  0
 #define A3D_TEXT_SIZE_MEDIUM 1
 #define A3D_TEXT_SIZE_LARGE  2
+
+#define A3D_TEXT_SPACING_NONE   0x00
+#define A3D_TEXT_SPACING_SMALL  0x10
+#define A3D_TEXT_SPACING_MEDIUM 0x20
+#define A3D_TEXT_SPACING_LARGE  0x40
 
 typedef void (*a3d_text_enterFn)(void* priv,
                                  const char* string);
@@ -50,6 +58,7 @@ typedef struct a3d_textStyle_s
 {
 	int         font_type;
 	int         size;
+	int         spacing;
 	a3d_vec4f_t color;
 } a3d_textStyle_t;
 
@@ -74,7 +83,6 @@ typedef struct
 
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
-                         int border,
                          a3d_textStyle_t* style,
                          a3d_textFn_t* fn);
 void        a3d_text_delete(a3d_text_t** _self);

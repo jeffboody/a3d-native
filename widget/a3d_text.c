@@ -310,7 +310,6 @@ a3d_text_keyPress(a3d_widget_t* widget, void* priv,
 
 a3d_text_t* a3d_text_new(a3d_screen_t* screen,
                          int wsize,
-                         int border,
                          a3d_textStyle_t* style,
                          a3d_textFn_t* fn)
 {
@@ -323,10 +322,9 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_text_t);
 	}
 
-	// TODO - text layout
 	a3d_widgetLayout_t layout =
 	{
-		.border   = border,
+		.border   = style->spacing,
 		.wrapx    = A3D_WIDGET_WRAP_SHRINK,
 		.wrapy    = A3D_WIDGET_WRAP_SHRINK,
 		.aspectx  = A3D_WIDGET_ASPECT_DEFAULT,

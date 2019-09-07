@@ -34,7 +34,6 @@ typedef struct
 	a3d_listbox_t listbox;
 
 	// text properties
-	int             text_border;
 	a3d_textStyle_t text_style;
 
 	// radiolist value
@@ -46,7 +45,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
                                    a3d_widgetLayout_t* widget_layout,
                                    int orientation,
-                                   int text_border,
                                    a3d_textStyle_t* text_style,
                                    int* pvalue);
 void            a3d_radiolist_delete(a3d_radiolist_t** _self);

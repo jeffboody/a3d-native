@@ -127,7 +127,6 @@ static void a3d_bulletbox_draw(a3d_widget_t* widget)
 
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int border,
                                    a3d_textStyle_t* text_style,
                                    int sprite_count,
                                    a3d_bulletboxFn_t* fn)
@@ -143,7 +142,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_widgetLayout_t widget_layout =
 	{
-		.border     = border,
 		.wrapx      = A3D_WIDGET_WRAP_SHRINK,
 		.wrapy      = A3D_WIDGET_WRAP_SHRINK,
 		.aspectx    = A3D_WIDGET_ASPECT_DEFAULT,
@@ -187,6 +185,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 
 	a3d_widgetLayout_t sprite_layout =
 	{
+		.border   = text_style->spacing,
 		.wrapx    = wrap,
 		.wrapy    = wrap,
 		.aspectx  = A3D_WIDGET_ASPECT_SQUARE,
@@ -210,9 +209,8 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_textFn_t text_fn;
 	memset(&text_fn, 0, sizeof(a3d_textFn_t));
 
-	self->text = a3d_text_new(screen, 0,
-	                          A3D_WIDGET_BORDER_NONE,
-	                          text_style, &text_fn);
+	self->text = a3d_text_new(screen, 0, text_style,
+	                          &text_fn);
 	if(self->text == NULL)
 	{
 		goto fail_text;

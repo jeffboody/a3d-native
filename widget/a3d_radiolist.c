@@ -68,7 +68,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
                                    a3d_widgetLayout_t* widget_layout,
                                    int orientation,
-                                   int text_border,
                                    a3d_textStyle_t* text_style,
                                    int* pvalue)
 {
@@ -102,9 +101,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->text_border = text_border;
-	self->pvalue      = pvalue;
-	self->value       = *pvalue;
+	self->pvalue = pvalue;
+	self->value  = *pvalue;
 
 	memcpy(&self->text_style, text_style,
 	       sizeof(a3d_textStyle_t));
@@ -163,8 +161,7 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_radiobox_t* rb;
 	rb = a3d_radiobox_new(widget->screen, 0,
-	                      self->text_border, &self->text_style,
-	                      value, self);
+	                      &self->text_style, value, self);
 	if(rb == NULL)
 	{
 		return;

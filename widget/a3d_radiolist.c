@@ -67,7 +67,6 @@ a3d_radiolist_refresh(a3d_widget_t* widget, void* priv)
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
                                    a3d_widgetLayout_t* widget_layout,
-                                   int orientation,
                                    a3d_textStyle_t* text_style,
                                    int* pvalue)
 {
@@ -92,7 +91,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	a3d_radiolist_t* self;
 	self = (a3d_radiolist_t*)
 	       a3d_listbox_new(screen, wsize,
-	                       widget_layout, orientation,
+	                       widget_layout,
+	                       A3D_LISTBOX_ORIENTATION_VERTICAL,
 	                       &clear, &clear,
 	                       NULL, NULL, NULL,
 	                       a3d_radiolist_refresh);

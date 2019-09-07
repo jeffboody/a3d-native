@@ -44,7 +44,6 @@ typedef struct
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
                                    a3d_widgetLayout_t* widget_layout,
-                                   int orientation,
                                    a3d_textStyle_t* text_style,
                                    int* pvalue);
 void            a3d_radiolist_delete(a3d_radiolist_t** _self);

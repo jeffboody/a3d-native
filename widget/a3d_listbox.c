@@ -445,10 +445,8 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int border,
                                a3d_widgetLayout_t* layout,
                                int orientation,
-                               int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
                                void* priv,
@@ -496,10 +494,6 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		.draw_fn    = a3d_listbox_draw,
 		.refresh_fn = refresh_fn ? refresh_fn : a3d_listbox_refresh
 	};
-
-	// TODO - listbox layout
-	layout->border     = border;
-	layout->scroll_bar = scroll_bar;
 
 	a3d_listbox_t* self;
 	self = (a3d_listbox_t*)

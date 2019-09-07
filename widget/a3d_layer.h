@@ -41,7 +41,6 @@ typedef struct
 
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
-                           int border,
                            a3d_widgetLayout_t* layout,
                            a3d_vec4f_t* color,
                            int mode);

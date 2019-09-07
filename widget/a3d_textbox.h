@@ -47,12 +47,10 @@ typedef struct
 
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int border,
                                a3d_widgetLayout_t* layout,
                                int text_border,
                                a3d_textStyle_t* text_style,
                                int max_len,
-                               int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
                                void* priv,

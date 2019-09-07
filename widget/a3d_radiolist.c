@@ -66,7 +66,6 @@ a3d_radiolist_refresh(a3d_widget_t* widget, void* priv)
 
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int border,
                                    a3d_widgetLayout_t* widget_layout,
                                    int orientation,
                                    int text_border,
@@ -93,9 +92,9 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 
 	a3d_radiolist_t* self;
 	self = (a3d_radiolist_t*)
-	       a3d_listbox_new(screen, wsize, border,
+	       a3d_listbox_new(screen, wsize,
 	                       widget_layout, orientation,
-	                       0, &clear, &clear,
+	                       &clear, &clear,
 	                       NULL, NULL, NULL,
 	                       a3d_radiolist_refresh);
 	if(self == NULL)

@@ -42,10 +42,8 @@ typedef struct
 
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int border,
                                a3d_widgetLayout_t* layout,
                                int orientation,
-                               int scroll_bar,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
                                void* priv,

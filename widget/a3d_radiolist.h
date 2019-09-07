@@ -44,7 +44,6 @@ typedef struct
 
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
-                                   int border,
                                    a3d_widgetLayout_t* widget_layout,
                                    int orientation,
                                    int text_border,

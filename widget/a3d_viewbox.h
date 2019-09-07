@@ -40,7 +40,6 @@ typedef struct
 
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
-                               int border,
                                a3d_widgetLayout_t* layout,
                                a3d_vec4f_t* color_header,
                                a3d_vec4f_t* color_body,

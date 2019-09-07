@@ -200,7 +200,6 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	memset(&sprite_fn, 0, sizeof(a3d_spriteFn_t));
 
 	self->icon = a3d_sprite_new(screen, 0,
-	                            A3D_WIDGET_BORDER_NONE,
 	                            &sprite_layout,
 	                            &text_style->color, sprite_count,
 	                            &sprite_fn);

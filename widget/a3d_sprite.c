@@ -320,7 +320,6 @@ int a3d_spriteTex_decRef(a3d_spriteTex_t* self)
 
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
-                             int border,
                              a3d_widgetLayout_t* layout,
                              a3d_vec4f_t* color,
                              int sprite_count,
@@ -337,10 +336,12 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	if((layout->wrapx == A3D_WIDGET_WRAP_SHRINK) ||
+	if(layout->scroll_bar ||
+	   (layout->wrapx == A3D_WIDGET_WRAP_SHRINK) ||
 	   (layout->wrapy == A3D_WIDGET_WRAP_SHRINK))
 	{
-		LOGE("invalid wrapx=%i, wrapy=%i", layout->wrapx, layout->wrapy);
+		LOGE("invalid scroll_bar=%i, wrapx=%i, wrapy=%i",
+		     layout->scroll_bar, layout->wrapx, layout->wrapy);
 		return NULL;
 	}
 
@@ -359,10 +360,6 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		.draw_fn    = a3d_sprite_draw,
 		.refresh_fn = fn->refresh_fn
 	};
-
-	// TODO - sprite layout
-	layout->border     = border;
-	layout->scroll_bar = 0;
 
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)

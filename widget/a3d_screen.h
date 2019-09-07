@@ -110,10 +110,14 @@ void                a3d_screen_rescale(a3d_screen_t* self, int scale);
 int                 a3d_screen_scalei(a3d_screen_t* self);
 float               a3d_screen_scalef(a3d_screen_t* self);
 void                a3d_screen_dirty(a3d_screen_t* self);
-void                a3d_screen_layoutBorder(a3d_screen_t* self, int style,
-                                            float* hborder, float* vborder);
-float               a3d_screen_layoutHLine(a3d_screen_t* self, int style);
-float               a3d_screen_layoutText(a3d_screen_t* self, int style);
+void                a3d_screen_layoutBorder(a3d_screen_t* self,
+                                            int border,
+                                            float* hborder,
+                                            float* vborder);
+float               a3d_screen_layoutHLine(a3d_screen_t* self,
+                                           int size);
+float               a3d_screen_layoutText(a3d_screen_t* self,
+                                          int size);
 int                 a3d_screen_pointerDown(a3d_screen_t* self,
                                            float x, float y, double t0);
 int                 a3d_screen_pointerUp(a3d_screen_t* self,

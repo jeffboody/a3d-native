@@ -590,7 +590,7 @@ void a3d_screen_dirty(a3d_screen_t* self)
 	self->dirty = 1;
 }
 
-void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
+void a3d_screen_layoutBorder(a3d_screen_t* self, int border,
                              float* hborder, float* vborder)
 {
 	assert(self);
@@ -603,65 +603,64 @@ void a3d_screen_layoutBorder(a3d_screen_t* self, int style,
 	float size = a3d_screen_layoutText(self, A3D_TEXT_SIZE_MEDIUM);
 
 	// horizontal
-	if(style & A3D_WIDGET_BORDER_HSMALL)
+	if(border & A3D_WIDGET_BORDER_HSMALL)
 	{
 		*hborder = 0.125f*size;
 	}
-	else if(style & A3D_WIDGET_BORDER_HMEDIUM)
+	else if(border & A3D_WIDGET_BORDER_HMEDIUM)
 	{
 		*hborder = 0.25f*size;
 	}
-	else if(style & A3D_WIDGET_BORDER_HLARGE)
+	else if(border & A3D_WIDGET_BORDER_HLARGE)
 	{
 		*hborder = 0.5f*size;
 	}
 
 	// vertical
-	if(style & A3D_WIDGET_BORDER_VSMALL)
+	if(border & A3D_WIDGET_BORDER_VSMALL)
 	{
 		*vborder = 0.125f*size;
 	}
-	else if(style & A3D_WIDGET_BORDER_VMEDIUM)
+	else if(border & A3D_WIDGET_BORDER_VMEDIUM)
 	{
 		*vborder = 0.25f*size;
 	}
-	else if(style & A3D_WIDGET_BORDER_VLARGE)
+	else if(border & A3D_WIDGET_BORDER_VLARGE)
 	{
 		*vborder = 0.5f*size;
 	}
 }
 
-float a3d_screen_layoutHLine(a3d_screen_t* self, int style)
+float a3d_screen_layoutHLine(a3d_screen_t* self, int size)
 {
 	assert(self);
 
-	// line style requires a mask
-	if(style == A3D_HLINE_SIZE_SMALL)
+	if(size == A3D_HLINE_SIZE_SMALL)
 	{
 		return 3.0f;
 	}
-	else if(style == A3D_HLINE_SIZE_LARGE)
+	else if(size == A3D_HLINE_SIZE_LARGE)
 	{
 		return 9.0f;
 	}
 	return 6.0f;
 }
 
-float a3d_screen_layoutText(a3d_screen_t* self, int style)
+float a3d_screen_layoutText(a3d_screen_t* self, int size)
 {
 	assert(self);
 
 	// default size is 24 px at density 1.0
-	float size = 24.0f*self->density*a3d_screen_scalef(self);
-	if(style == A3D_TEXT_SIZE_SMALL)
+	float sizef = 24.0f*self->density*a3d_screen_scalef(self);
+	if(size == A3D_TEXT_SIZE_SMALL)
 	{
-		return 0.66f*size;
+		return 0.66f*sizef;
 	}
-	else if(style == A3D_TEXT_SIZE_LARGE)
+	else if(size == A3D_TEXT_SIZE_LARGE)
 	{
-		return 1.5f*size;
+		return 1.5f*sizef;
 	}
-	return size;
+	return sizef;
 }
 
 int a3d_screen_pointerDown(a3d_screen_t* self,

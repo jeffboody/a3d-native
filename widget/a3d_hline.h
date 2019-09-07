@@ -30,22 +30,22 @@
 #include "../a3d_GL.h"
 #include "../math/a3d_vec4f.h"
 
-#define A3D_HLINE_STYLE_SMALL  A3D_TEXT_SIZE_SMALL
-#define A3D_HLINE_STYLE_MEDIUM A3D_TEXT_SIZE_MEDIUM
-#define A3D_HLINE_STYLE_LARGE  A3D_TEXT_SIZE_LARGE
+#define A3D_HLINE_SIZE_SMALL  0
+#define A3D_HLINE_SIZE_MEDIUM 1
+#define A3D_HLINE_SIZE_LARGE  2
 
 typedef struct
 {
 	a3d_widget_t widget;
 
 	// hline properties
-	int         style;
+	int         size;
 	a3d_vec4f_t color;
 } a3d_hline_t;
 
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
-                           int style_line,
+                           int size,
                            a3d_vec4f_t* color);
 void        a3d_hline_delete(a3d_hline_t** _self);
 

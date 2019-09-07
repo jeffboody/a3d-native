@@ -82,7 +82,7 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 		glUseProgram(screen->prog);
 		glEnableVertexAttribArray(screen->attr_coords);
 
-		float lw = a3d_screen_layoutHLine(screen, self->style);
+		float lw = a3d_screen_layoutHLine(screen, self->size);
 		glLineWidth(lw);
 
 		a3d_rect4f_t* r = &line;
@@ -113,7 +113,7 @@ static void a3d_hline_draw(a3d_widget_t* widget)
 
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
                            int wsize,
-                           int style_line,
+                           int size,
                            a3d_vec4f_t* color)
 {
 	assert(screen);
@@ -125,8 +125,8 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 	}
 
 	int wrapy = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL +
-	            style_line -
-	            A3D_HLINE_STYLE_SMALL;
+	            size -
+	            A3D_HLINE_SIZE_SMALL;
 	a3d_widgetLayout_t layout =
 	{
 		.wrapx    = A3D_WIDGET_WRAP_STRETCH_PARENT,
@@ -153,7 +153,7 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->style = style_line;
+	self->size = size;
 	a3d_vec4f_copy(color, &self->color);
 
 	return self;

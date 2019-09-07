@@ -636,11 +636,11 @@ float a3d_screen_layoutHLine(a3d_screen_t* self, int style)
 	assert(self);
 
 	// line style requires a mask
-	if(style == A3D_HLINE_STYLE_SMALL)
+	if(style == A3D_HLINE_SIZE_SMALL)
 	{
 		return 3.0f;
 	}
-	else if(style == A3D_HLINE_STYLE_LARGE)
+	else if(style == A3D_HLINE_SIZE_LARGE)
 	{
 		return 9.0f;
 	}

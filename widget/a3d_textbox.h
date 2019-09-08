@@ -41,14 +41,12 @@ typedef struct
 
 	// text properties
 	a3d_textStyle_t text_style;
-	int             max_len;
 } a3d_textbox_t;
 
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
                                a3d_textStyle_t* text_style,
-                               int max_len,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
                                a3d_widgetFn_t* fn);

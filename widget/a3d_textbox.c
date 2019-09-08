@@ -213,10 +213,8 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 				snprintf(tmp, 256, "%s %s", dst, tok);
 				tmp[255] = '\0';
 				float width = (float) a3d_font_measure(font, tmp);
-				int   len   = strlen(tmp);
 
-				if((size*(width/height) <= w) &&
-				   (len < self->max_len))
+				if(size*(width/height) <= w)
 				{
 					// append to current line
 					snprintf(dst, 256, "%s", tmp);
@@ -256,7 +254,6 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
                                a3d_textStyle_t* text_style,
-                               int max_len,
                                a3d_vec4f_t* color_scroll0,
                                a3d_vec4f_t* color_scroll1,
                                a3d_widgetFn_t* fn)
@@ -304,8 +301,6 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 	self->dirty  = 1;
 	self->last_w = 0.0f;
 	self->last_h = 0.0f;
-
-	self->max_len = max_len;
 
 	memcpy(&self->text_style, text_style,
 	       sizeof(a3d_textStyle_t));
@@ -362,25 +357,30 @@ void a3d_textbox_printf(a3d_textbox_t* self,
 	assert(self);
 	assert(fmt);
 
-	char* string = (char*) calloc(self->max_len, sizeof(char));
+	// decode string
+	char s[256];
+	va_list argptr;
+	va_start(argptr, fmt);
+	vsnprintf(s, 256, fmt, argptr);
+	va_end(argptr);
+
+	// copy string
+	size_t len    = strlen(s) + 1;
+	char*  string = (char*)
+	                calloc(len, sizeof(char));
 	if(string == NULL)
 	{
 		LOGE("calloc failed");
 		return;
 	}
-
-	// decode string
-	va_list argptr;
-	va_start(argptr, fmt);
-	vsnprintf(string, self->max_len, fmt, argptr);
-	va_end(argptr);
-
-	self->dirty = 1;
+	snprintf(string, 256, "%s", s);
 
 	if(a3d_list_enqueue(self->strings, (const void*) string) == 0)
 	{
 		goto fail_enqueue;
 	}
+
+	self->dirty = 1;
 
 	a3d_textbox_printText(self, string);
 

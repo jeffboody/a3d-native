@@ -27,6 +27,7 @@
 #include "a3d_screen.h"
 #include "../a3d_shader.h"
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <math.h>
 

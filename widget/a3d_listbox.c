@@ -24,6 +24,7 @@
 #include "a3d_screen.h"
 #include "a3d_listbox.h"
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 
 #define LOG_TAG "a3d"

@@ -80,31 +80,16 @@ static int a3d_layer_click(a3d_widget_t* widget,
 
 	// send events front-to-back
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
-	if(self->mode == A3D_LAYER_MODE_FRONT)
+	a3d_listitem_t* iter = a3d_list_head(self->list);
+	while(iter)
 	{
-		a3d_listitem_t* iter = a3d_list_head(self->list);
-		if(iter)
+		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+		if(a3d_widget_click(widget, state, x, y))
 		{
-			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-			if(a3d_widget_click(widget, state, x, y))
-			{
-				return 1;
-			}
+			return 1;
 		}
-	}
-	else
-	{
-		a3d_listitem_t* iter = a3d_list_head(self->list);
-		while(iter)
-		{
-			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-			if(a3d_widget_click(widget, state, x, y))
-			{
-				return 1;
-			}
 
-			iter = a3d_list_next(iter);
-		}
+		iter = a3d_list_next(iter);
 	}
 
 	// layers are only clicked if a child is clicked
@@ -147,24 +132,12 @@ static void a3d_layer_drag(a3d_widget_t* widget,
 	assert(widget);
 
 	a3d_layer_t*    self = (a3d_layer_t*) widget;
-	if(self->mode == A3D_LAYER_MODE_FRONT)
+	a3d_listitem_t* iter = a3d_list_head(self->list);
+	while(iter)
 	{
-		a3d_listitem_t* iter = a3d_list_head(self->list);
-		if(iter)
-		{
-			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-			a3d_widget_drag(widget, x, y, dx, dy);
-		}
-	}
-	else
-	{
-		a3d_listitem_t* iter = a3d_list_head(self->list);
-		while(iter)
-		{
-			widget = (a3d_widget_t*) a3d_list_peekitem(iter);
-			a3d_widget_drag(widget, x, y, dx, dy);
-			iter = a3d_list_next(iter);
-		}
+		widget = (a3d_widget_t*) a3d_list_peekitem(iter);
+		a3d_widget_drag(widget, x, y, dx, dy);
+		iter = a3d_list_next(iter);
 	}
 }
 
@@ -199,15 +172,6 @@ a3d_layer_refresh(a3d_widget_t* widget, void* priv)
 	}
 }
 
-static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
-{
-	assert(owner);
-	assert(item);
-
-	a3d_widget_t* self = (a3d_widget_t*) owner;
-	a3d_screen_dirty(self->screen);
-}
-
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -215,8 +179,7 @@ static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
                            a3d_widgetLayout_t* layout,
-                           a3d_vec4f_t* color,
-                           int mode)
+                           a3d_vec4f_t* color)
 {
 	assert(screen);
 	assert(color);
@@ -267,14 +230,6 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		goto fail_list;
 	}
 
-	self->mode = mode;
-
-	a3d_list_notify(self->list,
-	                (void*) self,
-	                a3d_layer_notify,
-	                a3d_layer_notify,
-	                a3d_layer_notify);
-
 	// success
 	return self;
 
@@ -296,21 +251,22 @@ void a3d_layer_delete(a3d_layer_t** _self)
 	}
 }
 
+void a3d_layer_add(a3d_layer_t* self,
+                   a3d_widget_t* widget)
+{
+	assert(self);
+	assert(widget);
+
+	a3d_list_append(self->list, NULL, (const void*) widget);
+	a3d_widget_scrollTop(widget);
+	a3d_screen_dirty(widget->screen);
+}
+
 void a3d_layer_clear(a3d_layer_t* self)
 {
 	assert(self);
 
+	a3d_widget_t* widget = (a3d_widget_t*) self;
 	a3d_list_discard(self->list);
-}
-
-void a3d_layer_bringFront(a3d_layer_t* self,
-                          a3d_widget_t* widget)
-{
-	assert(self);
-	assert(self->mode == A3D_LAYER_MODE_FRONT);
-	assert(widget);
-
-	a3d_list_discard(self->list);
-	a3d_list_push(self->list, (const void*) widget);
-	a3d_widget_scrollTop(widget);
+	a3d_screen_dirty(widget->screen);
 }

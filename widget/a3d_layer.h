@@ -29,24 +29,19 @@
 #include "../a3d_list.h"
 #include "../math/a3d_vec4f.h"
 
-#define A3D_LAYER_MODE_LAYERED 0
-#define A3D_LAYER_MODE_FRONT  1
-
 typedef struct
 {
 	a3d_widget_t widget;
 	a3d_list_t*  list;
-	int          mode;
 } a3d_layer_t;
 
 a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
                            int wsize,
                            a3d_widgetLayout_t* layout,
-                           a3d_vec4f_t* color,
-                           int mode);
+                           a3d_vec4f_t* color);
 void         a3d_layer_delete(a3d_layer_t** _self);
+void         a3d_layer_add(a3d_layer_t* self,
+                           a3d_widget_t* widget);
 void         a3d_layer_clear(a3d_layer_t* self);
-void         a3d_layer_bringFront(a3d_layer_t* self,
-                                  a3d_widget_t* widget);
 
 #endif

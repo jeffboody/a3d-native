@@ -39,9 +39,9 @@ typedef struct
 
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
+                                   a3d_widgetFn_t* fn,
                                    a3d_textStyle_t* text_style,
-                                   int sprite_count,
-                                   a3d_widgetFn_t* fn);
+                                   int sprite_count);
 void            a3d_bulletbox_delete(a3d_bulletbox_t** _self);
 int             a3d_bulletbox_spriteLoad(a3d_bulletbox_t* self,
                                          int index,

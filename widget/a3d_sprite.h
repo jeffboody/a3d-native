@@ -82,9 +82,9 @@ typedef struct
 a3d_sprite_t* a3d_sprite_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
+                             a3d_widgetFn_t* fn,
                              a3d_vec4f_t* color,
-                             int sprite_count,
-                             a3d_widgetFn_t* fn);
+                             int sprite_count);
 void          a3d_sprite_delete(a3d_sprite_t** _self);
 int           a3d_sprite_load(a3d_sprite_t* self,
                               int index,

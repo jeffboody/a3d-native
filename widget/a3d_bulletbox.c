@@ -128,13 +128,13 @@ static void a3d_bulletbox_draw(a3d_widget_t* widget)
 
 a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
                                    int wsize,
+                                   a3d_widgetFn_t* fn,
                                    a3d_textStyle_t* text_style,
-                                   int sprite_count,
-                                   a3d_widgetFn_t* fn)
+                                   int sprite_count)
 {
 	assert(screen);
-	assert(text_style);
 	assert(fn);
+	assert(text_style);
 
 	if(wsize == 0)
 	{
@@ -201,9 +201,9 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	memset(&sprite_fn, 0, sizeof(a3d_widgetFn_t));
 
 	self->icon = a3d_sprite_new(screen, 0,
-	                            &sprite_layout,
-	                            &text_style->color, sprite_count,
-	                            &sprite_fn);
+	                            &sprite_layout, &sprite_fn,
+	                            &text_style->color,
+	                            sprite_count);
 	if(self->icon == NULL)
 	{
 		goto fail_icon;

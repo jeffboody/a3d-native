@@ -284,6 +284,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                a3d_widgetLayout_t* layout,
                                a3d_widgetFn_t* fn,
                                a3d_viewboxStyle_t* style,
+                               int sprite_count,
                                a3d_widget_t* body,
                                a3d_widget_t* footer)
 {
@@ -330,9 +331,9 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	}
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
-	self->bullet = a3d_bulletbox_new(screen, 0,
-	                                 &style->text_style, 2,
-	                                 fn);
+	self->bullet = a3d_bulletbox_new(screen, 0, fn,
+	                                 &style->text_style,
+	                                 sprite_count);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;

@@ -49,6 +49,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                a3d_widgetLayout_t* layout,
                                a3d_widgetFn_t* fn,
                                a3d_viewboxStyle_t* style,
+                               int sprite_count,
                                a3d_widget_t* body,
                                a3d_widget_t* footer);
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);

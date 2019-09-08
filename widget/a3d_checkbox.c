@@ -85,8 +85,8 @@ a3d_checkbox_new(a3d_screen_t* screen, int wsize,
 
 	a3d_checkbox_t* self;
 	self = (a3d_checkbox_t*)
-	       a3d_bulletbox_new(screen, wsize, text_style, 2,
-	                         &widget_fn);
+	       a3d_bulletbox_new(screen, wsize, &widget_fn,
+	                         text_style, 2);
 	if(self == NULL)
 	{
 		return NULL;

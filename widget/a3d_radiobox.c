@@ -76,8 +76,8 @@ a3d_radiobox_t* a3d_radiobox_new(a3d_screen_t* screen,
 
 	a3d_radiobox_t* self;
 	self = (a3d_radiobox_t*)
-	       a3d_bulletbox_new(screen, wsize, text_style, 2,
-	                         &widget_fn);
+	       a3d_bulletbox_new(screen, wsize, &widget_fn,
+	                         text_style, 2);
 	if(self == NULL)
 	{
 		return NULL;

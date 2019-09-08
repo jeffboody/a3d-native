@@ -321,14 +321,14 @@ int a3d_spriteTex_decRef(a3d_spriteTex_t* self)
 a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
+                             a3d_widgetFn_t* fn,
                              a3d_vec4f_t* color,
-                             int sprite_count,
-                             a3d_widgetFn_t* fn)
+                             int sprite_count)
 {
 	assert(screen);
 	assert(layout);
-	assert(color);
 	assert(fn);
+	assert(color);
 
 	if(sprite_count <= 0)
 	{

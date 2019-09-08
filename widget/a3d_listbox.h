@@ -48,5 +48,6 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int orientation);
 void            a3d_listbox_delete(a3d_listbox_t** _self);
 void            a3d_listbox_clear(a3d_listbox_t* self);
+a3d_list_t*     a3d_listbox_widgets(a3d_listbox_t* self);
 
 #endif

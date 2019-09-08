@@ -49,8 +49,9 @@ a3d_radiolist_refresh(a3d_widget_t* widget, void* priv)
 	{
 		self->value = *(self->pvalue);
 
-		a3d_list_t*     list = self->listbox.list;
-		a3d_listitem_t* iter = a3d_list_head(list);
+		a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
+		a3d_list_t*     widgets = a3d_listbox_widgets(listbox);
+		a3d_listitem_t* iter    = a3d_list_head(widgets);
 		while(iter)
 		{
 			a3d_radiobox_t* rb = (a3d_radiobox_t*) a3d_list_peekitem(iter);
@@ -124,11 +125,12 @@ void a3d_radiolist_clear(a3d_radiolist_t* self)
 	assert(self);
 
 	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
-	a3d_listitem_t* iter    = a3d_list_head(listbox->list);
+	a3d_list_t*     widgets = a3d_listbox_widgets(listbox);
+	a3d_listitem_t* iter    = a3d_list_head(widgets);
 	while(iter)
 	{
 		a3d_radiobox_t* rb;
-		rb = (a3d_radiobox_t*) a3d_list_remove(listbox->list, &iter);
+		rb = (a3d_radiobox_t*) a3d_list_remove(widgets, &iter);
 		a3d_radiobox_delete(&rb);
 	}
 }
@@ -164,7 +166,8 @@ void a3d_radiolist_printf(a3d_radiolist_t* self,
 	}
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
-	if(a3d_list_enqueue(listbox->list, (const void*) rb) == 0)
+	a3d_list_t*    widgets = a3d_listbox_widgets(listbox);
+	if(a3d_list_enqueue(widgets, (const void*) rb) == 0)
 	{
 		goto fail_enqueue;
 	}

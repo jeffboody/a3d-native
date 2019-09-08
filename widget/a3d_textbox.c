@@ -56,7 +56,8 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	}
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
-	if(a3d_list_enqueue(listbox->list, (const void*) text) == 0)
+	a3d_list_t*    widgets = a3d_listbox_widgets(listbox);
+	if(a3d_list_enqueue(widgets, (const void*) text) == 0)
 	{
 		goto fail_enqueue;
 	}
@@ -156,11 +157,12 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 
 	// clear the text
 	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
-	a3d_listitem_t* iter    = a3d_list_head(listbox->list);
+	a3d_list_t*     widgets = a3d_listbox_widgets(listbox);
+	a3d_listitem_t* iter    = a3d_list_head(widgets);
 	while(iter)
 	{
 		a3d_text_t* text;
-		text = (a3d_text_t*) a3d_list_remove(listbox->list, &iter);
+		text = (a3d_text_t*) a3d_list_remove(widgets, &iter);
 		a3d_text_delete(&text);
 	}
 
@@ -329,11 +331,12 @@ void a3d_textbox_clear(a3d_textbox_t* self)
 	assert(self);
 
 	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
-	a3d_listitem_t* iter    = a3d_list_head(listbox->list);
+	a3d_list_t*     widgets = a3d_listbox_widgets(listbox);
+	a3d_listitem_t* iter    = a3d_list_head(widgets);
 	while(iter)
 	{
 		a3d_text_t* text;
-		text = (a3d_text_t*) a3d_list_remove(listbox->list, &iter);
+		text = (a3d_text_t*) a3d_list_remove(widgets, &iter);
 		a3d_text_delete(&text);
 	}
 

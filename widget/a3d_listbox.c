@@ -535,3 +535,10 @@ void a3d_listbox_clear(a3d_listbox_t* self)
 
 	a3d_list_discard(self->list);
 }
+
+a3d_list_t* a3d_listbox_widgets(a3d_listbox_t* self)
+{
+	assert(self);
+
+	return self->list;
+}

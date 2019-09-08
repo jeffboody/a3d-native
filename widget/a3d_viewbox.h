@@ -29,9 +29,15 @@
 #include "a3d_screen.h"
 #include "../math/a3d_vec4f.h"
 
+typedef struct a3d_viewboxStyle_s
+{
+	a3d_widgetStyle_t widget_style;
+	a3d_textStyle_t   text_style;
+} a3d_viewboxStyle_t;
+
 typedef struct
 {
-	a3d_widget_t  widget;
+	a3d_widget_t widget;
 
 	a3d_bulletbox_t* bullet;
 	a3d_widget_t*    body;
@@ -41,14 +47,16 @@ typedef struct
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
-                               a3d_vec4f_t* color_header,
-                               a3d_vec4f_t* color_body,
-                               a3d_textStyle_t* text_style,
-                               const char* sprite,
+                               a3d_widgetFn_t* fn,
+                               a3d_viewboxStyle_t* style,
                                a3d_widget_t* body,
-                               a3d_widget_t* footer,
-                               a3d_widgetFn_t* fn);
+                               a3d_widget_t* footer);
 void            a3d_viewbox_delete(a3d_viewbox_t** _self);
+int             a3d_viewbox_spriteLoad(a3d_viewbox_t* self,
+                                       int index,
+                                       const char* fname);
+void            a3d_viewbox_spriteSelect(a3d_viewbox_t* self,
+                                         int index);
 void            a3d_viewbox_textPrintf(a3d_viewbox_t* self,
                                        const char* fmt, ...);
 

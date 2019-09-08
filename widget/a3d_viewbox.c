@@ -282,46 +282,22 @@ a3d_viewbox_refresh(a3d_widget_t* widget, void* priv)
 a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
-                               a3d_vec4f_t* color_header,
-                               a3d_vec4f_t* color_body,
-                               a3d_textStyle_t* text_style,
-                               const char* sprite,
+                               a3d_widgetFn_t* fn,
+                               a3d_viewboxStyle_t* style,
                                a3d_widget_t* body,
-                               a3d_widget_t* footer,
-                               a3d_widgetFn_t* fn)
+                               a3d_widget_t* footer)
 {
 	// footer may be NULL
 	assert(screen);
 	assert(layout);
-	assert(color_header);
-	assert(color_body);
-	assert(text_style);
-	assert(sprite);
-	assert(body);
 	assert(fn);
+	assert(style);
+	assert(body);
 
 	if(wsize == 0)
 	{
 		wsize = sizeof(a3d_viewbox_t);
 	}
-
-	a3d_widgetStyle_t style =
-	{
-		.color_header =
-		{
-			.r = color_header->r,
-			.g = color_header->g,
-			.b = color_header->b,
-			.a = color_header->a,
-		},
-		.color_body =
-		{
-			.r = color_body->r,
-			.g = color_body->g,
-			.b = color_body->b,
-			.a = color_body->a,
-		}
-	};
 
 	a3d_widgetScroll_t scroll =
 	{
@@ -345,24 +321,21 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*)
-	       a3d_widget_new(screen, wsize, layout, &style,
-	                      &scroll, &viewbox_fn, &priv_fn);
+	       a3d_widget_new(screen, wsize, layout,
+	                      &style->widget_style, &scroll,
+	                      &viewbox_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;
 	}
 	a3d_widget_soundFx((a3d_widget_t*) self, 0);
 
-	self->bullet = a3d_bulletbox_new(screen, 0, text_style, 2,
+	self->bullet = a3d_bulletbox_new(screen, 0,
+	                                 &style->text_style, 2,
 	                                 fn);
 	if(self->bullet == NULL)
 	{
 		goto fail_bullet;
-	}
-
-	if(a3d_bulletbox_spriteLoad(self->bullet, 0, sprite) == 0)
-	{
-		goto fail_sprite;
 	}
 
 	self->body   = body;
@@ -372,8 +345,6 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	return self;
 
 	// failure
-	fail_sprite:
-		a3d_bulletbox_delete(&self->bullet);
 	fail_bullet:
 		a3d_widget_delete((a3d_widget_t**) &self);
 	return NULL;
@@ -389,6 +360,24 @@ void a3d_viewbox_delete(a3d_viewbox_t** _self)
 		a3d_bulletbox_delete(&self->bullet);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
+}
+
+int a3d_viewbox_spriteLoad(a3d_viewbox_t* self, int index,
+                           const char* fname)
+{
+	assert(self);
+	assert(fname);
+
+	return a3d_bulletbox_spriteLoad(self->bullet, index,
+	                                fname);
+}
+
+void a3d_viewbox_spriteSelect(a3d_viewbox_t* self,
+                              int index)
+{
+	assert(self);
+
+	a3d_bulletbox_spriteSelect(self->bullet, index);
 }
 
 void a3d_viewbox_textPrintf(a3d_viewbox_t* self,

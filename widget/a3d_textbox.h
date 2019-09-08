@@ -46,10 +46,9 @@ typedef struct
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
-                               a3d_textStyle_t* text_style,
-                               a3d_vec4f_t* color_scroll0,
-                               a3d_vec4f_t* color_scroll1,
-                               a3d_widgetFn_t* fn);
+                               a3d_widgetScroll_t* scroll,
+                               a3d_widgetFn_t* fn,
+                               a3d_textStyle_t* text_style);
 void           a3d_textbox_delete(a3d_textbox_t** _self);
 void           a3d_textbox_clear(a3d_textbox_t* self);
 void           a3d_textbox_printf(a3d_textbox_t* self,

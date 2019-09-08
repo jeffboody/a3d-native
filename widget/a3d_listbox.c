@@ -447,15 +447,13 @@ static void a3d_listbox_notify(void* owner, a3d_listitem_t* item)
 a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
-                               int orientation,
-                               a3d_vec4f_t* color_scroll0,
-                               a3d_vec4f_t* color_scroll1,
-                               a3d_widgetFn_t* fn)
+                               a3d_widgetScroll_t* scroll,
+                               a3d_widgetFn_t* fn,
+                               int orientation)
 {
 	assert(screen);
 	assert(layout);
-	assert(color_scroll0);
-	assert(color_scroll1);
+	assert(scroll);
 	assert(fn);
 
 	if(wsize == 0)
@@ -463,23 +461,8 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 		wsize = sizeof(a3d_listbox_t);
 	}
 
-	a3d_widgetStyle_t style =
-	{
-		.color_scroll0 =
-		{
-			.r = color_scroll0->r,
-			.g = color_scroll0->g,
-			.b = color_scroll0->b,
-			.a = color_scroll0->a,
-		},
-		.color_scroll1 =
-		{
-			.r = color_scroll1->r,
-			.g = color_scroll1->g,
-			.b = color_scroll1->b,
-			.a = color_scroll1->a,
-		}
-	};
+	a3d_widgetStyle_t style;
+	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
 	// optionally set click/refresh functions
 	a3d_widgetFn_t list_fn;
@@ -504,7 +487,7 @@ a3d_listbox_t* a3d_listbox_new(a3d_screen_t* screen,
 	a3d_listbox_t* self;
 	self = (a3d_listbox_t*)
 	       a3d_widget_new(screen, wsize, layout, &style,
-	                      &list_fn, &priv_fn);
+	                      scroll, &list_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

@@ -336,12 +336,11 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	if(layout->scroll_bar ||
-	   (layout->wrapx == A3D_WIDGET_WRAP_SHRINK) ||
+	if((layout->wrapx == A3D_WIDGET_WRAP_SHRINK) ||
 	   (layout->wrapy == A3D_WIDGET_WRAP_SHRINK))
 	{
-		LOGE("invalid scroll_bar=%i, wrapx=%i, wrapy=%i",
-		     layout->scroll_bar, layout->wrapx, layout->wrapy);
+		LOGE("invalid wrapx=%i, wrapy=%i",
+		     layout->wrapx, layout->wrapy);
 		return NULL;
 	}
 
@@ -353,6 +352,11 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t style;
 	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
+	a3d_widgetScroll_t scroll =
+	{
+		.scroll_bar = 0
+	};
+
 	a3d_widgetPrivFn_t priv_fn =
 	{
 		.draw_fn = a3d_sprite_draw,
@@ -361,7 +365,7 @@ a3d_sprite_t* a3d_sprite_new(a3d_screen_t* screen,
 	a3d_sprite_t* self;
 	self = (a3d_sprite_t*)
 	       a3d_widget_new(screen, wsize, layout, &style,
-	                      fn, &priv_fn);
+	                      &scroll, fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

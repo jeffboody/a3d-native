@@ -149,12 +149,14 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              a3d_widgetStyle_t* style,
+                             a3d_widgetScroll_t* scroll,
                              a3d_widgetFn_t* fn,
                              a3d_widgetPrivFn_t* priv_fn)
 {
 	assert(screen);
 	assert(layout);
 	assert(style);
+	assert(scroll);
 	assert(fn);
 	assert(priv_fn);
 
@@ -176,6 +178,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
 
 	memcpy(&self->layout, layout, sizeof(a3d_widgetLayout_t));
 	memcpy(&self->style, style, sizeof(a3d_widgetStyle_t));
+	memcpy(&self->scroll, scroll, sizeof(a3d_widgetScroll_t));
 	memcpy(&self->fn, fn, sizeof(a3d_widgetFn_t));
 	memcpy(&self->priv_fn, priv_fn, sizeof(a3d_widgetPrivFn_t));
 
@@ -239,6 +242,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	assert(clip);
 
 	a3d_widgetLayout_t* layout  = &self->layout;
+	a3d_widgetScroll_t* scroll  = &self->scroll;
 	a3d_widgetPrivFn_t* priv_fn = &self->priv_fn;
 
 	float w  = self->rect_border.w;
@@ -364,7 +368,7 @@ void a3d_widget_layoutXYClip(a3d_widget_t* self,
 	                        &self->rect_clip,
 	                        &rect_border_clip))
 	{
-		if(layout->scroll_bar)
+		if(scroll->scroll_bar)
 		{
 			float h_bo = 0.0f;
 			float v_bo = 0.0f;
@@ -694,8 +698,8 @@ void a3d_widget_draw(a3d_widget_t* self)
 {
 	assert(self);
 
-	a3d_widgetLayout_t* layout  = &self->layout;
 	a3d_widgetStyle_t*  style   = &self->style;
+	a3d_widgetScroll_t* scroll  = &self->scroll;
 	a3d_widgetPrivFn_t* priv_fn = &self->priv_fn;
 
 	a3d_rect4f_t rect_border_clip;
@@ -758,7 +762,7 @@ void a3d_widget_draw(a3d_widget_t* self)
 
 		// draw the scroll bar
 		float s = rect_draw_clip.h/self->rect_draw.h;
-		if(layout->scroll_bar && (s < 1.0f))
+		if(scroll->scroll_bar && (s < 1.0f))
 		{
 			// clamp the start/end points
 			float a = -self->drag_dy/self->rect_draw.h;
@@ -783,8 +787,8 @@ void a3d_widget_draw(a3d_widget_t* self)
 			a = rect_border_clip.t + a*rect_border_clip.h;
 			b = rect_border_clip.t + b*rect_border_clip.h;
 
-			a3d_vec4f_t* c0 = &style->color_scroll0;
-			a3d_vec4f_t* c1 = &style->color_scroll1;
+			a3d_vec4f_t* c0 = &scroll->color_scroll0;
+			a3d_vec4f_t* c1 = &scroll->color_scroll1;
 			a3d_screen_scissor(screen, &rect_border_clip);
 			if((c0->a < 1.0f) || (c1->a < 1.0f))
 			{

@@ -154,6 +154,11 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t style;
 	memset(&style, 0, sizeof(a3d_widgetStyle_t));
 
+	a3d_widgetScroll_t scroll =
+	{
+		.scroll_bar = 0
+	};
+
 	a3d_widgetPrivFn_t priv_fn =
 	{
 		.size_fn   = a3d_bulletbox_size,
@@ -165,7 +170,7 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 	a3d_bulletbox_t* self;
 	self = (a3d_bulletbox_t*)
 	       a3d_widget_new(screen, wsize, &widget_layout,
-	                      &style, fn, &priv_fn);
+	                      &style, &scroll, fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

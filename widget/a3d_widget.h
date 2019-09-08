@@ -102,7 +102,6 @@ typedef struct a3d_widgetLayout_s
 	//       children may be stretch or shrink
 	//       top level widget must be stretch
 	int   border;
-	int   scroll_bar;
 	int   wrapx;
 	int   wrapy;
 	int   aspectx;
@@ -111,12 +110,17 @@ typedef struct a3d_widgetLayout_s
 	float stretchy;
 } a3d_widgetLayout_t;
 
+typedef struct a3d_widgetScroll_s
+{
+	int         scroll_bar;
+	a3d_vec4f_t color_scroll0;
+	a3d_vec4f_t color_scroll1;
+} a3d_widgetScroll_t;
+
 typedef struct a3d_widgetStyle_s
 {
 	a3d_vec4f_t color_header;
 	a3d_vec4f_t color_body;
-	a3d_vec4f_t color_scroll0;
-	a3d_vec4f_t color_scroll1;
 } a3d_widgetStyle_t;
 
 typedef struct a3d_widgetFn_s
@@ -194,6 +198,7 @@ typedef struct a3d_widget_s
 	// widget properties
 	a3d_widgetLayout_t layout;
 	a3d_widgetStyle_t  style;
+	a3d_widgetScroll_t scroll;
 	a3d_widgetFn_t     fn;
 	a3d_widgetPrivFn_t priv_fn;
 
@@ -223,6 +228,7 @@ a3d_widget_t* a3d_widget_new(struct a3d_screen_s* screen,
                              int wsize,
                              a3d_widgetLayout_t* layout,
                              a3d_widgetStyle_t* style,
+                             a3d_widgetScroll_t* scroll,
                              a3d_widgetFn_t* fn,
                              a3d_widgetPrivFn_t* priv_fn);
 void          a3d_widget_delete(a3d_widget_t** _self);

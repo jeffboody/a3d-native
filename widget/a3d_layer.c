@@ -206,6 +206,11 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		.refresh_fn = a3d_layer_refresh
 	};
 
+	a3d_widgetScroll_t scroll =
+	{
+		.scroll_bar = 0
+	};
+
 	a3d_widgetPrivFn_t priv_fn =
 	{
 		.size_fn    = a3d_layer_size,
@@ -217,7 +222,7 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 	a3d_layer_t* self;
 	self = (a3d_layer_t*)
 	       a3d_widget_new(screen, wsize, layout, &style,
-	                      &layer_fn, &priv_fn);
+	                      &scroll, &layer_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

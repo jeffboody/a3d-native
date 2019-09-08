@@ -337,6 +337,11 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	a3d_widgetStyle_t widget_style;
 	memset(&widget_style, 0, sizeof(a3d_widgetStyle_t));
 
+	a3d_widgetScroll_t widget_scroll =
+	{
+		.scroll_bar = 0
+	};
+
 	a3d_widgetPrivFn_t priv_fn =
 	{
 		.size_fn     = a3d_text_size,
@@ -347,7 +352,8 @@ a3d_text_t* a3d_text_new(a3d_screen_t* screen,
 	a3d_text_t* self;
 	self = (a3d_text_t*)
 	       a3d_widget_new(screen, wsize, &layout,
-	                      &widget_style, &text_fn->fn,
+	                      &widget_style, &widget_scroll,
+	                      &text_fn->fn,
 	                      &priv_fn);
 	if(self == NULL)
 	{

@@ -323,6 +323,11 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 		}
 	};
 
+	a3d_widgetScroll_t scroll =
+	{
+		.scroll_bar = 0
+	};
+
 	a3d_widgetFn_t viewbox_fn =
 	{
 		.click_fn   = a3d_viewbox_click,
@@ -341,7 +346,7 @@ a3d_viewbox_t* a3d_viewbox_new(a3d_screen_t* screen,
 	a3d_viewbox_t* self;
 	self = (a3d_viewbox_t*)
 	       a3d_widget_new(screen, wsize, layout, &style,
-	                      &viewbox_fn, &priv_fn);
+	                      &scroll, &viewbox_fn, &priv_fn);
 	if(self == NULL)
 	{
 		return NULL;

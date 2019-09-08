@@ -253,17 +253,15 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
                                int wsize,
                                a3d_widgetLayout_t* layout,
-                               a3d_textStyle_t* text_style,
-                               a3d_vec4f_t* color_scroll0,
-                               a3d_vec4f_t* color_scroll1,
-                               a3d_widgetFn_t* fn)
+                               a3d_widgetScroll_t* scroll,
+                               a3d_widgetFn_t* fn,
+                               a3d_textStyle_t* text_style)
 {
 	assert(screen);
 	assert(layout);
-	assert(text_style);
-	assert(color_scroll0);
-	assert(color_scroll1);
+	assert(scroll);
 	assert(fn);
+	assert(text_style);
 
 	if(wsize == 0)
 	{
@@ -272,9 +270,8 @@ a3d_textbox_t* a3d_textbox_new(a3d_screen_t* screen,
 
 	a3d_textbox_t* self;
 	self = (a3d_textbox_t*)
-	a3d_listbox_new(screen, wsize, layout,
-	                A3D_LISTBOX_ORIENTATION_VERTICAL,
-	                color_scroll0, color_scroll1, fn);
+	a3d_listbox_new(screen, wsize, layout, scroll, fn,
+	                A3D_LISTBOX_ORIENTATION_VERTICAL);
 	if(self == NULL)
 	{
 		return NULL;

@@ -66,12 +66,14 @@ a3d_radiolist_refresh(a3d_widget_t* widget, void* priv)
 
 a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
                                    int wsize,
-                                   a3d_widgetLayout_t* widget_layout,
+                                   a3d_widgetLayout_t* layout,
+                                   a3d_widgetScroll_t* scroll,
                                    a3d_textStyle_t* text_style,
                                    int* pvalue)
 {
 	assert(screen);
-	assert(widget_layout);
+	assert(layout);
+	assert(scroll);
 	assert(text_style);
 	assert(pvalue);
 
@@ -79,14 +81,6 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	{
 		wsize = sizeof(a3d_radiolist_t);
 	}
-
-	a3d_vec4f_t clear =
-	{
-		.r = 0.0f,
-		.g = 0.0f,
-		.b = 0.0f,
-		.a = 0.0f,
-	};
 
 	a3d_widgetFn_t fn =
 	{
@@ -96,9 +90,8 @@ a3d_radiolist_t* a3d_radiolist_new(a3d_screen_t* screen,
 	a3d_radiolist_t* self;
 	self = (a3d_radiolist_t*)
 	       a3d_listbox_new(screen, wsize,
-	                       widget_layout,
-	                       A3D_LISTBOX_ORIENTATION_VERTICAL,
-	                       &clear, &clear, &fn);
+	                       layout, scroll, &fn,
+	                       A3D_LISTBOX_ORIENTATION_VERTICAL);
 	if(self == NULL)
 	{
 		return NULL;

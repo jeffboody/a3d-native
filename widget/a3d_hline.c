@@ -40,71 +40,67 @@
 * private                                                  *
 ***********************************************************/
 
-static void a3d_hline_draw(a3d_widget_t* widget)
+static void a3d_hline_size(a3d_widget_t* widget,
+                           float* w, float* h)
+{
+	assert(widget);
+	assert(w);
+	assert(h);
+
+	a3d_hline_t * self = (a3d_hline_t*) widget;
+
+	float hline_w = *w;
+	float hline_h = *h;
+	a3d_widget_layoutSize(self->line, &hline_w, &hline_h);
+}
+
+static void a3d_hline_layout(a3d_widget_t* widget,
+                             int dragx, int dragy)
+{
+	assert(widget);
+
+	a3d_hline_t*  self = (a3d_hline_t*) widget;
+	a3d_widget_t* line = self->line;
+
+	// initialize the layout
+	float x = 0.0f;
+	float y = 0.0f;
+	float t = widget->rect_draw.t;
+	float l = widget->rect_draw.l;
+	float h = widget->rect_draw.h;
+	float w = widget->rect_draw.w;
+
+	// layout line
+	a3d_rect4f_t rect_draw;
+	rect_draw.t = t;
+	rect_draw.l = l;
+	rect_draw.w = w;
+	rect_draw.h = h;
+	a3d_rect4f_t rect_clip;
+	a3d_widget_layoutAnchor(line, &rect_draw, &x, &y);
+	a3d_rect4f_intersect(&rect_draw,
+	                     &widget->rect_clip,
+	                     &rect_clip);
+	a3d_widget_layoutXYClip(line, x, y, &rect_clip,
+	                        dragx, dragy);
+}
+
+static void a3d_hline_drag(a3d_widget_t* widget,
+                           float x, float y,
+                           float dx, float dy)
 {
 	assert(widget);
 
 	a3d_hline_t* self = (a3d_hline_t*) widget;
+	a3d_widget_drag(self->line, x, y, dx, dy);
+}
 
-	// clip separator to border
-	a3d_rect4f_t rect_border_clip;
-	if(a3d_rect4f_intersect(&widget->rect_border,
-	                        &widget->rect_clip,
-	                        &rect_border_clip) == 0)
-	{
-		return;
-	}
+static void a3d_hline_draw(struct a3d_widget_s* widget)
+{
+	assert(widget);
 
-	// clip separator
-	float top = widget->rect_clip.t;
-	float h2  = widget->rect_clip.h/2.0f;
-
-	a3d_rect4f_t line =
-	{
-		.t = top + h2,
-		.l = rect_border_clip.l,
-		.w = rect_border_clip.w,
-		.h = 0.0f
-	};
-
-	// draw the separator
-	a3d_screen_t* screen = widget->screen;
-	a3d_vec4f_t*  c      = &self->color;
-	float         alpha  = c->a;
-	if(alpha > 0.0f)
-	{
-		glDisable(GL_SCISSOR_TEST);
-		if(alpha < 1.0f)
-		{
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-		glUseProgram(screen->prog);
-		glEnableVertexAttribArray(screen->attr_coords);
-
-		float lw = a3d_screen_layoutHLine(screen, self->size);
-		glLineWidth(lw);
-
-		a3d_rect4f_t* r = &line;
-		glBindBuffer(GL_ARRAY_BUFFER, screen->id_coords2);
-		glVertexAttribPointer(screen->attr_coords, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		a3d_mat4f_t mvp;
-		a3d_mat4f_ortho(&mvp, 1, 0.0f, screen->w, screen->h, 0.0f, 0.0f, 2.0f);
-		glUniformMatrix4fv(screen->unif_mvp, 1, GL_FALSE, (GLfloat*) &mvp);
-		glUniform4f(screen->unif_rect, r->t, r->l, r->w, r->h);
-		glUniform4f(screen->unif_color, c->r, c->g, c->b, alpha);
-		glDrawArrays(GL_LINES, 0, 2);
-
-		glLineWidth(1.0f);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDisableVertexAttribArray(screen->attr_coords);
-		glUseProgram(0);
-		if(alpha < 1.0f)
-		{
-			glDisable(GL_BLEND);
-		}
-		glEnable(GL_SCISSOR_TEST);
-	}
+	a3d_hline_t* self = (a3d_hline_t*) widget;
+	a3d_widget_draw(self->line);
 }
 
 /***********************************************************
@@ -150,7 +146,10 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 
 	a3d_widgetPrivFn_t priv_fn =
 	{
-		.draw_fn = a3d_hline_draw,
+		.size_fn   = a3d_hline_size,
+		.layout_fn = a3d_hline_layout,
+		.drag_fn   = a3d_hline_drag,
+		.draw_fn   = a3d_hline_draw,
 	};
 
 	a3d_hline_t* self;
@@ -162,10 +161,28 @@ a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,
 		return NULL;
 	}
 
-	self->size = size;
-	a3d_vec4f_copy(color, &self->color);
+	// override the line properties
+	a3d_vec4f_copy(color, &style.color_body);
+	memset(&priv_fn, 0, sizeof(a3d_widgetPrivFn_t));
+	layout.stretchy = 0.15f;
 
+	self->line = a3d_widget_new(screen, 0, &layout,
+	                            &style, &scroll, &fn,
+	                            &priv_fn);
+	if(self->line == NULL)
+	{
+		goto fail_line;
+	}
+
+	a3d_widget_anchor(self->line, A3D_WIDGET_ANCHOR_CC);
+
+	// success
 	return self;
+
+	// failure
+	fail_line:
+		a3d_widget_delete((a3d_widget_t**) &self);
+	return NULL;
 }
 
 void a3d_hline_delete(a3d_hline_t** _self)
@@ -175,6 +192,7 @@ void a3d_hline_delete(a3d_hline_t** _self)
 	a3d_hline_t* self = *_self;
 	if(self)
 	{
+		a3d_widget_delete(&self->line);
 		a3d_widget_delete((a3d_widget_t**) _self);
 	}
 }

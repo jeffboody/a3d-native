@@ -194,60 +194,6 @@ static int a3d_shiftkeycode(int keycode, int meta)
 	return keycode;
 }
 
-static const GLfloat COORDS2[] =
-{
-	0.0f, 0.0f,   // left
-	1.0f, 1.0f,   // right
-};
-
-static const char* VSHADER =
-	"attribute vec2 coords;\n"
-	"uniform   mat4 mvp;\n"
-	"uniform   vec4 rect;\n"
-	"\n"
-	"void main()\n"
-	"{\n"
-	"	float t = rect.x;\n"
-	"	float l = rect.y;\n"
-	"	float w = rect.z;\n"
-	"	float h = rect.w;\n"
-	"	vec4  vertex = vec4(l + coords.x*w,\n"
-	"	                    t + coords.y*h,\n"
-	"	                    0.0, 1.0);\n"
-	"	gl_Position = mvp*vertex;\n"
-	"}\n";
-
-static const char* FSHADER =
-	"#ifdef GL_ES\n"
-	"precision mediump float;\n"
-	"precision mediump int;\n"
-	"#endif\n"
-	"\n"
-	"uniform vec4 color;\n"
-	"\n"
-	"void main()\n"
-	"{\n"
-	"	gl_FragColor = color;\n"
-	"}\n";
-
-static int a3d_screen_shaders(a3d_screen_t* self)
-{
-	assert(self);
-
-	self->prog = a3d_shader_make_source(VSHADER, FSHADER);
-	if(self->prog == 0)
-	{
-		return 0;
-	}
-
-	self->attr_coords = glGetAttribLocation(self->prog, "coords");
-	self->unif_mvp    = glGetUniformLocation(self->prog, "mvp");
-	self->unif_rect   = glGetUniformLocation(self->prog, "rect");
-	self->unif_color  = glGetUniformLocation(self->prog, "color");
-
-	return 1;
-}
-
 static int a3d_screen_compareTexFname(const void* a, const void* b)
 {
 	assert(a);
@@ -293,11 +239,6 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 		return NULL;
 	}
 
-	if(a3d_screen_shaders(self) == 0)
-	{
-		goto fail_shaders;
-	}
-
 	self->sprite_shader_alpha = a3d_spriteShader_new(A3D_SPRITESHADER_ALPHA);
 	if(self->sprite_shader_alpha == NULL)
 	{
@@ -338,12 +279,6 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	strncpy(self->resource, resource, 256);
 	self->resource[255] = '\0';
 
-	int coords_size = 4;   // 2*uv
-	glGenBuffers(1, &self->id_coords2);
-	glBindBuffer(GL_ARRAY_BUFFER, self->id_coords2);
-	glBufferData(GL_ARRAY_BUFFER, coords_size*sizeof(GLfloat),
-	             COORDS2, GL_STATIC_DRAW);
-
 	// success
 	return self;
 
@@ -353,8 +288,6 @@ a3d_screen_t* a3d_screen_new(const char* resource,
 	fail_sprite_shader_color:
 		a3d_spriteShader_delete(&self->sprite_shader_alpha);
 	fail_sprite_shader_alpha:
-		glDeleteProgram(self->prog);
-	fail_shaders:
 		free(self);
 	return NULL;
 }
@@ -371,9 +304,6 @@ void a3d_screen_delete(a3d_screen_t** _self)
 
 		a3d_spriteShader_delete(&self->sprite_shader_color);
 		a3d_spriteShader_delete(&self->sprite_shader_alpha);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glDeleteBuffers(1, &self->id_coords2);
-		glDeleteProgram(self->prog);
 		free(self);
 		*_self = NULL;
 	}

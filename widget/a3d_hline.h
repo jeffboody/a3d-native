@@ -38,9 +38,7 @@ typedef struct
 {
 	a3d_widget_t widget;
 
-	// hline properties
-	int         size;
-	a3d_vec4f_t color;
+	a3d_widget_t* line;
 } a3d_hline_t;
 
 a3d_hline_t* a3d_hline_new(a3d_screen_t* screen,

@@ -79,14 +79,6 @@ typedef struct a3d_screen_s
 	a3d_spriteShader_t* sprite_shader_alpha;
 	a3d_spriteShader_t* sprite_shader_color;
 	a3d_list_t*         sprite_list;
-
-	// fill state
-	GLuint id_coords2;
-	GLuint prog;
-	GLint  attr_coords;
-	GLint  unif_mvp;
-	GLint  unif_rect;
-	GLint  unif_color;
 } a3d_screen_t;
 
 a3d_screen_t*       a3d_screen_new(const char* resource,

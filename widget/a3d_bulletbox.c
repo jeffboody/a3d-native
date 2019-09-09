@@ -35,7 +35,7 @@
 * private                                                  *
 ***********************************************************/
 
-#define A3D_BULLETBOX_SPACE 1.5f
+#define A3D_BULLETBOX_SPACE 1.25f
 
 static void a3d_bulletbox_size(a3d_widget_t* widget,
                                float* w, float* h)
@@ -186,9 +186,13 @@ a3d_bulletbox_t* a3d_bulletbox_new(a3d_screen_t* screen,
 		wrap = A3D_WIDGET_WRAP_STRETCH_TEXT_SMALL;
 	}
 
+	// convert spacing to border
+	int spacing = text_style->spacing;
+	int border  = spacing | (spacing >> 4);
+
 	a3d_widgetLayout_t sprite_layout =
 	{
-		.border   = text_style->spacing,
+		.border   = border,
 		.wrapx    = wrap,
 		.wrapy    = wrap,
 		.aspectx  = A3D_WIDGET_ASPECT_SQUARE,

@@ -35,12 +35,14 @@ typedef struct
 	a3d_list_t*  list;
 } a3d_layer_t;
 
-a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
-                           int wsize,
-                           a3d_widgetLayout_t* layout,
-                           a3d_vec4f_t* color);
-void         a3d_layer_delete(a3d_layer_t** _self);
-void         a3d_layer_clear(a3d_layer_t* self);
-a3d_list_t*  a3d_layer_widgets(a3d_layer_t* self);
+a3d_layer_t*  a3d_layer_new(a3d_screen_t* screen,
+                            int wsize,
+                            a3d_widgetLayout_t* layout,
+                            a3d_vec4f_t* color);
+void          a3d_layer_delete(a3d_layer_t** _self);
+void          a3d_layer_clear(a3d_layer_t* self);
+int           a3d_layer_add(a3d_layer_t* self, int anchor,
+                            a3d_widget_t* widget);
+a3d_widget_t* a3d_layer_remove(a3d_layer_t* self);
 
 #endif

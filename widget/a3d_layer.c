@@ -172,19 +172,6 @@ a3d_layer_refresh(a3d_widget_t* widget, void* priv)
 	}
 }
 
-static void a3d_layer_notify(void* owner, a3d_listitem_t* item)
-{
-	assert(owner);
-	assert(item);
-
-	a3d_widget_t* self = (a3d_widget_t*) owner;
-	a3d_screen_dirty(self->screen);
-
-	a3d_widget_t* widget;
-	widget = (a3d_widget_t*) a3d_list_peekitem(item);
-	a3d_widget_scrollTop(widget);
-}
-
 /***********************************************************
 * public                                                   *
 ***********************************************************/
@@ -248,12 +235,6 @@ a3d_layer_t* a3d_layer_new(a3d_screen_t* screen,
 		goto fail_list;
 	}
 
-	a3d_list_notify(self->list,
-	                (void*) self,
-	                a3d_layer_notify,
-	                a3d_layer_notify,
-	                a3d_layer_notify);
-
 	// success
 	return self;
 
@@ -284,9 +265,38 @@ void a3d_layer_clear(a3d_layer_t* self)
 	a3d_screen_dirty(widget->screen);
 }
 
-a3d_list_t* a3d_layer_widgets(a3d_layer_t* self)
+int a3d_layer_add(a3d_layer_t* self, int anchor,
+                  a3d_widget_t* widget)
+{
+	assert(self);
+	assert(widget);
+
+	if(a3d_list_append(self->list, NULL,
+	                   (const void*) widget) == 0)
+	{
+		return 0;
+	}
+
+	a3d_screen_dirty(widget->screen);
+	a3d_widget_scrollTop(widget);
+	a3d_widget_anchor(widget, anchor);
+
+	return 1;
+}
+
+a3d_widget_t* a3d_layer_remove(a3d_layer_t* self)
 {
 	assert(self);
 
-	return self->list;
+	a3d_widget_t* widget = (a3d_widget_t*) self;
+	a3d_screen_dirty(widget->screen);
+
+	a3d_listitem_t* iter = a3d_list_tail(self->list);
+	if(iter)
+	{
+		return (a3d_widget_t*)
+		       a3d_list_remove(self->list, &iter);
+	}
+
+	return NULL;
 }

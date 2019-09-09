@@ -56,10 +56,9 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	}
 
 	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
-	a3d_list_t*    widgets = a3d_listbox_widgets(listbox);
-	if(a3d_list_enqueue(widgets, (const void*) text) == 0)
+	if(a3d_listbox_add(listbox, (a3d_widget_t*) text) == 0)
 	{
-		goto fail_enqueue;
+		goto fail_add;
 	}
 
 	a3d_text_printf(text, "%s", string);
@@ -68,7 +67,7 @@ static void a3d_textbox_printText(a3d_textbox_t* self,
 	return;
 
 	// failure
-	fail_enqueue:
+	fail_add:
 		a3d_text_delete(&text);
 }
 
@@ -126,6 +125,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	assert(widget);
 
 	a3d_textbox_t*   self       = (a3d_textbox_t*) widget;
+	a3d_listbox_t*   listbox    = (a3d_listbox_t*) self;
 	a3d_textStyle_t* text_style = &self->text_style;
 
 	// subtract the spacing which is added when
@@ -156,14 +156,13 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	float       height = (float) a3d_font_height(font);
 
 	// clear the text
-	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
-	a3d_list_t*     widgets = a3d_listbox_widgets(listbox);
-	a3d_listitem_t* iter    = a3d_list_head(widgets);
-	while(iter)
+	a3d_text_t* text;
+	text = (a3d_text_t*) a3d_listbox_remove(listbox);
+	while(text)
 	{
-		a3d_text_t* text;
-		text = (a3d_text_t*) a3d_list_remove(widgets, &iter);
 		a3d_text_delete(&text);
+		text = (a3d_text_t*)
+		       a3d_listbox_remove(listbox);
 	}
 
 	// initialize parser
@@ -176,7 +175,7 @@ static void a3d_textbox_reflow(a3d_widget_t* widget,
 	int  type = A3D_TOKEN_END;
 
 	// reflow the string(s)
-	iter = a3d_list_head(self->strings);
+	a3d_listitem_t* iter = a3d_list_head(self->strings);
 	while(iter)
 	{
 		const char* src = (const char*) a3d_list_peekitem(iter);
@@ -330,17 +329,19 @@ void a3d_textbox_clear(a3d_textbox_t* self)
 {
 	assert(self);
 
-	a3d_listbox_t*  listbox = (a3d_listbox_t*) self;
-	a3d_list_t*     widgets = a3d_listbox_widgets(listbox);
-	a3d_listitem_t* iter    = a3d_list_head(widgets);
-	while(iter)
+	a3d_listbox_t* listbox = (a3d_listbox_t*) self;
+
+	// clear the text
+	a3d_text_t* text;
+	text = (a3d_text_t*) a3d_listbox_remove(listbox);
+	while(text)
 	{
-		a3d_text_t* text;
-		text = (a3d_text_t*) a3d_list_remove(widgets, &iter);
 		a3d_text_delete(&text);
+		text = (a3d_text_t*)
+		       a3d_listbox_remove(listbox);
 	}
 
-	iter = a3d_list_head(self->strings);
+	a3d_listitem_t* iter = a3d_list_head(self->strings);
 	while(iter)
 	{
 		void* string = (void*) a3d_list_remove(self->strings, &iter);

@@ -497,7 +497,7 @@ A3D_GLVOIDFUNC(void, glRenderbufferStorage, (GLenum target, GLenum internalforma
 A3D_GLVOIDFUNC(void, glSampleCoverage, (GLclampf value, GLboolean invert), (value, invert))
 A3D_GLVOIDFUNC(void, glScissor, (GLint x, GLint y, GLsizei width, GLsizei height), (x, y, width, height))
 A3D_GLVOIDFUNC(void, glShaderBinary, (GLsizei n, const GLuint* shaders, GLenum binaryformat, const void* binary, GLsizei length), (n, shaders, binaryformat, binary, length))
-A3D_GLVOIDFUNC(void, glShaderSource, (GLuint shader, GLsizei count, const char** string, const GLint* length), (shader, count, string, length))
+A3D_GLVOIDFUNC(void, glShaderSource, (GLuint shader, GLsizei count, const GLchar * const *string, const GLint* length), (shader, count, string, length))
 A3D_GLVOIDFUNC(void, glStencilFunc, (GLenum func, GLint ref, GLuint mask), (func, ref, mask))
 A3D_GLVOIDFUNC(void, glStencilFuncSeparate, (GLenum face, GLenum func, GLint ref, GLuint mask), (face, func, ref, mask))
 A3D_GLVOIDFUNC(void, glStencilMask, (GLuint mask), (mask))

@@ -30,7 +30,7 @@
 	#define A3D_GLESv2
 	#include <loax/gl2.h>
 #elif defined(A3D_GLESv2)
-	#include <GLES2/gl2.h>
+	#include "GLES2/gl2.h"
 #elif defined(A3D_GL2)
 	#include <GL/glew.h>
 	#include <GL/gl.h>
